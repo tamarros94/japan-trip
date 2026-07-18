@@ -506,7 +506,7 @@
   <input type="text" id="search" placeholder="חיפוש שם מקום, או מילה מההערה...">
   <div class="ai-search-row">
     <button type="button" class="ai-toggle-btn" id="aiToggleBtn">🤖 חיפוש חכם (AI)</button>
-    <span class="ai-hint" id="aiHint">שאלי בשפה חופשית, למשל "מקום איזאקאיה זול ולא תיירותי בשינג'וקו"</span>
+    <span class="ai-hint" id="aiHint">שאלי בשפה חופשית ולחצי Enter, למשל "מקום איזאקאיה זול ולא תיירותי בשינג'וקו"</span>
   </div>
   <div class="ai-banner" id="aiBanner" style="display:none;"></div>
   <div class="sort-filter-row">
@@ -662,30 +662,43 @@ function chooseSelectOption(key, value) {
 }
 
 let searchDebounceTimer = null;
-document.getElementById('search').addEventListener('input', e => {
+const searchInputEl = document.getElementById('search');
+
+searchInputEl.addEventListener('input', e => {
   const val = e.target.value;
-  clearTimeout(searchDebounceTimer);
-  searchDebounceTimer = setTimeout(() => {
+  if (aiMode) {
+    // In AI mode we don't want to call the AI on every keystroke (costs tokens).
+    // Just keep the raw query around; the actual AI call only fires on Enter.
     query = val.trim().toLowerCase();
-    if (aiMode) {
-      if (query.length >= 3) runAiSearch(query);
-      else { aiKeywords = []; aiCategoryHint = null; aiCityHint = null; aiExplanation = ""; hideAiBanner(); render(); }
-    } else {
-      render();
-    }
-  }, aiMode ? 500 : 200);
+    return;
+  }
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => { query = val.trim().toLowerCase(); render(); }, 200);
+});
+
+searchInputEl.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || !aiMode) return;
+  e.preventDefault();
+  const val = e.target.value.trim();
+  query = val.toLowerCase();
+  if (val.length >= 2) {
+    runAiSearch(val);
+  } else {
+    aiKeywords = []; aiCategoryHint = null; aiCityHint = null; aiExplanation = "";
+    hideAiBanner();
+    render();
+  }
 });
 
 document.getElementById('aiToggleBtn').addEventListener('click', function() {
   aiMode = !aiMode;
   this.classList.toggle('active', aiMode);
-  document.getElementById('search').placeholder = aiMode
-    ? 'שאלי בשפה חופשית... (למשל: מקום שקט לקפה בקיוטו)'
+  searchInputEl.placeholder = aiMode
+    ? 'שאלי בשפה חופשית ולחצי Enter... (למשל: מקום שקט לקפה בקיוטו)'
     : 'חיפוש שם מקום, או מילה מההערה...';
   aiKeywords = []; aiCategoryHint = null; aiCityHint = null; aiExplanation = "";
   hideAiBanner();
-  if (aiMode && query.length >= 3) runAiSearch(query);
-  else render();
+  render();
 });
 
 function showAiBanner(html, isError) {
