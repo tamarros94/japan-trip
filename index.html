@@ -851,11 +851,15 @@ const SELECT_DATA = {
   }
 };
 
+function htmlAttrEscape(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
 function openSelectSheet(key) {
   const cfg = SELECT_DATA[key];
   const sheet = document.getElementById('selectSheet');
   sheet.innerHTML = '<h4>' + esc(cfg.label) + '</h4>' + cfg.options.map(function(o) {
-    return '<div class="select-option' + (o[0] === cfg.current ? ' selected' : '') + '" onclick="chooseSelectOption(\'' + key + '\', ' + JSON.stringify(o[0]) + ')">' + esc(o[1]) + '</div>';
+    return '<div class="select-option' + (o[0] === cfg.current ? ' selected' : '') + '" onclick="chooseSelectOption(\'' + key + '\', ' + htmlAttrEscape(JSON.stringify(o[0])) + ')">' + esc(o[1]) + '</div>';
   }).join('');
   sheet.classList.add('open');
   document.querySelector('.drawer-overlay').classList.add('open');
