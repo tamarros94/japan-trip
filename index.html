@@ -286,6 +286,13 @@
   .it-warning-box { background: rgba(224,140,90,0.12); border-right: 3px solid #e08c5a; border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.74rem; color: #f0b993; line-height: 1.55; }
   .it-warning-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.62rem; font-weight: 600; color: #e08c5a; margin-bottom: 0.3rem; }
   .it-ok-box { background: rgba(110,231,168,0.1); border-right: 3px solid var(--green); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.74rem; color: var(--green); line-height: 1.5; }
+
+  .it-export-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0.5rem; }
+  .it-export-btn { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; padding: 0.6rem 0.7rem; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; text-align: center; }
+  .it-export-btn:active { transform: translate(1px,1px); }
+  .it-export-note { font-size: 0.7rem; color: var(--muted); margin: 0.3rem 0 0.8rem; line-height: 1.5; }
+  .it-export-note a { color: var(--accent); }
+  .it-export-note.it-export-ok { color: var(--green); }
 </style>
 </head>
 <body>
@@ -821,6 +828,14 @@
     <div id="itinSummaryList"></div>
     <div class="it-summary-total" id="itinSummaryTotal"></div>
     <div id="itinSummaryWarnings"></div>
+
+    <div class="it-section-label">📤 ייצוא</div>
+    <div class="it-export-row">
+      <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
+      <button type="button" class="it-export-btn" onclick="itinExportText()">📋 העתקת המסלול כטקסט</button>
+    </div>
+    <div id="itinExportNote"></div>
+
     <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
     <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
   </div>
@@ -1503,22 +1518,56 @@ const ITIN_DESTINATIONS = [
 const ITIN_CONTINUATIONS = {
   'Tokyo': ['Hakone','Kyoto','Kamakura','Nikko','Izu Peninsula','Fukuoka (Kyushu)','Kanazawa + Takayama','Nagano/Japan Alps','Osaka','Hiroshima + Miyajima','Okinawa (Naha)','Hokkaido (Sapporo)','Gunma (Kusatsu/Ikaho)','Yokohama','Shimokitazawa/Koenji','Kawagoe','Sendai + Matsushima','Ginzan Onsen'],
   'Kyoto': ['Osaka','Nara','Kobe + Arima Onsen','Himeji','Kanazawa + Takayama','Hiroshima + Miyajima','Koyasan','Ise-Shima','Nagoya'],
-  'Osaka': ['Kyoto','Kobe + Arima Onsen','Nara','Himeji','Fukuoka (Kyushu)','Naoshima (אי האמנות)','Koyasan','Okayama + Kurashiki'],
-  'Fukuoka (Kyushu)': ['Nagasaki','Kumamoto + Aso','Yufuin','Beppu','Kurokawa Onsen','Kitsuki','Kagoshima','Miyazaki'],
+  'Osaka': ['Kyoto','Kobe + Arima Onsen','Nara','Himeji','Fukuoka (Kyushu)','Naoshima (אי האמנות)','Koyasan','Okayama + Kurashiki','Tokyo'],
+  'Fukuoka (Kyushu)': ['Nagasaki','Kumamoto + Aso','Yufuin','Beppu','Kurokawa Onsen','Kitsuki','Kagoshima','Miyazaki','Hiroshima + Miyajima','Osaka'],
   'Hiroshima + Miyajima': ['Kyoto','Osaka','Fukuoka (Kyushu)','Okayama + Kurashiki'],
   'Hokkaido (Sapporo)': ['Otaru','Furano + Biei','Hakodate','Niseko','Asahikawa'],
   'Kanazawa + Takayama': ['Shirakawa-go','Kyoto','Nagano/Japan Alps','Magome + Tsumago'],
-  'Nagano/Japan Alps': ['Kanazawa + Takayama','Tokyo','Magome + Tsumago'],
+  'Nagano/Japan Alps': ['Kanazawa + Takayama','Tokyo','Magome + Tsumago','Gunma (Kusatsu/Ikaho)'],
   'Naoshima (אי האמנות)': ['Takamatsu','Okayama + Kurashiki'],
-  'Okayama + Kurashiki': ['Naoshima (אי האמנות)','Hiroshima + Miyajima','Osaka'],
-  'Takamatsu': ['Matsuyama (Dogo Onsen)','Naoshima (אי האמנות)'],
-  'Matsuyama (Dogo Onsen)': ['Iya Valley','Takamatsu'],
-  'Kumamoto + Aso': ['Kurokawa Onsen','Kagoshima','Fukuoka (Kyushu)'],
+  'Okayama + Kurashiki': ['Naoshima (אי האמנות)','Hiroshima + Miyajima','Osaka','Takamatsu','Himeji'],
+  'Takamatsu': ['Matsuyama (Dogo Onsen)','Naoshima (אי האמנות)','Okayama + Kurashiki','Iya Valley'],
+  'Matsuyama (Dogo Onsen)': ['Iya Valley','Takamatsu','Beppu'],
+  'Kumamoto + Aso': ['Kurokawa Onsen','Kagoshima','Fukuoka (Kyushu)','Nagasaki'],
   'Yufuin': ['Beppu','Kurokawa Onsen'],
-  'Beppu': ['Yufuin','Kitsuki'],
+  'Beppu': ['Yufuin','Kitsuki','Matsuyama (Dogo Onsen)'],
   'Sendai + Matsushima': ['Ginzan Onsen','Tokyo'],
   'Okinawa (Naha)': ['Ishigaki + Miyako'],
-  'Nagoya': ['Kyoto','Kanazawa + Takayama','Magome + Tsumago'],
+  'Nagoya': ['Kyoto','Kanazawa + Takayama','Magome + Tsumago','Ise-Shima'],
+
+  // The entries below used to have no outgoing edges at all, which meant
+  // reaching any of them was an automatic dead end regardless of whether a
+  // sensible next stop existed nearby. These fill in real, geographically
+  // reasonable onward options so a dead end becomes the rare exception
+  // rather than the default for roughly two-thirds of all destinations.
+  'Asahikawa': ['Furano + Biei','Hokkaido (Sapporo)','Otaru'],
+  'Furano + Biei': ['Asahikawa','Hokkaido (Sapporo)'],
+  'Ginzan Onsen': ['Sendai + Matsushima','Tokyo'],
+  'Gunma (Kusatsu/Ikaho)': ['Tokyo','Nagano/Japan Alps','Nikko'],
+  'Hakodate': ['Otaru','Hokkaido (Sapporo)','Niseko'],
+  'Hakone': ['Tokyo','Izu Peninsula','Kyoto','Kamakura'],
+  'Himeji': ['Osaka','Kyoto','Okayama + Kurashiki','Hiroshima + Miyajima','Kobe + Arima Onsen'],
+  'Ise-Shima': ['Nagoya','Kyoto','Osaka'],
+  'Ishigaki + Miyako': ['Okinawa (Naha)'],
+  'Iya Valley': ['Takamatsu','Matsuyama (Dogo Onsen)'],
+  'Izu Peninsula': ['Tokyo','Hakone'],
+  'Kagoshima': ['Fukuoka (Kyushu)','Kumamoto + Aso','Miyazaki'],
+  'Kamakura': ['Tokyo','Yokohama','Hakone'],
+  'Kawagoe': ['Tokyo'],
+  'Kitsuki': ['Beppu','Fukuoka (Kyushu)','Kumamoto + Aso','Matsuyama (Dogo Onsen)'],
+  'Kobe + Arima Onsen': ['Osaka','Kyoto','Himeji'],
+  'Koyasan': ['Osaka','Kyoto','Nara'],
+  'Kurokawa Onsen': ['Kumamoto + Aso','Yufuin','Fukuoka (Kyushu)'],
+  'Magome + Tsumago': ['Kanazawa + Takayama','Nagoya','Nagano/Japan Alps'],
+  'Miyazaki': ['Fukuoka (Kyushu)','Kagoshima','Beppu'],
+  'Nagasaki': ['Fukuoka (Kyushu)','Kumamoto + Aso'],
+  'Nara': ['Kyoto','Osaka','Himeji','Koyasan'],
+  'Nikko': ['Tokyo','Gunma (Kusatsu/Ikaho)'],
+  'Niseko': ['Hokkaido (Sapporo)','Hakodate','Otaru'],
+  'Otaru': ['Hokkaido (Sapporo)','Niseko','Asahikawa'],
+  'Shimokitazawa/Koenji': ['Tokyo'],
+  'Shirakawa-go': ['Kanazawa + Takayama','Nagoya'],
+  'Yokohama': ['Tokyo','Kamakura'],
 };
 
 
@@ -1572,7 +1621,26 @@ function itinInitMap() {
 function itinGetCandidates() {
   const currentStop = itinRoute[itinRoute.length - 1];
   const names = ITIN_CONTINUATIONS[currentStop] || [];
-  return names.map(n => ITIN_DESTINATIONS.find(d => d.name === n)).filter(d => d && !itinUsedNames.has(d.name));
+  const curated = names.map(n => ITIN_DESTINATIONS.find(d => d.name === n)).filter(d => d && !itinUsedNames.has(d.name));
+  if (curated.length > 0) return curated;
+
+  // Safety net: the curated graph above is hand-written and may miss an
+  // edge for some destination. Rather than let that be a hard dead end,
+  // fall back to the nearest unused destinations by straight-line distance.
+  const current = ITIN_DESTINATIONS.find(d => d.name === currentStop);
+  if (!current) return [];
+  return ITIN_DESTINATIONS
+    .filter(d => d.name !== currentStop && !itinUsedNames.has(d.name))
+    .map(d => ({ d, km: itinHaversineKm(current.lat, current.lng, d.lat, d.lng) }))
+    .sort((a, b) => a.km - b.km)
+    .slice(0, 5)
+    .map(x => x.d);
+}
+
+function itinIsCuratedCandidates() {
+  const currentStop = itinRoute[itinRoute.length - 1];
+  const names = ITIN_CONTINUATIONS[currentStop] || [];
+  return names.map(n => ITIN_DESTINATIONS.find(d => d.name === n)).filter(d => d && !itinUsedNames.has(d.name)).length > 0;
 }
 
 function itinGetReturnOptions() {
@@ -1746,10 +1814,18 @@ function itinRenderDestinations() {
   const listEl = document.getElementById('itinDestList');
   listEl.innerHTML = '';
   const candidates = itinGetCandidates();
+  const isCurated = itinIsCuratedCandidates();
   const returnOptions = itinGetReturnOptions();
   const currentName = itinRoute[itinRoute.length - 1];
   const currentDest = ITIN_DESTINATIONS.find(x => x.name === currentName);
   const fromOpts = currentDest ? { fromLat: currentDest.lat, fromLng: currentDest.lng, fromName: currentDest.name } : {};
+
+  if (!isCurated && candidates.length > 0) {
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'it-fallback-note';
+    noteDiv.textContent = '📍 אין עדיין המלצת המשך ערוכה מכאן, אז אלה 5 היעדים הקרובים ביותר במרחק קו אווירי:';
+    listEl.appendChild(noteDiv);
+  }
 
   if (returnOptions.length > 0) {
     const returnWrap = document.createElement('div');
@@ -1982,6 +2058,7 @@ function itinAnalyzeRoute() {
 }
 
 function itinShowSummary() {
+  document.getElementById('itinExportNote').innerHTML = '';
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
   const listEl = document.getElementById('itinSummaryList');
   let totalDays = 0;
@@ -2016,6 +2093,123 @@ function itinBackToEditing() {
   document.getElementById('itinSummaryScreen').style.display = 'none';
   document.getElementById('itinMainScreen').style.display = 'block';
   if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
+}
+
+// --- Export: Google Maps + plain text ---
+// Google Maps' consumer directions link (the /maps/dir/?api=1 form) becomes
+// unreliable past roughly 10 stops (origin + destination + up to 8
+// waypoints), so a long route is split into consecutive links, each one
+// picking up where the last left off.
+const ITIN_MAX_STOPS_PER_MAPS_LINK = 10;
+
+// Raw lat/lng points get reverse-geocoded by Google Maps to whatever the
+// nearest indexed address happens to be (a random cafe, a city hall...),
+// which is why the exported link showed confusing/duplicate labels instead
+// of the city names. Sending a clean, unambiguous place-name query per stop
+// instead fixes that. Compound entries (e.g. "Fukuoka (Kyushu)") get mapped
+// to their real anchor city/place here; anything not listed falls back to
+// "<name>, Japan".
+const ITIN_MAPS_QUERY_OVERRIDES = {
+  'Fukuoka (Kyushu)': 'Fukuoka, Japan',
+  'Furano + Biei': 'Furano, Japan',
+  'Gunma (Kusatsu/Ikaho)': 'Kusatsu Onsen, Japan',
+  'Hiroshima + Miyajima': 'Hiroshima, Japan',
+  'Hokkaido (Sapporo)': 'Sapporo, Japan',
+  'Ise-Shima': 'Ise, Japan',
+  'Ishigaki + Miyako': 'Ishigaki, Japan',
+  'Izu Peninsula': 'Izu, Japan',
+  'Kanazawa + Takayama': 'Kanazawa, Japan',
+  'Kobe + Arima Onsen': 'Kobe, Japan',
+  'Kumamoto + Aso': 'Kumamoto, Japan',
+  'Magome + Tsumago': 'Magome, Japan',
+  'Matsuyama (Dogo Onsen)': 'Dogo Onsen, Matsuyama, Japan',
+  'Nagano/Japan Alps': 'Nagano, Japan',
+  'Naoshima (אי האמנות)': 'Naoshima, Japan',
+  'Okayama + Kurashiki': 'Okayama, Japan',
+  'Okinawa (Naha)': 'Naha, Okinawa, Japan',
+  'Sendai + Matsushima': 'Sendai, Japan',
+  'Shimokitazawa/Koenji': 'Shimokitazawa, Tokyo, Japan',
+  'Tokyo': 'Tokyo Station, Japan',
+};
+
+function itinMapsQueryFor(d) {
+  return ITIN_MAPS_QUERY_OVERRIDES[d.name] || (d.name + ', Japan');
+}
+
+function itinBuildMapsLinks(stops) {
+  if (stops.length < 2) return [];
+  const links = [];
+  let i = 0;
+  while (i < stops.length - 1) {
+    const chunk = stops.slice(i, i + ITIN_MAX_STOPS_PER_MAPS_LINK);
+    const origin = chunk[0];
+    const destination = chunk[chunk.length - 1];
+    const waypoints = chunk.slice(1, -1);
+    let url = 'https://www.google.com/maps/dir/?api=1'
+      + '&origin=' + encodeURIComponent(itinMapsQueryFor(origin))
+      + '&destination=' + encodeURIComponent(itinMapsQueryFor(destination));
+    if (waypoints.length > 0) {
+      url += '&waypoints=' + waypoints.map(w => encodeURIComponent(itinMapsQueryFor(w))).join('|');
+    }
+    url += '&travelmode=driving';
+    links.push({ url, from: origin.name, to: destination.name });
+    // Next chunk starts from this chunk's last stop, so the legs connect.
+    i += ITIN_MAX_STOPS_PER_MAPS_LINK - 1;
+  }
+  return links;
+}
+
+function itinExportToMaps() {
+  const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
+  const noteEl = document.getElementById('itinExportNote');
+  if (stops.length < 2) {
+    noteEl.className = 'it-export-note';
+    noteEl.textContent = 'צריך לפחות שתי תחנות במסלול כדי לפתוח מסלול ניווט.';
+    return;
+  }
+  const links = itinBuildMapsLinks(stops);
+  window.open(links[0].url, '_blank');
+  if (links.length === 1) {
+    noteEl.className = 'it-export-note it-export-ok';
+    noteEl.textContent = '✓ נפתח ב-Google Maps בלשונית חדשה.';
+  } else {
+    noteEl.className = 'it-export-note';
+    noteEl.innerHTML = 'Google Maps מוגבל למסלול של כ-10 תחנות בקישור אחד, אז המסלול פוצל ל-' + links.length + ' קישורים ברצף. הראשון נפתח עכשיו (' + links[0].from + ' ← ' + links[0].to + ').<br>' +
+      'שאר הקטעים: ' + links.slice(1).map((l, idx) => '<a href="' + l.url + '" target="_blank">קטע ' + (idx + 2) + ': ' + l.from + ' ← ' + l.to + '</a>').join(' · ');
+  }
+}
+
+function itinBuildExportText() {
+  const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
+  const lines = ['המסלול שלי ליפן:'];
+  let totalDays = 0;
+  stops.forEach((d, i) => {
+    const days = itinGetDays(d);
+    totalDays += days;
+    lines.push((i + 1) + '. ' + d.name + ' — ' + days + ' ימים');
+  });
+  const analysis = itinAnalyzeRoute();
+  lines.push('');
+  lines.push('סה"כ: ' + stops.length + ' תחנות, כ-' + totalDays + ' ימים, כ-' + analysis.totalKm + ' ק"מ קו אווירי בין התחנות.');
+  return lines.join('\\n');
+}
+
+function itinExportText() {
+  const text = itinBuildExportText();
+  const noteEl = document.getElementById('itinExportNote');
+  const showOk = () => {
+    noteEl.className = 'it-export-note it-export-ok';
+    noteEl.textContent = '✓ המסלול הועתק ללוח, אפשר להדביק בכל מקום (וואטסאפ, פתק וכו׳).';
+  };
+  const showFail = () => {
+    noteEl.className = 'it-export-note';
+    noteEl.innerHTML = 'לא הצלחתי להעתיק אוטומטית. הטקסט:<br><textarea readonly style="width:100%; height:100px; margin-top:0.3rem; font-size:0.7rem; background:var(--surface); color:var(--ink); border:2px solid var(--border); border-radius:6px;">' + text.replace(/</g, '&lt;') + '</textarea>';
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showOk).catch(showFail);
+  } else {
+    showFail();
+  }
 }
 
 </script>
