@@ -225,6 +225,7 @@
   .it-stop-editor-close { margin-top: 0.5rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; background: var(--green); color: #12261c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer; }
   .it-route-stop .it-x { cursor: pointer; opacity: 0.7; font-size: 0.85rem; }
   .it-route-stop .it-lock { cursor: pointer; opacity: 0.7; font-size: 0.8rem; }
+  .it-route-stop .it-move { cursor: pointer; opacity: 0.7; font-size: 0.7rem; padding: 0 2px; }
   .it-route-stop-locked { border-color: var(--accent); background: rgba(255,209,102,0.1); }
   .it-route-arrow { color: var(--muted); flex-shrink: 0; }
   .it-route-summary { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.8rem; }
@@ -268,6 +269,7 @@
 
   .it-top-actions { display: flex; gap: 6px; margin-bottom: 0.7rem; }
   .it-top-btn { flex: 1; font-family: var(--pixel); font-size: 0.65rem; padding: 0.5rem 0.4rem; border-radius: 8px; cursor: pointer; text-align: center; }
+  .it-undo-btn { display: block; width: 100%; margin: 0.5rem 0; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; background: transparent; border: 1px dashed var(--muted); color: var(--muted); border-radius: 7px; padding: 0.4rem; cursor: pointer; }
   .it-top-btn.it-reset-top { background: none; border: 2px dashed var(--border); color: var(--muted); }
   .it-top-btn.it-finish-top { background: var(--accent); border: 2px solid var(--accent); color: #2a1d0f; font-weight: 700; }
 
@@ -315,6 +317,11 @@
   .it-summary-connector b { color: var(--ink); }
   .it-summary-connector .it-no-direct { color: #e08c5a; }
   .it-character-box { background: rgba(125,211,252,0.06); border-right: 3px solid #7dd3fc; border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.76rem; color: #cfe9f7; line-height: 1.6; }
+  .it-character-live { font-size: 0.72rem; opacity: 0.9; margin: 0.5rem 0; }
+  .it-progress-label { font-size: 0.7rem; color: var(--muted); margin: 0.3rem 0 0.2rem; }
+  .it-progress-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 5px; overflow: hidden; }
+  .it-progress-fill { height: 100%; background: var(--green); border-radius: 5px; transition: width 0.3s ease; }
+  .it-progress-fill.it-progress-over { background: #e08c5a; }
   .it-character-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.65rem; font-weight: 700; color: #7dd3fc; margin-bottom: 0.3rem; }
   .it-ai-box { margin-bottom: 0.5rem; }
   .it-ai-details { margin: 0.8rem 0; }
@@ -340,6 +347,12 @@
   .it-mode-btn:hover { border-color: var(--accent); }
   .it-mode-btn-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--ink); margin-bottom: 0.3rem; }
   .it-mode-btn-sub { font-size: 0.74rem; color: var(--muted); line-height: 1.4; }
+  .it-template-card { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 0.8rem 0.9rem; margin-bottom: 0.8rem; }
+  .it-template-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--accent); margin-bottom: 0.3rem; }
+  .it-template-sub { font-size: 0.74rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.5rem; }
+  .it-template-route { font-size: 0.7rem; color: var(--ink); background: rgba(0,0,0,0.15); border-radius: 6px; padding: 0.4rem 0.5rem; margin-bottom: 0.4rem; }
+  .it-template-meta { font-size: 0.7rem; color: var(--green); margin-bottom: 0.6rem; }
+  .it-template-use-btn { display: block; width: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: var(--green); color: #12261c; border: none; border-radius: 7px; padding: 0.55rem; cursor: pointer; }
   .it-quiz-visited-chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem; }
   .it-quiz-visited-chip { font-size: 0.68rem; background: rgba(224,140,90,0.15); border: 1px solid #e08c5a; color: #f0b993; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; }
   .it-quiz-visited-result-btn { display: block; width: 100%; text-align: right; font-size: 0.72rem; background: var(--surface); border: 1px solid var(--border); color: var(--ink); border-radius: 6px; padding: 0.4rem 0.6rem; margin-top: 0.3rem; cursor: pointer; }
@@ -861,11 +874,29 @@
       <div class="it-mode-btn-title">📝 שאלון קצר, ואנחנו בונים טיוטה</div>
       <div class="it-mode-btn-sub">עונים על כמה שאלות, ומקבלים מסלול מלא שאפשר לערוך אחר כך</div>
     </button>
+    <button type="button" class="it-mode-btn" onclick="itinChooseMode('templates')">
+      <div class="it-mode-btn-title">✨ מסלול מוכן כנקודת התחלה</div>
+      <div class="it-mode-btn-sub">כמה תבניות שמישהו כבר תכנן, לוקחים אחת ומעדכנים אותה לפי הטעם שלכם</div>
+    </button>
+  </div>
+
+  <div id="itinTemplatesScreen" style="display:none;">
+    <div class="it-section-label">✨ בחרו מסלול כנקודת התחלה</div>
+    <div class="it-quiz-sub">כל תבנית היא מסלול אמיתי ומקושר, אבל היא רק התחלה, אפשר לשנות, להוסיף ולהוריד תחנות אחר כך בדיוק כמו בבנייה ידנית.</div>
+    <div id="itinTemplatesList"></div>
+    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
   </div>
 
   <div id="itinStartScreen" style="display:none;">
     <div class="it-section-label">מאיפה מתחילים? (שער כניסה בינלאומי)</div>
     <div id="itinStartCards"></div>
+    <div class="it-section-label">יעד לילות כולל (לא חובה, למד התקדמות חי)</div>
+    <div class="it-quiz-nights-row">
+      <button type="button" class="it-night-btn" onclick="itinManualTargetAdjust(-1)">−</button>
+      <span class="it-quiz-nights-value" id="itinManualTargetValue">-</span>
+      <button type="button" class="it-night-btn" onclick="itinManualTargetAdjust(1)">+</button>
+      <button type="button" class="it-quiz-back-btn" style="width:auto; margin:0; padding:0.4rem 0.7rem;" onclick="itinManualTargetClear()">נקו</button>
+    </div>
     <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
   </div>
 
@@ -927,6 +958,7 @@
       <button type="button" class="it-top-btn it-reset-top" onclick="itinResetRoute()">↺ התחלה חדשה</button>
       <button type="button" class="it-top-btn it-finish-top" onclick="itinShowSummary()">✓ סיום וניתוח מסלול</button>
     </div>
+    <div id="itinUndoBtnWrap"></div>
 
     <div class="it-map-wrap"><div id="itinMap"></div></div>
 
@@ -953,6 +985,8 @@
     <div class="it-section-label">המסלול שלכם</div>
     <div class="it-route-strip" id="itinRouteStrip"></div>
     <div class="it-route-summary" id="itinRouteSummary"></div>
+    <div id="itinLiveProgressBar"></div>
+    <div id="itinLiveCharacter"></div>
     <div id="itinStopEditorBox"></div>
     <div id="itinOptimizationBox"></div>
 
@@ -1612,7 +1646,7 @@ render();
 /* === מסלולים (itinerary builder) === */
 
 const ITIN_WHO_OPTIONS = ['סולו', 'זוג', 'משפחה + ילדים גדולים', 'משפחה + פעוטות', 'נגישות'];
-const ITIN_WHAT_OPTIONS = ['אוכל', 'הייקינג/טבע', 'מוזיקה', 'ערים', 'קניות', "צ'יל/onsen", 'רואדטריפ', 'חיי לילה'];
+const ITIN_WHAT_OPTIONS = ['אוכל', 'הייקינג/טבע', 'מוזיקה', 'ערים', 'קניות', "צ'יל/onsen", 'רואדטריפ', 'חיי לילה', 'בטן גב'];
 const ITIN_REGION_OPTIONS = ['קנטו', 'טוהוקו', "צ'ובו", 'קנסאי', "צ'וגוקו", 'שיקוקו', 'קיושו', 'הוקאידו', 'אוקינאווה'];
 const ITIN_SEASON_OPTIONS = ['אביב', 'קיץ', 'סתיו', 'חורף'];
 const ITIN_SEASON_EMOJI = { 'אביב': '🌸', 'קיץ': '☀️', 'סתיו': '🍁', 'חורף': '❄️' };
@@ -1727,7 +1761,7 @@ const ITIN_DESTINATIONS = [
   { name: 'Nara', lat: 34.6851, lng: 135.8048, nights: 'טיול יום', region: 'קנסאי', who: ['סולו','משפחה + פעוטות'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'איילים חופשיים שממש מתקרבים אליכם, קומפקטית וקלה להליכה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן בפארק נארה פורחים בדרך כלל בתחילת אפריל, יחד עם האיילים זה שילוב פופולרי במיוחד.' }, homeCityKey: 'נארה (Nara)', homeCount: 1 , vibe: { text: 'חוויה דו-קוטבית: האיילים המקדים בקידה מרגש, אבל ליד הכניסה הם יכולים להיות תוקפניים ויש הרבה גללים בשטח. עצה חוזרת: להיכנס עמוק לפארק או להגיע מוקדם.', source: 'TripAdvisor, בלוג Danny CPH' } },
   { name: 'Kamakura', lat: 35.3193, lng: 139.5467, nights: 'טיול יום', region: 'קנטו', who: ['סולו','נגישות'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'פסל בודהה ענק + חוף, טיול יום קל מטוקיו שרוב הזרים מדלגים עליו' , homeCityKey: 'קמאקורה (Kamakura)', homeCount: 1 , vibe: { text: 'מתואר כ\'מלוח, משוחרר ומקומי יותר\' מקיוטו, אך תיירות-יתר אמיתית: כ-15.9 מיליון מבקרים ב-2024, ורק כ-6% מהם לנים בעיר בפועל.', source: 'Faroway, Unseen Japan' }, peopleVibe: 'כ-40% מהתושבים דיווחו בסקר עירוני שהתיירות משבשת את השגרה היומיומית שלהם.' },
   { name: 'Nikko', lat: 36.7198, lng: 139.6982, nights: '1-2', region: 'קנטו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מקדשי UNESCO ומפלים באיכות של Hakone, בלי ההמונים' , seasonalNote: { seasons: ['סתיו'], text: 'אמצע עד סוף אוקטובר הוא שיא השלכת סביב אגם צ׳וזנג׳י ואיירוזאקה, מהיפים ביפן.' }, eventWindows: [{ start: '10-15', end: '11-05', label: 'שיא השלכת' }], homeCityKey: 'ניקו (Nikko)', homeCount: 1 , vibe: { text: 'מקדש טושוגו מתואר כ\'קסום\' עם גילופים מרהיבים ביער ארז עתיק, אך יש שמצאו אותו \'ראוותני מדי\' והעדיפו מקדשים שקטים בסביבה. כניסה יקרה יחסית (¥1,600, או ¥2,400 בכרטיס משולב).', source: 'Travel Yes Please, TripAdvisor' } },
-  { name: 'Izu Peninsula', lat: 34.9756, lng: 138.9461, nights: '2-3', region: 'קנטו', who: ['זוג'], what: ["צ'יל/onsen",'רואדטריפ'], crowd: 'underrated', anchor: 'onsen וחופים קרובים לטוקיו שרוב התיירים הזרים לא יודעים עליהם' , vibe: { text: 'מתואר כ\'יפן שלפני פריחת התיירות\', עם onsen רגועים וחוף מחוספס, בהשוואה לחוף אמלפי או הוואי. אזהרה: לא לתכנן כטיול יום אחד, תחבורה ציבורית דלילה בחוף המזרחי.', source: 'The Invisible Tourist, Wanderlust Chloe' }, peopleVibe: '\'כמה מהתושבים הכי ידידותיים\' ביפן, לפי בלוגרים; אזור פחות מתויר עם תחושת קרבה למקומיים.' },
+  { name: 'Izu Peninsula', lat: 34.9756, lng: 138.9461, nights: '2-3', region: 'קנטו', who: ['זוג'], what: ["צ'יל/onsen",'רואדטריפ','בטן גב'], crowd: 'underrated', anchor: 'onsen וחופים קרובים לטוקיו שרוב התיירים הזרים לא יודעים עליהם' , vibe: { text: 'מתואר כ\'יפן שלפני פריחת התיירות\', עם onsen רגועים וחוף מחוספס, בהשוואה לחוף אמלפי או הוואי. אזהרה: לא לתכנן כטיול יום אחד, תחבורה ציבורית דלילה בחוף המזרחי.', source: 'The Invisible Tourist, Wanderlust Chloe' }, peopleVibe: '\'כמה מהתושבים הכי ידידותיים\' ביפן, לפי בלוגרים; אזור פחות מתויר עם תחושת קרבה למקומיים.' },
   { name: 'Kanazawa', lat: 36.5613, lng: 136.6562, nights: '1-2', region: "צ'ובו", who: ['זוג','סולו'], what: ['ערים',"צ'יל/onsen"], crowd: 'underrated', anchor: 'אדריכלות תקופת אדו שלמה ורובע גיישה, בלי ההמונים של קיוטו' , homeCityKey: 'קנאזאווה (Kanazawa)', homeCount: 3 , vibe: { text: 'קנזאווה מכונה \'קיוטו הקטנה\' בלי הקהל, רובע הגיישה שקט בבוקר אך צפוף מסלפי-חכמים בצהריים.', source: 'Barefoot Surfer, Wapiti Travel' } },
   { name: 'Takayama', lat: 36.1461, lng: 137.2522, nights: '1-2', region: "צ'ובו", who: ['זוג','סולו','משפחה + ילדים גדולים'], what: ['ערים'], crowd: 'underrated', anchor: 'עיר עתיקה מתקופת אדו בהרי הצפון, גם היא הופכת עמוסה יותר' , vibe: { text: 'טקאיאמה משמרת עיר עתיקה מתקופת אדו. מקומיים ידידותיים במיוחד, אווירה נינוחה.', source: 'Barefoot Surfer, Wapiti Travel' } },
   { name: 'Nagano', lat: 36.6513, lng: 138.1810, nights: '1', region: "צ'ובו", who: ['סולו','זוג'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'מקדש זנקוג׳י ושער לפארק הקופים של ג׳יגוקודאני, פחות על מסלול התיירים המרכזי' },
@@ -1780,7 +1814,7 @@ const ITIN_DESTINATIONS = [
   { name: 'Magome', lat: 35.5386, lng: 137.5647, nights: '1', region: "צ'ובו", who: ['סולו','זוג'], what: ['הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'עיירת דואר עתיקה בקצה מסלול הליכה ב-Nakasendo Trail, כמעט ולא מוכרת לזרים' , vibe: { text: 'אהוב ועקבי-קסום - \'כמו יפן של אדו\', \'מסע בזמן\'.', source: 'Travels With Nano' }, peopleVibe: 'הכנסת אורחים כפרית חמה, בעלי ryokan ידידותיים; בית תה חינמי (Tateba-jaya) עם מארח משוחח; שילוט אנגלית טוב לאורך השביל.' },
   { name: 'Tsumago', lat: 35.5652, lng: 137.5330, nights: '1', region: "צ'ובו", who: ['סולו','זוג'], what: ['הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'עיירת דואר עתיקה נוספת בנקסנדו, ללא מכוניות או קווי חשמל גלויים' , vibe: { text: 'ללא מכוניות/אנטנות/חשמל גלוי; אחרי שהאוטובוסים עוזבים - \'שלווה מהפנטת\'. בולט שאינה צפופה מדי אפילו בקיץ.', source: 'Travels With Nano' } },
   { name: 'Ishigaki', lat: 24.3448, lng: 124.1572, nights: '2', region: 'אוקינאווה', who: ['זוג','משפחה + פעוטות'], what: ["צ'יל/onsen",'הייקינג/טבע'], crowd: 'underrated', anchor: 'איים דרומיים עם חופים כמעט קריביים, מוקד תוסס לדילוג בין איים (טאקטומי, איריומוטה)' , vibe: { text: 'מוקד תוסס להרפתקאות ודילוג בין איים, עם מסעדות וחיי לילה.', source: 'TripAdvisor' }, peopleVibe: 'תרבות אי (ריוקיו) חמה ורגועה. אנגלית מוגבלת אך בסיסית עובדת במרכז.' },
-  { name: 'Miyako', lat: 24.7828, lng: 125.2814, nights: '1-2', region: 'אוקינאווה', who: ['זוג','משפחה + פעוטות'], what: ["צ'יל/onsen"], crowd: 'underrated', anchor: 'חופים והרפיה עם מים צלולים (Miyako Blue) וגשרי איים, פחות מוכר מנאהא עצמה' , vibe: { text: 'לחופים והרפיה עם מים צלולים (\'Miyako Blue\') וגשרי איים.', source: 'TripAdvisor' }, peopleVibe: 'תרבות אי (ריוקיו) חמה ורגועה, אנגלית מוגבלת מאוד מחוץ למרכז.' },
+  { name: 'Miyako', lat: 24.7828, lng: 125.2814, nights: '1-2', region: 'אוקינאווה', who: ['זוג','משפחה + פעוטות'], what: ["צ'יל/onsen",'בטן גב'], crowd: 'underrated', anchor: 'חופים והרפיה עם מים צלולים (Miyako Blue) וגשרי איים, פחות מוכר מנאהא עצמה' , vibe: { text: 'לחופים והרפיה עם מים צלולים (\'Miyako Blue\') וגשרי איים.', source: 'TripAdvisor' }, peopleVibe: 'תרבות אי (ריוקיו) חמה ורגועה, אנגלית מוגבלת מאוד מחוץ למרכז.' },
   { name: 'Hirosaki', lat: 40.6031, lng: 140.4638, nights: '1-2', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'עיירת טירה עם פריחת דובדבן אגדית, בתי לבנים אדומות וקצב חיים אנושי שרוב הזרים מדלגים עליו' , vibe: { text: 'מטיילת יפנית תיארה את הירושאקי כעיר שהכי כיף לשוטט בה ברגל, עד כדי כך שהיא שקלה ברצינות לעבור לגור שם.', source: 'בלוגרית יפנית אישית (4travel)' } },
   { name: 'Kakunodate', lat: 39.5975, lng: 140.5675, nights: '1', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: '"קיוטו הקטנה של הצפון", רובע סמוראים שמור עם מאות עצי דובדבן בוכה, עמוס רק בעונת הפריחה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן הבוכה פורחים בדרך כלל סביב סוף אפריל, זו התקופה שבה המקום הכי עמוס אבל גם הכי מרשים.' }, eventWindows: [{ start: '04-20', end: '05-05', label: 'שיא פריחת הדובדבן הבוכה' }], vibe: { text: 'בלוגר מקומי כתב שקאקונודטה היא פשוט עיר נחמדה, ואפילו הניב המקומי נשמע רך ומהנה.', source: 'בלוגר יפני אישי (gunmablog)' } },
   { name: 'Aizu-Wakamatsu', lat: 37.4950, lng: 139.9297, nights: '1', region: 'טוהוקו', who: ['זוג','משפחה + ילדים גדולים'], what: ['ערים'], crowd: 'underrated', anchor: 'עיירת טירת סמוראים (צורוגה), עיר טוהוקו שקטה עם היסטוריה עמוקה' },
@@ -1908,6 +1942,9 @@ let itinActiveWhat = new Set();
 let itinActiveRegion = null;
 let itinActiveSeason = null; // 'אביב' | 'קיץ' | 'סתיו' | 'חורף' | null
 let itinRoute = [];
+let itinLockedStops = new Set(); // stop names the auto-optimizer must never reposition
+let itinUndoStack = []; // snapshots taken before each mutating action, for the undo button
+let itinManualTargetNights = null; // optional total-nights goal for manual building, for the live progress bar
 let itinUsedNames = new Set();
 let itinNightOverrides = {}; // name -> extra days added/removed by the user beyond the default estimate
 let itinSearchQuery = '';
@@ -1988,12 +2025,47 @@ function itinNightsLabel(d) {
   return nights + ' לילות';
 }
 
+function itinSnapshotForUndo() {
+  itinUndoStack.push({
+    route: itinRoute.slice(),
+    nightOverrides: Object.assign({}, itinNightOverrides),
+    lockedStops: new Set(itinLockedStops),
+  });
+  if (itinUndoStack.length > 20) itinUndoStack.shift(); // cap history so it can't grow unbounded
+  itinRenderUndoButton();
+}
+
+function itinUndo() {
+  if (itinUndoStack.length === 0) return;
+  const snap = itinUndoStack.pop();
+  itinRoute = snap.route;
+  itinNightOverrides = snap.nightOverrides;
+  itinLockedStops = snap.lockedStops;
+  itinUsedNames = new Set(itinRoute);
+  itinEditingStopIndex = null;
+  if (itinRoute.length === 0) {
+    itinResetRoute();
+  } else {
+    itinRender();
+  }
+  itinRenderUndoButton();
+}
+
+function itinRenderUndoButton() {
+  const el = document.getElementById('itinUndoBtnWrap');
+  if (!el) return;
+  el.innerHTML = itinUndoStack.length > 0
+    ? '<button type="button" class="it-undo-btn" onclick="itinUndo()">↩ בטלו פעולה אחרונה</button>'
+    : '';
+}
+
 function itinAdjustNights(name, delta) {
   const current = itinNightOverrides[name] || 0;
   const d = ITIN_DESTINATIONS.find(x => x.name === name);
   const base = d ? itinParseNightsNum(d.nights) : 1;
   const next = current + delta;
   if (base + next < 0) return;
+  if (itinRoute.length > 0) itinSnapshotForUndo();
   itinNightOverrides[name] = next;
   if (itinRoute.length === 0) {
     itinRenderStartCards();
@@ -2210,8 +2282,14 @@ function itinRenderRoute() {
     el.className = 'it-route-stop' + (itinEditingStopIndex === i ? ' it-route-stop-editing' : '') + (itinLockedStops.has(stop) ? ' it-route-stop-locked' : '');
     const removable = i > 0;
     const lockIcon = itinLockedStops.has(stop) ? '🔒' : '🔓';
+    const canMoveEarlier = i > 1;
+    const canMoveLater = i > 0 && i < itinRoute.length - 1;
+    const moveHtml =
+      (canMoveEarlier ? '<span class="it-move" onclick="itinMoveStop(' + i + ', -1)" title="הזיזו מוקדם יותר">▲</span>' : '') +
+      (canMoveLater ? '<span class="it-move" onclick="itinMoveStop(' + i + ', 1)" title="הזיזו מאוחר יותר">▼</span>' : '');
     el.innerHTML = '<span class="it-route-stop-name" onclick="itinToggleStopEditor(' + i + ')">' + stop + ' ✎</span>' +
       ' <span class="it-lock" onclick="itinToggleLockStop(\'' + stop.replace(/'/g, "\\'") + '\')" title="נעילת מיקום, האופטימיזציה לא תזיז את זה">' + lockIcon + '</span>' +
+      moveHtml +
       (removable ? ' <span class="it-x" onclick="itinRemoveStop(' + i + ')">✕</span>' : '');
     strip.appendChild(el);
   });
@@ -2224,7 +2302,39 @@ function itinRenderRoute() {
     ? 'מסלול של ' + itinRoute.length + ' תחנות · בערך <b>' + totalDaysGuess + ' לילות</b>'
     : 'התחלתם מ-' + itinRoute[0] + ', עכשיו תבחרו לאן ממשיכים';
 
+  const progressEl = document.getElementById('itinLiveProgressBar');
+  if (itinManualTargetNights) {
+    const pct = Math.min(100, Math.round(totalDaysGuess / itinManualTargetNights * 100));
+    const over = totalDaysGuess > itinManualTargetNights;
+    progressEl.innerHTML =
+      '<div class="it-progress-label">' + totalDaysGuess + ' מתוך ' + itinManualTargetNights + ' לילות' + (over ? ' (חרגתם מהיעד)' : '') + '</div>' +
+      '<div class="it-progress-track"><div class="it-progress-fill' + (over ? ' it-progress-over' : '') + '" style="width:' + pct + '%;"></div></div>';
+  } else {
+    progressEl.innerHTML = '';
+  }
+
+  const characterEl = document.getElementById('itinLiveCharacter');
+  if (itinRoute.length > 1) {
+    const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
+    characterEl.innerHTML = '<div class="it-character-box it-character-live"><div class="it-character-label">✦ אופי המסלול עד כה</div>' + itinBuildCharacterSummary(stops) + '</div>';
+  } else {
+    characterEl.innerHTML = '';
+  }
+
   itinRenderStopEditor();
+}
+
+function itinMoveStop(index, direction) {
+  const newIndex = index + direction;
+  // Index 0 (where the trip starts) is never moved, and nothing can be
+  // pushed into that position either.
+  if (index <= 0 || newIndex <= 0 || newIndex >= itinRoute.length) return;
+  itinSnapshotForUndo();
+  const tmp = itinRoute[index];
+  itinRoute[index] = itinRoute[newIndex];
+  itinRoute[newIndex] = tmp;
+  itinEditingStopIndex = null;
+  itinRender();
 }
 
 function itinToggleLockStop(name) {
@@ -2462,14 +2572,81 @@ function itinStartCardHtml(d) {
   );
 }
 
+// Each template is a real, graph-connected sequence (verified against
+// itinHasDirectEdge for every leg before being added here), so choosing one
+// never starts you off with an impossible route. Nights are the default for
+// each destination unless overridden.
+const ITIN_TEMPLATES = [
+  {
+    title: 'קלאסי, פעם ראשונה',
+    sub: 'טוקיו, הקונה, קיוטו, אוסקה — כל הקלאסיקות בקצב סביר',
+    route: ['Tokyo', 'Hakone', 'Kyoto', 'Osaka'],
+    nightOverrides: { 'Tokyo': 4, 'Hakone': 1, 'Kyoto': 3, 'Osaka': 2 },
+  },
+  {
+    title: 'קיושו לעומק',
+    sub: 'נגסאקי, קומאמוטו, אסו, אונסנים כפריים, בפו — הרבה פחות תיירים',
+    route: ['Fukuoka (Kyushu)', 'Nagasaki', 'Kumamoto', 'Aso', 'Kurokawa Onsen', 'Yufuin', 'Beppu'],
+    nightOverrides: {},
+  },
+  {
+    title: 'טבע והרים',
+    sub: 'קנאזאווה, שיראקאווה-גו, טקאיאמה, קיוטו — כפרי גג קש והרי האלפים היפניים',
+    route: ['Tokyo', 'Kanazawa', 'Shirakawa-go', 'Takayama', 'Kyoto'],
+    nightOverrides: { 'Shirakawa-go': 1, 'Takayama': 2 },
+  },
+  {
+    title: 'אונסן ורוגע',
+    sub: 'הקונה, קובה, אריאמה אונסן — מים חמים ושקט, בלי למהר',
+    route: ['Tokyo', 'Hakone', 'Kyoto', 'Kobe', 'Arima Onsen'],
+    nightOverrides: {},
+  },
+];
+
+function itinRenderTemplates() {
+  const el = document.getElementById('itinTemplatesList');
+  el.innerHTML = '';
+  ITIN_TEMPLATES.forEach((tpl, i) => {
+    const totalNights = tpl.route.reduce((sum, name) => {
+      const d = ITIN_DESTINATIONS.find(x => x.name === name);
+      const override = tpl.nightOverrides[name];
+      return sum + (override != null ? override : (d ? itinGetNights(d) : 0));
+    }, 0);
+    const card = document.createElement('div');
+    card.className = 'it-template-card';
+    card.innerHTML =
+      '<div class="it-template-title">' + tpl.title + '</div>' +
+      '<div class="it-template-sub">' + tpl.sub + '</div>' +
+      '<div class="it-template-route">' + tpl.route.map(n => (ITIN_DESTINATION_EMOJI[n] || '') + ' ' + n).join(' ← ') + '</div>' +
+      '<div class="it-template-meta">' + tpl.route.length + ' תחנות · כ-' + totalNights + ' לילות</div>' +
+      '<button type="button" class="it-template-use-btn" onclick="itinUseTemplate(' + i + ')">✓ השתמשו בזה כנקודת התחלה</button>';
+    el.appendChild(card);
+  });
+}
+
+function itinUseTemplate(index) {
+  const tpl = ITIN_TEMPLATES[index];
+  if (!tpl) return;
+  const overrides = {};
+  Object.keys(tpl.nightOverrides).forEach(name => {
+    const d = ITIN_DESTINATIONS.find(x => x.name === name);
+    if (d) overrides[name] = tpl.nightOverrides[name] - itinGetNights(d);
+  });
+  itinLaunchGeneratedRoute(tpl.route, overrides, '');
+}
+
 function itinChooseMode(mode) {
   document.getElementById('itinModeChoiceScreen').style.display = 'none';
+  document.getElementById('itinStartScreen').style.display = 'none';
+  document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinTemplatesScreen').style.display = 'none';
   if (mode === 'manual') {
     document.getElementById('itinStartScreen').style.display = 'block';
-    document.getElementById('itinQuizScreen').style.display = 'none';
+  } else if (mode === 'templates') {
+    document.getElementById('itinTemplatesScreen').style.display = 'block';
+    itinRenderTemplates();
   } else {
     document.getElementById('itinQuizScreen').style.display = 'block';
-    document.getElementById('itinStartScreen').style.display = 'none';
     itinRenderQuizChips();
   }
 }
@@ -2477,6 +2654,7 @@ function itinChooseMode(mode) {
 function itinBackToModeChoice() {
   document.getElementById('itinStartScreen').style.display = 'none';
   document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinTemplatesScreen').style.display = 'none';
   document.getElementById('itinModeChoiceScreen').style.display = 'block';
 }
 
@@ -2938,9 +3116,11 @@ function itinLaunchGeneratedRoute(route, nightOverrides, extraNote) {
   itinRoute = route.slice();
   itinUsedNames = new Set(route);
   itinNightOverrides = nightOverrides || {};
+  itinUndoStack = [];
   document.getElementById('itinModeChoiceScreen').style.display = 'none';
   document.getElementById('itinStartScreen').style.display = 'none';
   document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinTemplatesScreen').style.display = 'none';
   document.getElementById('itinMainScreen').style.display = 'block';
   if (!itinMapInitialized) {
     itinInitMap();
@@ -2956,7 +3136,20 @@ function itinLaunchGeneratedRoute(route, nightOverrides, extraNote) {
   if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
 }
 
+function itinManualTargetAdjust(delta) {
+  const current = itinManualTargetNights || 0;
+  itinManualTargetNights = Math.max(1, current + delta);
+  document.getElementById('itinManualTargetValue').textContent = itinManualTargetNights;
+}
+
+function itinManualTargetClear() {
+  itinManualTargetNights = null;
+  document.getElementById('itinManualTargetValue').textContent = '-';
+}
+
 function itinRenderStartCards() {
+  const targetEl = document.getElementById('itinManualTargetValue');
+  if (targetEl) targetEl.textContent = itinManualTargetNights || '-';
   const el = document.getElementById('itinStartCards');
   el.innerHTML = '';
   ITIN_START_OPTIONS.forEach(name => {
@@ -2971,6 +3164,7 @@ function itinRenderStartCards() {
 function itinChooseStart(name) {
   itinRoute = [name];
   itinUsedNames = new Set([name]);
+  itinUndoStack = [];
   document.getElementById('itinStartScreen').style.display = 'none';
   document.getElementById('itinMainScreen').style.display = 'block';
   document.getElementById('itinSummaryScreen').style.display = 'none';
@@ -2992,6 +3186,7 @@ function itinClearSearch() {
 }
 
 function itinAddStop(name) {
+  itinSnapshotForUndo();
   itinRoute.push(name);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
@@ -3003,6 +3198,7 @@ function itinRemoveStop(index) {
   // meant fixing one accidental extra stop (e.g. a duplicate visit added by
   // mistake) also wiped out every stop planned after it.
   if (index <= 0 || index >= itinRoute.length) return;
+  itinSnapshotForUndo();
   itinRoute.splice(index, 1);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
@@ -3020,6 +3216,8 @@ function itinResetRoute() {
   itinRoute = [];
   itinUsedNames = new Set();
   itinLockedStops = new Set();
+  itinManualTargetNights = null;
+  itinUndoStack = [];
   itinActiveWho = null;
   itinActiveWhat = new Set();
   itinActiveRegion = null;
@@ -3032,6 +3230,7 @@ function itinResetRoute() {
   document.getElementById('itinSummaryScreen').style.display = 'none';
   document.getElementById('itinStartScreen').style.display = 'none';
   document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinTemplatesScreen').style.display = 'none';
   document.getElementById('itinModeChoiceScreen').style.display = 'block';
   itinRenderStartCards();
 }
@@ -3072,6 +3271,7 @@ function itinRender() {
   itinRenderDestinations();
   itinRenderSearchResults();
   itinRenderMap();
+  itinRenderUndoButton();
 }
 itinRenderStartCards();
 
@@ -3230,7 +3430,6 @@ function itinRenderOptimizationSuggestion() {
 let itinPendingOptimizedRoute = null;
 let itinEditingStopIndex = null; // index into itinRoute whose nights stepper is currently open
 let itinSummaryExpandedStop = null; // name of the stop whose full info is expanded inline in the summary list
-let itinLockedStops = new Set(); // stop names the auto-optimizer must never reposition
 function itinApplyOptimizedRoute() {
   if (!itinPendingOptimizedRoute) return;
   itinRoute = itinPendingOptimizedRoute.slice();
