@@ -219,9 +219,13 @@
   .it-route-stop-name { cursor: pointer; }
   .it-route-stop-editing { background: rgba(110,231,168,0.15); box-shadow: 0 0 0 1px var(--green); }
   .it-stop-editor { background: rgba(110,231,168,0.08); border: 1px dashed var(--green); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.5rem 0; text-align: center; }
+  .it-stop-editor-info { text-align: right; margin-top: 0.6rem; }
+  .it-stop-editor-lock { display: block; width: 100%; margin: 0.5rem 0; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; background: transparent; border: 1px dashed var(--accent); color: var(--accent); border-radius: 6px; padding: 0.4rem; cursor: pointer; }
   .it-stop-editor-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; color: var(--green); margin-bottom: 0.4rem; }
   .it-stop-editor-close { margin-top: 0.5rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; background: var(--green); color: #12261c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer; }
   .it-route-stop .it-x { cursor: pointer; opacity: 0.7; font-size: 0.85rem; }
+  .it-route-stop .it-lock { cursor: pointer; opacity: 0.7; font-size: 0.8rem; }
+  .it-route-stop-locked { border-color: var(--accent); background: rgba(255,209,102,0.1); }
   .it-route-arrow { color: var(--muted); flex-shrink: 0; }
   .it-route-summary { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.8rem; }
   .it-route-summary b { color: var(--accent); }
@@ -1645,8 +1649,8 @@ const ITIN_DESTINATION_EMOJI = {
   'Nara': '🦌', 'Kamakura': '🗿', 'Nikko': '🐒', 'Izu Peninsula': '🏖️',
   'Kanazawa': '🏯', 'Takayama': '🏘️', 'Nagano': '⛩️', 'Matsumoto': '🏯',
   'Hiroshima': '🕊️', 'Miyajima': '⛩️', 'Okinawa (Naha)': '🌺', 'Hokkaido (Sapporo)': '🦀',
-  'Kusatsu Onsen': '🌀', 'Ikaho Onsen': '🌀', 'Yokohama': '🚢', 'Shimokitazawa': '🎸',
-  'Koenji': '👕', 'Kawagoe': '🏮', 'Sendai': '🌳', 'Matsushima': '🏝️',
+  'Kusatsu Onsen': '🌀', 'Ikaho Onsen': '🌀', 'Yokohama': '🚢',
+  'Kawagoe': '🏮', 'Sendai': '🌳', 'Matsushima': '🏝️',
   'Ginzan Onsen': '🏮', 'Kobe': '🥩', 'Arima Onsen': '🌀', 'Himeji': '🏯',
   'Koyasan': '🙏', 'Ise-Shima': '⛩️', 'Nagoya': '🍜', 'Naoshima (אי האמנות)': '🎨',
   'Okayama': '🍑', 'Kurashiki': '🏘️', 'Takamatsu': '🍜', 'Matsuyama (Dogo Onsen)': '🌀',
@@ -1662,6 +1666,8 @@ const ITIN_DESTINATION_EMOJI = {
   'Izumo': '⛩️', 'Tsuwano': '⛩️', 'Hagi': '🏺', 'Fukui': '🦕',
   'Tateyama Kurobe Alpine Route': '❄️', 'Gokayama': '🏠', 'Sado Island': '⭐', 'Chichibu': '⛰️',
   'Nagatoro': '🧊', 'Kochi': '🐟', 'Shimanto River': '🌊',
+  'Uji': '🍵', 'Yamadera': '⛰️', 'Morioka': '🍜', 'Iwakuni': '🌉',
+  'Enoshima': '🏝️', 'Gero Onsen': '🌀', 'Amakusa': '🐬', 'Uwajima': '🐂',
 };
 // Rough bounding boxes [[south,west],[north,east]] used only to zoom/highlight
 // the map when a region filter is chosen; not exact administrative borders.
@@ -1710,6 +1716,14 @@ const ITIN_DESTINATIONS = [
   { name: 'Fukuoka (Kyushu)', lat: 33.5904, lng: 130.4017, nights: '2-3', region: 'קיושו', who: ['סולו','זוג'], what: ['אוכל','רואדטריפ'], crowd: 'underrated', anchor: 'yatai (דוכני רחוב) + שער נוח לכל קיושו, מעט תיירים זרים ביחס לגודל העיר' , homeCityKey: 'פוקואוקה / האקאטה (Fukuoka/Hakata)', homeCount: 9, peopleVibe: 'קיושו נחשבת חמה וידידותית יותר מהממוצע היפני, פחות פורמלית מהונשו, אבל אנגלית מוגבלת יחסית מחוץ לאזורי תיירות מרכזיים.' , vibe: { text: 'עיר נמל רגועה ולא ממהרת; יש שהתרשמו בהתחלה שהיא \'סטרילית\' וחסרת יפן הישנה, אבל התאהבו בה עם הזמן. אחרים מונים אותה בין המקומות האהובים עליהם ביותר בזכות האוכל והאותנטיות.', source: 'בלוגי מטיילים (This Way to Japan, Travels With Elle)' } },
   { name: 'Hakone', lat: 35.2323, lng: 139.1069, nights: '1-2', region: 'קנטו', who: ['זוג','משפחה + ילדים גדולים'], what: ["צ'יל/onsen"], crowd: 'overrated', anchor: 'ryokan עם onsen פרטי, אבל שימו לב: הפך למפעל תיירים, ונוף פוג\'י חסום בעננים לעיתים קרובות' , homeCityKey: 'הקונה (Hakone)', homeCount: 1 , vibe: { text: 'מתח אמיתי: חלק מרגישים שזו \'מלכודת תיירים\' עמוסה, בעוד אחרים מגנים על מוזיאון האוויר הפתוח ברמה עולמית ולינת onsen אותנטית. בקירוב מחצית מהימים נוף פוג\'י מוסתר בעננים.', source: 'TripAdvisor, The Flashpacker' } },
   { name: 'Kyoto', lat: 35.0116, lng: 135.7681, nights: '2-3', region: 'קנסאי', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות'], what: ['אוכל','ערים'], crowd: 'popular', anchor: 'מקדשים ומסורת ברמה שאין שני לה, גם אם חלק מהאתרים המפורסמים עמוסים', seasonalNote: { seasons: ['אביב','סתיו'], text: 'פריחת הדובדבן (סוף מרץ עד תחילת אפריל) והשלכת (סוף נובמבר) הן העונות העמוסות והיפות ביותר, במיוחד סביב Arashiyama וMaruyama Park.' }, eventWindows: [{ start: '03-25', end: '04-08', label: 'שיא פריחת הדובדבן' }, { start: '11-15', end: '11-30', label: 'שיא השלכת' }], vibe: { text: 'הפער בין הציפייה למציאות אמיתי: מבקרים שהגיעו לפושימי אינארי או קינקאקוג\'י בשעות הבוקר המוקדמות מתארים חוויה כמעט מיסטית ושקטה, בעוד שאותו מקום בצהריים מתואר כ"מרוץ לתמונה ולא זמן להתבונן". התזמון קובע הכל.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'קיוטו (Kyoto)', homeCount: 44, peopleVibe: 'מנומסים מאוד אך שמורים ורשמיים. יש אמירה מקומית שקיוטואים \'מנומסים מדי בשביל להיות כנים\' (תרבות טאטמה/הונה חזקה). פחות ספונטניים מאוסקה.' },
+  { name: 'Uji', lat: 34.8842, lng: 135.7986, nights: 'טיול יום', region: 'קנסאי', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['אוכל','ערים'], crowd: 'underrated', anchor: 'עיירת התה הירוקה של יפן, מקדש UNESCO ביודואין ומאות שנות ייצור מאצ\'ה' , vibe: { text: 'בלוגרית כתבה שלא חיבבה מאצ\'ה מעולם, עד שטעמה גלידה קרה מהמאצ\'ה המקומי מול מקדש ביודואין, ואז הבינה שקיים "מאצ\'ה אמיתי".', source: 'בלוגרית יפנית אישית (note.com)' } },
+  { name: 'Yamadera', lat: 38.3172, lng: 140.4356, nights: 'טיול יום', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע','ערים'], crowd: 'hidden-gem', anchor: 'מקדש הררי עם 1,000 מדרגות אבן, המקום שבו כתב המשורר באשו את ההייקו הכי מפורסם שלו' , vibe: { text: 'בלוגר תיאר שהכיר את השיר של באשו על יאמאדרה כבר בכיתה ט\', ומאז חלם להגיע בעצמו למקום ולשמוע את קול הצרצרים שהשיר מתאר.', source: 'בלוגר יפני אישי (4travel)' } },
+  { name: 'Morioka', lat: 39.7036, lng: 141.1527, nights: '1', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['אוכל','ערים'], crowd: 'underrated', anchor: '"שלושת האטריות הגדולות" של איוואטה: וואנקו סובה (מוגשת כפית אחר כפית), ג\'אג\'ה מן, ורמן קר, הכל במרחק הליכה מהתחנה' , vibe: { text: 'בלוגר שינה סוף סוף להבין שג\'אג\'ה מן וג\'אנג\'אה מן (הסינית) הם שני מאכלים שונים לגמרי, וכתב על ההנאה משלושת האטריות ברצף ביום אחד.', source: 'בלוגר יפני אישי (KOPPIC)' } },
+  { name: 'Iwakuni', lat: 34.1667, lng: 132.2167, nights: 'טיול יום', region: "צ'וגוקו", who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע','ערים'], crowd: 'underrated', anchor: 'גשר קינטאי, חמש קשתות עץ מעל נהר, וטירה קטנה שרואים מרחוק על הגבעה' },
+  { name: 'Enoshima', lat: 35.2989, lng: 139.4803, nights: 'טיול יום', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע','אוכל'], crowd: 'popular', anchor: 'אי קטן עם מקדשים, מערות ים ונוף להר פוג\'י, טיול יום קלאסי מקאמאקורה' },
+  { name: 'Gero Onsen', lat: 35.8022, lng: 137.2419, nights: '1', region: "צ'ובו", who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'underrated', anchor: 'אחד משלושת האונסנים הגדולים של יפן, עיירת מים חמים לאורך נהר בין הרים, בדרך בין טקאיאמה לנגויה' },
+  { name: 'Amakusa', lat: 32.4553, lng: 130.1953, nights: '1-2', region: 'קיושו', who: ['זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'איים מחוברים בגשרים עם היסטוריה נוצרית נסתרת, וסיורי צפייה בדולפינים בטבע' },
+  { name: 'Uwajima', lat: 33.2236, lng: 132.5600, nights: '1', region: 'שיקוקו', who: ['סולו','זוג'], what: ['ערים'], crowd: 'hidden-gem', anchor: 'עיירת נמל מבודדת עם קרבות שוורים מסורתיים (בלי פציעה למפסידים) וטירה מקורית מתקופת אדו' },
   { name: 'Nara', lat: 34.6851, lng: 135.8048, nights: 'טיול יום', region: 'קנסאי', who: ['סולו','משפחה + פעוטות'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'איילים חופשיים שממש מתקרבים אליכם, קומפקטית וקלה להליכה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן בפארק נארה פורחים בדרך כלל בתחילת אפריל, יחד עם האיילים זה שילוב פופולרי במיוחד.' }, homeCityKey: 'נארה (Nara)', homeCount: 1 , vibe: { text: 'חוויה דו-קוטבית: האיילים המקדים בקידה מרגש, אבל ליד הכניסה הם יכולים להיות תוקפניים ויש הרבה גללים בשטח. עצה חוזרת: להיכנס עמוק לפארק או להגיע מוקדם.', source: 'TripAdvisor, בלוג Danny CPH' } },
   { name: 'Kamakura', lat: 35.3193, lng: 139.5467, nights: 'טיול יום', region: 'קנטו', who: ['סולו','נגישות'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'פסל בודהה ענק + חוף, טיול יום קל מטוקיו שרוב הזרים מדלגים עליו' , homeCityKey: 'קמאקורה (Kamakura)', homeCount: 1 , vibe: { text: 'מתואר כ\'מלוח, משוחרר ומקומי יותר\' מקיוטו, אך תיירות-יתר אמיתית: כ-15.9 מיליון מבקרים ב-2024, ורק כ-6% מהם לנים בעיר בפועל.', source: 'Faroway, Unseen Japan' }, peopleVibe: 'כ-40% מהתושבים דיווחו בסקר עירוני שהתיירות משבשת את השגרה היומיומית שלהם.' },
   { name: 'Nikko', lat: 36.7198, lng: 139.6982, nights: '1-2', region: 'קנטו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מקדשי UNESCO ומפלים באיכות של Hakone, בלי ההמונים' , seasonalNote: { seasons: ['סתיו'], text: 'אמצע עד סוף אוקטובר הוא שיא השלכת סביב אגם צ׳וזנג׳י ואיירוזאקה, מהיפים ביפן.' }, eventWindows: [{ start: '10-15', end: '11-05', label: 'שיא השלכת' }], homeCityKey: 'ניקו (Nikko)', homeCount: 1 , vibe: { text: 'מקדש טושוגו מתואר כ\'קסום\' עם גילופים מרהיבים ביער ארז עתיק, אך יש שמצאו אותו \'ראוותני מדי\' והעדיפו מקדשים שקטים בסביבה. כניסה יקרה יחסית (¥1,600, או ¥2,400 בכרטיס משולב).', source: 'Travel Yes Please, TripAdvisor' } },
@@ -1725,8 +1739,6 @@ const ITIN_DESTINATIONS = [
   { name: 'Kusatsu Onsen', lat: 36.6202, lng: 138.5958, nights: '1', region: 'קנטו', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'underrated', anchor: 'עיירת ה-onsen שיפנים עצמם הכי אוהבים, כמעט ולא מוכרת לזרים' , homeCityKey: 'קוסאצו אונסן (Kusatsu)', homeCount: 1 , vibe: { text: 'קוסאצו מתוארת כאותנטית, עם תחושת \'עולם ישן\' סביב יובאטאקה המהביל, קסומה במיוחד בלילה כשמוארת. חיסרון: אין תחנת רכבת ישירה, מרוחקת יחסית.', source: 'בלוג Donny Kimball' } },
   { name: 'Ikaho Onsen', lat: 36.4900, lng: 138.9089, nights: '1', region: 'קנטו', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'hidden-gem', anchor: 'עיירת אונסן קטנה עם מדרגות אבן אייקוניות, כמעט ולא מוכרת לזרים' },
   { name: 'Yokohama', lat: 35.4437, lng: 139.6380, nights: 'טיול יום', region: 'קנטו', who: ['משפחה + פעוטות','נגישות'], what: ['ערים'], crowd: null, anchor: 'הכי נגישה ופשוטה לניווט, טובה למי שרוצה עיר "קלה" ליום אחד' , homeCityKey: 'יוקוהמה (Yokohama)', homeCount: 2 , vibe: { text: '\'בת הדודה הרגועה\' של טוקיו, נקייה ועשירה יותר עם חזית ים במינאטו מיראי, אך יש שמוצאים שחסרות בה אטרקציות \'חובה\' וחיי לילה משמעותיים.', source: 'Science Tokyo' } },
-  { name: 'Shimokitazawa', lat: 35.6613, lng: 139.6683, nights: 'טיול יום', region: 'קנטו', scale: 'neighborhood', parentCity: 'טוקיו', who: ['סולו','זוג'], what: ['מוזיקה','קניות'], crowd: 'underrated', anchor: 'סצנת live house אמיתית ווינטג׳, מחוץ למסלול התיירים הרגיל' , vibe: { text: 'מתוארת כרגועה ומזמינה עם וינטג\' מוקפד ותיאטרון עצמאי.', source: 'A Day of Zen' }, peopleVibe: 'צעירים, יצירתיים ונינוחים, נוחים במיוחד לזרים.' },
-  { name: 'Koenji', lat: 35.7053, lng: 139.6497, nights: 'טיול יום', region: 'קנטו', scale: 'neighborhood', parentCity: 'טוקיו', who: ['סולו','זוג'], what: ['מוזיקה','קניות'], crowd: 'hidden-gem', anchor: 'שכונה \'מחוספסת\' עם שורשי פאנק משנות ה-70, מחוץ למסלול התיירים הרגיל' , vibe: { text: 'קוג\'י \'מחוספסת\', עם שורשי פאנק משנות ה-70 ותחושה \'אמיתית ומלאת סיפורים\'.', source: 'Quora' } },
   { name: 'Kawagoe', lat: 35.9251, lng: 139.4857, nights: 'טיול יום', region: 'קנטו', who: ['סולו','משפחה + פעוטות','נגישות'], what: ['ערים'], crowd: 'underrated', anchor: '"אדו הקטנה", 30 דק׳ מטוקיו, בלי לצאת רחוק ובלי הקהל של קיוטו' , homeCityKey: 'קוואגואה (Kawagoe)', homeCount: 1 , vibe: { text: '\'אדו הקטנה\' - רחובות מחסנים היסטוריים, קסם \'עולם ישן\', מטיילים בקימונו, וסמטת ממתקים ילדותית. מעט צפוף בסופי שבוע.', source: 'The Invisible Tourist' } },
   { name: 'Sendai', lat: 38.2682, lng: 140.8694, nights: '1', region: 'טוהוקו', who: ['סולו','משפחה + ילדים גדולים'], what: ['אוכל','ערים'], crowd: 'underrated', anchor: 'עיר טוהוקו הגדולה, שקטה יחסית וכמעט לא על מפת התיירים הזרים' , vibe: { text: 'סנדאי מתוארת כ\'עיר העצים\', קוסמופוליטית אך רגועה.', source: 'TripAdvisor' } },
   { name: 'Matsushima', lat: 38.3660, lng: 141.0480, nights: 'טיול יום', region: 'טוהוקו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מפרץ עם 260 איים, אחד משלושת הנופים הגדולים של יפן' , vibe: { text: 'מ\'שלושת הנופים הגדולים\' של יפן, קיבלה גם ביקורת שהיא \'מוערכת יתר על המידה במידה מה\', עם רושם שתלוי בסיור בסירה.', source: 'TripAdvisor' } },
@@ -1798,34 +1810,34 @@ const ITIN_CONTINUATIONS = {
   // audited and fixed after finding 73 one-directional edges (e.g. Tokyo
   // listed Fukuoka as reachable, but Fukuoka didn't list Tokyo back,
   // which silently made Tokyo look 2 hops away from Fukuoka instead of 1).
-  'Tokyo': ['Hakone','Kyoto','Kamakura','Nikko','Izu Peninsula','Fukuoka (Kyushu)','Kanazawa','Takayama','Nagano','Matsumoto','Osaka','Hiroshima','Okinawa (Naha)','Hokkaido (Sapporo)','Kusatsu Onsen','Ikaho Onsen','Yokohama','Shimokitazawa','Koenji','Kawagoe','Sendai','Ginzan Onsen','Fuji Five Lakes','Aizu-Wakamatsu','Chichibu','Sado Island','Otaru','Furano','Biei','Hakodate','Niseko','Asahikawa','Hirosaki','Kakunodate','Oirase Gorge','Lake Towada','Nagoya','Fukui','Magome','Tsumago','Okayama','Nagasaki','Kumamoto','Kagoshima','Miyazaki','Beppu','Ishigaki','Miyako','Takamatsu','Matsuyama (Dogo Onsen)','Kochi','Nagatoro'],
-  'Kyoto': ['Osaka','Nara','Kobe','Himeji','Kanazawa','Takayama','Hiroshima','Koyasan','Ise-Shima','Nagoya','Fukui','Tokyo','Hakone'],
+  'Tokyo': ['Hakone','Kyoto','Kamakura','Nikko','Izu Peninsula','Fukuoka (Kyushu)','Kanazawa','Takayama','Nagano','Matsumoto','Osaka','Hiroshima','Okinawa (Naha)','Hokkaido (Sapporo)','Kusatsu Onsen','Ikaho Onsen','Yokohama','Kawagoe','Sendai','Ginzan Onsen','Fuji Five Lakes','Aizu-Wakamatsu','Chichibu','Sado Island','Otaru','Furano','Biei','Hakodate','Niseko','Asahikawa','Hirosaki','Kakunodate','Oirase Gorge','Lake Towada','Nagoya','Fukui','Magome','Tsumago','Okayama','Nagasaki','Kumamoto','Kagoshima','Miyazaki','Beppu','Ishigaki','Miyako','Takamatsu','Matsuyama (Dogo Onsen)','Kochi','Nagatoro'],
+  'Kyoto': ['Osaka','Nara','Kobe','Himeji','Kanazawa','Takayama','Hiroshima','Koyasan','Ise-Shima','Nagoya','Fukui','Tokyo','Hakone','Uji'],
   'Osaka': ['Kyoto','Kobe','Nara','Himeji','Fukuoka (Kyushu)','Naoshima (אי האמנות)','Koyasan','Okayama','Tokyo','Hokkaido (Sapporo)','Kanazawa','Takayama','Hiroshima','Kagoshima','Nagasaki','Okinawa (Naha)','Ishigaki','Miyako','Takamatsu','Matsuyama (Dogo Onsen)','Kochi','Ise-Shima'],
   'Fukuoka (Kyushu)': ['Nagasaki','Kumamoto','Yufuin','Beppu','Kurokawa Onsen','Kitsuki','Kagoshima','Miyazaki','Hiroshima','Osaka','Karatsu','Yanagawa','Hagi','Hokkaido (Sapporo)','Okayama','Okinawa (Naha)','Saga','Arita','Tokyo'],
-  'Hiroshima': ['Kyoto','Osaka','Fukuoka (Kyushu)','Okayama','Onomichi','Matsue','Izumo','Tsuwano','Hagi','Miyajima','Tokyo','Himeji'],
+  'Hiroshima': ['Kyoto','Osaka','Fukuoka (Kyushu)','Okayama','Onomichi','Matsue','Izumo','Tsuwano','Hagi','Miyajima','Tokyo','Himeji','Iwakuni'],
   'Miyajima': ['Hiroshima'],
   'Hokkaido (Sapporo)': ['Otaru','Furano','Biei','Hakodate','Niseko','Asahikawa','Tokyo','Osaka','Fukuoka (Kyushu)'],
   'Kanazawa': ['Shirakawa-go','Kyoto','Nagano','Matsumoto','Magome','Tsumago','Fukui','Tateyama Kurobe Alpine Route','Takayama','Gokayama','Tokyo','Osaka','Nagoya'],
-  'Takayama': ['Kanazawa','Shirakawa-go','Nagoya','Magome','Tsumago','Tokyo','Kyoto','Osaka','Matsumoto'],
+  'Takayama': ['Kanazawa','Shirakawa-go','Nagoya','Magome','Tsumago','Tokyo','Kyoto','Osaka','Matsumoto','Gero Onsen'],
   'Nagano': ['Matsumoto','Tokyo','Kanazawa','Tsumago'],
   'Matsumoto': ['Nagano','Kanazawa','Takayama','Magome','Tsumago','Kusatsu Onsen','Tateyama Kurobe Alpine Route','Tokyo'],
   'Naoshima (אי האמנות)': ['Takamatsu','Okayama','Osaka'],
   'Okayama': ['Naoshima (אי האמנות)','Hiroshima','Osaka','Takamatsu','Himeji','Onomichi','Tottori Sand Dunes','Kurashiki','Tokyo','Fukuoka (Kyushu)'],
   'Kurashiki': ['Okayama'],
   'Takamatsu': ['Matsuyama (Dogo Onsen)','Naoshima (אי האמנות)','Okayama','Iya Valley','Kochi','Tokyo','Osaka'],
-  'Matsuyama (Dogo Onsen)': ['Iya Valley','Takamatsu','Beppu','Onomichi','Kochi','Tokyo','Osaka','Kitsuki'],
-  'Kumamoto': ['Kurokawa Onsen','Kagoshima','Fukuoka (Kyushu)','Nagasaki','Aso','Tokyo','Kitsuki'],
+  'Matsuyama (Dogo Onsen)': ['Iya Valley','Takamatsu','Beppu','Onomichi','Kochi','Tokyo','Osaka','Kitsuki','Uwajima'],
+  'Kumamoto': ['Kurokawa Onsen','Kagoshima','Fukuoka (Kyushu)','Nagasaki','Aso','Tokyo','Kitsuki','Saga','Amakusa'],
   'Aso': ['Kumamoto','Kurokawa Onsen'],
   'Yufuin': ['Beppu','Kurokawa Onsen','Fukuoka (Kyushu)'],
   'Beppu': ['Yufuin','Kitsuki','Matsuyama (Dogo Onsen)','Usuki','Tokyo','Fukuoka (Kyushu)','Miyazaki'],
-  'Sendai': ['Ginzan Onsen','Tokyo','Hirosaki','Kakunodate','Aizu-Wakamatsu','Matsushima'],
+  'Sendai': ['Ginzan Onsen','Tokyo','Hirosaki','Kakunodate','Aizu-Wakamatsu','Matsushima','Yamadera','Morioka'],
   'Matsushima': ['Sendai'],
   'Okinawa (Naha)': ['Ishigaki','Miyako','Tokyo','Osaka','Fukuoka (Kyushu)'],
-  'Nagoya': ['Kyoto','Kanazawa','Takayama','Magome','Tsumago','Ise-Shima','Tokyo','Shirakawa-go'],
+  'Nagoya': ['Kyoto','Kanazawa','Takayama','Magome','Tsumago','Ise-Shima','Tokyo','Shirakawa-go','Gero Onsen'],
   'Asahikawa': ['Furano','Biei','Hokkaido (Sapporo)','Otaru','Tokyo'],
   'Furano': ['Asahikawa','Hokkaido (Sapporo)','Biei','Tokyo'],
   'Biei': ['Furano','Asahikawa','Tokyo','Hokkaido (Sapporo)'],
-  'Ginzan Onsen': ['Sendai','Tokyo'],
+  'Ginzan Onsen': ['Sendai','Tokyo','Yamadera'],
   'Kusatsu Onsen': ['Tokyo','Matsumoto','Nikko','Ikaho Onsen'],
   'Ikaho Onsen': ['Kusatsu Onsen','Tokyo'],
   'Hakodate': ['Otaru','Hokkaido (Sapporo)','Niseko','Hirosaki','Tokyo'],
@@ -1837,7 +1849,7 @@ const ITIN_CONTINUATIONS = {
   'Iya Valley': ['Takamatsu','Matsuyama (Dogo Onsen)'],
   'Izu Peninsula': ['Tokyo','Hakone'],
   'Kagoshima': ['Fukuoka (Kyushu)','Kumamoto','Miyazaki','Tokyo','Osaka'],
-  'Kamakura': ['Tokyo','Yokohama','Hakone'],
+  'Kamakura': ['Tokyo','Yokohama','Hakone','Enoshima'],
   'Kawagoe': ['Tokyo'],
   'Kitsuki': ['Beppu','Fukuoka (Kyushu)','Kumamoto','Matsuyama (Dogo Onsen)','Usuki'],
   'Kobe': ['Osaka','Kyoto','Himeji','Arima Onsen'],
@@ -1848,20 +1860,18 @@ const ITIN_CONTINUATIONS = {
   'Tsumago': ['Magome','Nagano','Matsumoto','Tokyo','Kanazawa','Takayama','Nagoya'],
   'Miyazaki': ['Fukuoka (Kyushu)','Kagoshima','Beppu','Tokyo'],
   'Nagasaki': ['Fukuoka (Kyushu)','Kumamoto','Tokyo','Osaka'],
-  'Nara': ['Kyoto','Osaka','Himeji','Koyasan'],
+  'Nara': ['Kyoto','Osaka','Himeji','Koyasan','Uji'],
   'Nikko': ['Tokyo','Kusatsu Onsen'],
   'Niseko': ['Hokkaido (Sapporo)','Hakodate','Otaru','Tokyo'],
   'Otaru': ['Hokkaido (Sapporo)','Niseko','Asahikawa','Tokyo','Hakodate'],
-  'Shimokitazawa': ['Tokyo','Koenji'],
-  'Koenji': ['Shimokitazawa','Tokyo'],
   'Shirakawa-go': ['Kanazawa','Takayama','Nagoya'],
   'Yokohama': ['Tokyo','Kamakura'],
   'Karatsu': ['Fukuoka (Kyushu)','Saga','Arita'],
   'Yanagawa': ['Fukuoka (Kyushu)'],
   'Usuki': ['Kitsuki','Beppu'],
   'Fuji Five Lakes': ['Tokyo','Hakone'],
-  'Hirosaki': ['Sendai','Hakodate','Kakunodate','Oirase Gorge','Lake Towada','Tokyo'],
-  'Kakunodate': ['Sendai','Hirosaki','Oirase Gorge','Lake Towada','Tokyo'],
+  'Hirosaki': ['Sendai','Hakodate','Kakunodate','Oirase Gorge','Lake Towada','Tokyo','Morioka'],
+  'Kakunodate': ['Sendai','Hirosaki','Oirase Gorge','Lake Towada','Tokyo','Morioka'],
   'Aizu-Wakamatsu': ['Sendai','Tokyo','Ouchijuku'],
   'Ouchijuku': ['Aizu-Wakamatsu'],
   'Oirase Gorge': ['Lake Towada','Hirosaki','Tokyo','Kakunodate'],
@@ -1880,8 +1890,16 @@ const ITIN_CONTINUATIONS = {
   'Nagatoro': ['Chichibu','Tokyo'],
   'Kochi': ['Matsuyama (Dogo Onsen)','Takamatsu','Shimanto River','Tokyo','Osaka'],
   'Shimanto River': ['Kochi'],
-  'Saga': ['Arita','Karatsu','Fukuoka (Kyushu)'],
+  'Saga': ['Arita','Karatsu','Fukuoka (Kyushu)','Kumamoto'],
   'Arita': ['Saga','Karatsu','Fukuoka (Kyushu)'],
+  'Uji': ['Kyoto','Nara'],
+  'Yamadera': ['Sendai','Ginzan Onsen'],
+  'Morioka': ['Sendai','Hirosaki','Kakunodate'],
+  'Iwakuni': ['Hiroshima'],
+  'Enoshima': ['Kamakura'],
+  'Gero Onsen': ['Takayama','Nagoya'],
+  'Amakusa': ['Kumamoto'],
+  'Uwajima': ['Matsuyama (Dogo Onsen)'],
 };
 
 
@@ -2189,9 +2207,11 @@ function itinRenderRoute() {
       strip.appendChild(arrow);
     }
     const el = document.createElement('div');
-    el.className = 'it-route-stop' + (itinEditingStopIndex === i ? ' it-route-stop-editing' : '');
+    el.className = 'it-route-stop' + (itinEditingStopIndex === i ? ' it-route-stop-editing' : '') + (itinLockedStops.has(stop) ? ' it-route-stop-locked' : '');
     const removable = i > 0;
+    const lockIcon = itinLockedStops.has(stop) ? '🔒' : '🔓';
     el.innerHTML = '<span class="it-route-stop-name" onclick="itinToggleStopEditor(' + i + ')">' + stop + ' ✎</span>' +
+      ' <span class="it-lock" onclick="itinToggleLockStop(\'' + stop.replace(/'/g, "\\'") + '\')" title="נעילת מיקום, האופטימיזציה לא תזיז את זה">' + lockIcon + '</span>' +
       (removable ? ' <span class="it-x" onclick="itinRemoveStop(' + i + ')">✕</span>' : '');
     strip.appendChild(el);
   });
@@ -2205,6 +2225,12 @@ function itinRenderRoute() {
     : 'התחלתם מ-' + itinRoute[0] + ', עכשיו תבחרו לאן ממשיכים';
 
   itinRenderStopEditor();
+}
+
+function itinToggleLockStop(name) {
+  if (itinLockedStops.has(name)) itinLockedStops.delete(name);
+  else itinLockedStops.add(name);
+  itinRenderRoute();
 }
 
 function itinToggleStopEditor(index) {
@@ -2224,12 +2250,16 @@ function itinRenderStopEditor() {
   if (!d) { box.innerHTML = ''; return; }
   box.innerHTML =
     '<div class="it-stop-editor">' +
-      '<div class="it-stop-editor-title">✎ עריכת ' + name + '</div>' +
+      '<div class="it-stop-editor-title">✎ ' + name + '</div>' +
       '<div class="it-night-stepper">' +
         '<button type="button" class="it-night-btn" onclick="itinAdjustNightsAt(' + itinEditingStopIndex + ', -1)">−</button>' +
         '<span class="it-night-value">' + itinNightsLabel(d) + '</span>' +
         '<button type="button" class="it-night-btn" onclick="itinAdjustNightsAt(' + itinEditingStopIndex + ', 1)">+</button>' +
       '</div>' +
+      '<button type="button" class="it-stop-editor-lock" onclick="itinToggleLockStop(\'' + name.replace(/'/g, "\\'") + '\')">' +
+        (itinLockedStops.has(name) ? '🔒 נעול, האופטימיזציה לא תזיז את זה' : '🔓 נעלו את המיקום הזה') +
+      '</button>' +
+      '<div class="it-stop-editor-info">' + itinDestCardHtml(d, {}) + '</div>' +
       '<button type="button" class="it-stop-editor-close" onclick="itinToggleStopEditor(' + itinEditingStopIndex + ')">✓ סגור</button>' +
     '</div>';
 }
@@ -2989,6 +3019,7 @@ function itinResetFilters() {
 function itinResetRoute() {
   itinRoute = [];
   itinUsedNames = new Set();
+  itinLockedStops = new Set();
   itinActiveWho = null;
   itinActiveWhat = new Set();
   itinActiveRegion = null;
@@ -3130,7 +3161,12 @@ function itinTwoOptImprove(names) {
     // the middle of the trip.
     for (let i = 1; i < best.length - 2; i++) {
       for (let j = i + 1; j < best.length - 1; j++) {
-        const candidate = best.slice(0, i).concat(best.slice(i, j + 1).reverse(), best.slice(j + 1));
+        // A locked stop's position is off-limits: skip any reversal whose
+        // range would touch it, so a manually pinned stop never gets moved
+        // by an "optimization" the person didn't ask for.
+        const segment = best.slice(i, j + 1);
+        if (segment.some(name => itinLockedStops.has(name))) continue;
+        const candidate = best.slice(0, i).concat(segment.reverse(), best.slice(j + 1));
         if (!itinCandidateAnchorsValid(candidate)) continue;
         const score = itinRouteScoreForOptimizer(candidate);
         if (score < bestScore - 1) {
@@ -3194,6 +3230,7 @@ function itinRenderOptimizationSuggestion() {
 let itinPendingOptimizedRoute = null;
 let itinEditingStopIndex = null; // index into itinRoute whose nights stepper is currently open
 let itinSummaryExpandedStop = null; // name of the stop whose full info is expanded inline in the summary list
+let itinLockedStops = new Set(); // stop names the auto-optimizer must never reposition
 function itinApplyOptimizedRoute() {
   if (!itinPendingOptimizedRoute) return;
   itinRoute = itinPendingOptimizedRoute.slice();
@@ -3357,7 +3394,7 @@ function itinShowSummary() {
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
   document.getElementById('itinSummaryTotal').innerHTML =
-    stops.length + ' תחנות · בערך <b>' + totalDays + ' לילות</b> · סה"כ נסיעה כ-<b>' + itinFormatHoursValue(totalHours) + '</b> (כ-' + analysis.totalKm + ' ק"מ קו אווירי)';
+    stops.length + ' תחנות · בערך <b>' + totalDays + ' לילות</b> · סה"כ נסיעה <b>' + itinFormatHoursValue(totalHours) + '</b> (כ-' + analysis.totalKm + ' ק"מ קו אווירי)';
 
   // Show the deterministic character summary immediately (instant, always
   // available), then quietly swap in an AI-written version if one arrives —
@@ -3444,8 +3481,6 @@ const ITIN_MAPS_QUERY_OVERRIDES = {
   'Aso': 'Aso, Kumamoto, Japan',
   'Magome': 'Magome-juku, Japan',
   'Tsumago': 'Tsumago-juku, Japan',
-  'Shimokitazawa': 'Shimokitazawa, Tokyo, Japan',
-  'Koenji': 'Koenji, Tokyo, Japan',
   'Ouchijuku': 'Ouchi-juku, Fukushima, Japan',
   'Oirase Gorge': 'Oirase Gorge, Aomori, Japan',
   'Gokayama': 'Gokayama, Toyama, Japan',
@@ -3519,7 +3554,7 @@ function itinBuildExportText() {
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
   lines.push('');
-  lines.push('\u05e1\u05d4"\u05db: ' + stops.length + ' \u05ea\u05d7\u05e0\u05d5\u05ea, \u05db-' + totalDays + ' \u05dc\u05d9\u05dc\u05d5\u05ea, \u05db-' + itinFormatHoursValue(totalHours) + ' \u05e0\u05e1\u05d9\u05e2\u05d4 (\u05db-' + analysis.totalKm + ' \u05e7"\u05de \u05e7\u05d5 \u05d0\u05d5\u05d5\u05d9\u05e8\u05d9).');
+  lines.push('\u05e1\u05d4"\u05db: ' + stops.length + ' \u05ea\u05d7\u05e0\u05d5\u05ea, \u05db-' + totalDays + ' \u05dc\u05d9\u05dc\u05d5\u05ea, ' + itinFormatHoursValue(totalHours) + ' \u05e0\u05e1\u05d9\u05e2\u05d4 (\u05db-' + analysis.totalKm + ' \u05e7"\u05de \u05e7\u05d5 \u05d0\u05d5\u05d5\u05d9\u05e8\u05d9).');
   lines.push('');
   lines.push('\u05d0\u05d5\u05e4\u05d9 \u05d4\u05d8\u05d9\u05d5\u05dc: ' + itinBuildCharacterSummary(stops));
   return lines.join('\n');
@@ -3543,7 +3578,7 @@ function itinBuildAiPrompt(question) {
   const analysis = itinAnalyzeRoute();
   const totalNights = stops.reduce((s, d) => s + itinGetNights(d), 0);
   return 'זהו מסלול טיול ביפן שבניתי:\n' + routeDescription +
-    '\n\nסה"כ ' + stops.length + ' תחנות, ' + totalNights + ' לילות, כ-' + itinFormatHoursValue(totalHours) +
+    '\n\nסה"כ ' + stops.length + ' תחנות, ' + totalNights + ' לילות, ' + itinFormatHoursValue(totalHours) +
     ' נסיעה כוללת (כ-' + analysis.totalKm + ' ק"מ קו אווירי).\n' + character +
     '\n\nהשאלה שלי: ' + question;
 }
