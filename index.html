@@ -1,3 +1,231 @@
+
+/
+Claude finished the response
+
+Redesigned AI role: rank destinations intelligently, preserve deterministic routing
+Redesigned AI role: rank destinations intelligently, preserve deterministic routing
+Understood — that's actually a better use of AI here: not translating text, but helping weigh which destinations best fit this specific trip, while my graph algorithm still builds the actual connected route (so it can never suggest an impossible connection). Let me build that.
+
+
+מעצבים מערכת דירוג יעדים מבוססת AI
+מעצבים מערכת דירוג יעדים מבוססת AI
+Let's implement this. First, the state and destination payload builder:
+
+
+Ran a command, viewed a file, edited a file
+Ran a command, viewed a file, edited a file
+Now let's add the AI ranking fetch function, right before itinScoreForQuiz:
+
+
+Add functions to build the compact destination payload and fetch an AI-informed ranking, then incorporate it into the scoring function
+Add functions to build the compact destination payload and fetch an AI-informed ranking, then incorporate it into the scoring function
+Now let's incorporate the AI score into itinScoreForQuiz:
+
+
+Ran a command, edited a file
+Ran a command, edited a file
+Now let's make itinGenerateQuizRoute async and call the AI ranking first:
+
+
+בודק את תאימות הכפתור לפונקציה אסינכרונית
+בודק את תאימות הכפתור לפונקציה אסינכרונית
+Let's reset the AI scores state on relevant navigation points:
+
+
+שקל האם להשאיר ניקוד AI ללא שינוי
+שקל האם להשאיר ניקוד AI ללא שינוי
+Now let's run full validation:
+
+
+Validate everything after adding AI-assisted destination ranking
+Validate everything after adding AI-assisted destination ranking
+Let's run a functional test simulating an AI ranking response to confirm scoring integration works:
+
+
+מנסח פתרון להתאמת מסלול מותאם אישית
+מנסח פתרון להתאמת מסלול מותאם אישית
+Now let's also write the corresponding worker action, since the client needs a real endpoint to call:
+
+
+Viewed a file, edited a file
+Viewed a file, edited a file
+Now let's add the new action's prompt-building and Gemini-calling functions:
+
+
+Ran 3 commands, edited a file, viewed a file
+Ran 3 commands, edited a file, viewed a file
+Now let's add the routing branch in the fetch handler:
+
+
+Ran a command, viewed a file, edited a file
+Ran a command, viewed a file, edited a file
+Let's validate and cross-check against the original file once more:
+
+
+Final validation and cross-check
+Final validation and cross-check
+All good. Now let's copy both the updated HTML and worker files to outputs:
+
+
+ערך תגובה סיכום מותאמת למטרה המבוקשת
+ערך תגובה סיכום מותאמת למטרה המבוקשת
+עכשיו זה בנוי נכון: AI עוזר לתעדף איזה יעדים הכי מתאימים, אבל האלגוריתם הגרפי שלי עדיין בונה את הרצף בפועל. חלוקת התפקידים:
+
+מה ה-AI עושה עכשיו: כשלוחצים "✨ בנו לי מסלול", לפני שהאלגוריתם מתחיל לרוץ, נשלחת קריאה ל-worker עם תשובות השאלון + הרשימה המלאה של כל 84 היעדים (אזור, מי-מתאים, מה-מעניין, רמת פרסום, לילות מומלצים, תיאור קצר). ה-AI מחזיר ציון 0-10 לכל יעד, שמשקף כמה טוב הוא מתאים לשילוב הספציפי של התשובות שלך, לא רק סכימה של התאמות בודדות (למשל, הוא יכול לשקול נכון שילובים כמו "זוג + אוכל + קצב רגוע" יחד, בעוד שהניקוד הקבוע שלי פשוט מוסיף נקודות בנפרד לכל תשובה).
+
+מה נשאר אצל האלגוריתם שלי, ולמה זה חשוב: הציון של ה-AI נכנס כתוספת לתוך itinScoreForQuiz, אבל מרחק העצירות בגרף האמיתי עדיין שולט (-hops*12, המשקל הכי גדול בנוסחה). זה אומר שגם אם ה-AI "יאהב מאוד" יעד רחוק/לא מחובר, הוא לא יכול לדחוף את האלגוריתם לבחור בו על פני יעד קרוב וישיר. כל הבנייה בפועל (סדר, לילות, טיולי יום, עיגון לשער היציאה, האופטימיזציה) עדיין קורית באלגוריתם הגרפי המאומת, בדיוק כמו קודם. אם ה-AI לא זמין (worker לא פרוס, מגבלת קצב, בעיית רשת), הכל נופל בחזרה לניקוד הרגיל בלי שום שבירה, ורואים הודעה ברורה על זה.
+
+בניתי גם את קוד ה-worker (הפעם על גבי הקובץ האמיתי שלך, לא פלייסהולדר): הוספתי action שלישי, rank_itinerary_destinations, עם prompt שמבקש מ-Gemini בפירוש רק לתת ציונים, ומדגיש לו שהוא לא קובע מסלול/סדר/קשרי תחבורה. וידאתי (עם node --check ובדיקת diff) שכל הלוגיקה הקיימת שלך (חיפוש מקומות, מגבלות קצב, אותו KV, אותו TTL) נשארה בדיוק כמו שהיא.
+
+בדקתי בפועל: ציון AI של 9 מעלה את קיוטו מ--6 ל-7.5 (חישוב נכון), והנפילה חזרה כשאין רשת מחזירה null בלי לשבור כלום. JS ו-JSON תקינים בשני הקבצים. מוכן להעלאה (רק את index.js צריך להעלות ל-Cloudflare עם wrangler deploy, כרגיל).
+
+
+Japan all places browser
+Code · HTML 
+
+Index
+JS 
+1784640238256_image.png
+בוא נורייד את הרכיב ai שמרכיב את השאלון
+בוא נשתמש בai בשביל שיספק גם סיכום של המסלול (ואופי המסלול) לאחר שהוא מרכיב אותו
+בדף הסיכום יש יותר מדי רעש
+הייתי רוצה שבלחיצת כפתור על העיר, נוכל לראות את כל המידע ששמור עליה (בלי לאבד את הסיכום)
+
+
+מיישמת ארבע שינויים: הסרת AI מהשאלון, הוספת סיכום AI, צמצום רעש, הרחבת עיר
+מיישמת ארבע שינויים: הסרת AI מהשאלון, הוספת סיכום AI, צמצום רעש, הרחבת עיר
+Let's work through these one at a time. First, removing the free-text AI quiz filler:
+
+
+Ran a command, viewed a file, edited a file
+Ran a command, viewed a file, edited a file
+Now let's remove the JS function:
+
+
+מתכננת שכתוב מחדש של קטע עם תכונות אינטראקטיביות
+מתכננת שכתוב מחדש של קטע עם תכונות אינטראקטיביות
+Now let's implement AI-generated route summary/character. Let's look at the current character summary logic:
+
+
+מעצב ממשק נקי ללא הודעות מיותרות
+מעצב ממשק נקי ללא הודעות מיותרות
+Let's implement all three remaining points together since they touch the same area. First, let's view the rest of itinShowSummary:
+
+
+ארכיטקט ממשק מפחית רעש עם פרטים בהרחבה
+ארכיטקט ממשק מפחית רעש עם פרטים בהרחבה
+Let's restructure. First, the HTML for the AI section (collapsible) and character box:
+
+
+Viewed 2 files
+Viewed 2 files
+Now let's declutter the summary screen HTML:
+
+
+Consolidate the character summary display, collapse the AI Q&A into a details element to reduce visual noise
+Consolidate the character summary display, collapse the AI Q&A into a details element to reduce visual noise
+Now let's add CSS for the <details> element:
+
+
+מטמיע תכונת הרחבה לשורות סיכום עם ניהול אסינכרוני
+מטמיע תכונת הרחבה לשורות סיכום עם ניהול אסינכרוני
+Now let's implement the click-to-expand feature and reduce warning noise. First, let's add state:
+
+
+זיהה באג בלוגיקת התנאי ותיקן אותו
+זיהה באג בלוגיקת התנאי ותיקן אותו
+Let me fix a logic bug in the async AI swap-in (checking a meaningless condition instead of whether the user is still on this screen):
+
+
+Fix the guard condition to actually check whether the user is still on the summary screen before swapping in the AI text (avoiding a stale async update)
+Fix the guard condition to actually check whether the user is still on the summary screen before swapping in the AI text (avoiding a stale async update)
+Now let's add CSS for the new summary detail expansion and clickable name:
+
+
+מסלול את הפעולה היתומה להסרה
+מסלול את הפעולה היתומה להסרה
+Now let's add the summarize_itinerary action to the worker file:
+
+
+Orchestrated removal of quiz parser, integrated itinerary summarizer systematically
+Orchestrated removal of quiz parser, integrated itinerary summarizer systematically
+Let's also remove the now-unused parse_trip_quiz action from the worker (since we removed the client feature) and add the new summarize_itinerary action:
+
+
+Ran a command, viewed a file
+Ran a command, viewed a file
+Let's remove this whole section and replace with a new summarize_itinerary action instead:
+
+
+Remove the parse_trip_quiz action's supporting functions
+Remove the parse_trip_quiz action's supporting functions
+Now let's remove the routing branch and the unused MAX_QUIZ_TEXT_CHARS constant:
+
+
+תכננתי עדכון קובץ והוספת פונקציית סיכום חדשה
+תכננתי עדכון קובץ והוספת פונקציית סיכום חדשה
+Now let's update the header comment and add the new summarize_itinerary action:
+
+
+Edited 2 files, ran a command
+Edited 2 files, ran a command
+Now let's add the summarize_itinerary action functions and routing:
+
+
+Ran a command, edited a file
+Ran a command, edited a file
+Now let's add the routing branch:
+
+
+Ran a command, viewed a file, edited a file
+Ran a command, viewed a file, edited a file
+Let's validate everything now:
+
+
+אימת תיעוד קיים והכין לבדיקת קובץ נוסף
+אימת תיעוד קיים והכין לבדיקת קובץ נוסף
+All clean. Let's run a functional test of the click-to-expand and AI summary fetch fallback:
+
+
+זיהה באג בקוד הבדיקה וערך תיקון
+זיהה באג בקוד הבדיקה וערך תיקון
+Everything works correctly — click-to-expand toggles properly, and the AI summary gracefully falls back to null when unavailable. Let's ship both files:
+
+
+Ran a command, read a file
+Ran a command, read a file
+עשיתי את כל ארבעת השינויים:
+
+1. הסרתי את רכיב ה-AI שממלא את השאלון: הוצאתי לגמרי את תיבת הטקסט החופשי ("או פשוט תארו את הטיול") מהמסך, ואת הפונקציה שמאחוריה. הסרתי גם את ה-action המקביל (parse_trip_quiz) מקוד ה-worker, כי הוא כבר לא בשימוש.
+
+2. AI לסיכום ואופי המסלול: הוספתי action רביעי לworker, summarize_itinerary. אחרי שהמסלול נבנה (בין אם ידנית או דרך השאלון), נשלחת קריאה עם הרצף הסופי בפועל (לא מועמדים, המסלול הקבוע) ומבקשת פסקה קצרה שמתארת את האופי שלו. חשוב: ה-AI מתאר בלבד, לא מציע לשנות סדר או מקומות. התוצאה הדטרמיניסטית (הקבועה שלי) מוצגת מיד, ואם ה-AI עונה, היא מוחלפת בשקט בגרסה שלו, בלי לחכות ובלי לשבור כלום אם הוא לא זמין (בדקתי את הנפילה חזרה בפועל).
+
+3. פחות רעש בדף הסיכום: כמה שינויים:
+
+תיבת "שאלו על המסלול" הפכה לניתנת לקיפול (<details>), סגורה כברירת מחדל, כדי שלא תתפוס מקום עד שרוצים אותה.
+הסרתי את תיבת "✓ המסלול נראה רציף גיאוגרפית" שהופיעה תמיד גם כשהכל בסדר, עכשיו מוצגת הערה רק כשיש משהו אמיתי לציין (זיגזוג משמעותי, או שיפור אמיתי אפשרי בסדר).
+קיצרתי טקסטים ארוכים של הסברים.
+4. לחיצה על שם עיר בסיכום מציגה את כל המידע: כל שם יעד ברשימת הסיכום עכשיו לחיץ (עם ▸/▾ שמראה מצב). לחיצה פותחת בדיוק מתחת לאותה שורה את כל הכרטיס המלא של היעד הזה (למה כדאי לבקר, הציטוט, איך האנשים שם, תגיות, הערה עונתית וכו'), בלי לצאת ממסך הסיכום ובלי לאבד את שום דבר אחר. לחיצה נוספת סוגרת את זה.
+
+בדקתי הכל: JS ו-JSON תקינים בשני הקבצים, ה-<details> מאוזן, ובדיקה פונקציונלית אישרה שהקליק-להרחבה עובד ושה-AI נופל בחזרה בצורה נקייה כשאין רשת. מוכן להעלאה (זוכרי להעלות מחדש גם את ה-worker עם wrangler deploy).
+
+
+Japan all places browser
+Code · HTML 
+
+Index
+JS 
+
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+
+
+Japan all places browser · HTML
+Syntax highlighting has been disabled due to code size.
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -290,7 +518,9 @@
 
   .it-summary-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
   .it-summary-num { font-family: var(--pixel); font-size: 0.68rem; color: var(--muted); width: 20px; }
-  .it-summary-name { font-family: var(--pixel); font-size: 0.82rem; flex: 1; }
+  .it-summary-name { font-family: var(--pixel); font-size: 0.82rem; flex: 1; cursor: pointer; }
+  .it-summary-name:hover { color: var(--accent); }
+  .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.2rem 0 0.6rem; }
   .it-summary-nights { font-size: 0.7rem; color: var(--accent); }
   .it-summary-total { margin-top: 0.8rem; font-size: 0.85rem; text-align: center; }
   .it-summary-total b { color: var(--accent); font-family: var(--pixel); }
@@ -311,6 +541,12 @@
   .it-character-box { background: rgba(125,211,252,0.06); border-right: 3px solid #7dd3fc; border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.76rem; color: #cfe9f7; line-height: 1.6; }
   .it-character-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.65rem; font-weight: 700; color: #7dd3fc; margin-bottom: 0.3rem; }
   .it-ai-box { margin-bottom: 0.5rem; }
+  .it-ai-details { margin: 0.8rem 0; }
+  .it-ai-details summary { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.78rem; color: var(--accent); cursor: pointer; padding: 0.3rem 0; list-style: none; }
+  .it-ai-details summary::-webkit-details-marker { display: none; }
+  .it-ai-details summary::before { content: '▸ '; }
+  .it-ai-details[open] summary::before { content: '▾ '; }
+  .it-ai-details .it-ai-box { margin-top: 0.5rem; }
   .it-ai-note { font-size: 0.68rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.4rem; }
   .it-quiz-toggle-btn { display: block; width: 100%; margin-top: 0.8rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: transparent; color: var(--accent); border: 2px dashed var(--accent); border-radius: 8px; padding: 0.6rem 0.8rem; cursor: pointer; }
   .it-quiz-sub { font-size: 0.76rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.6rem; }
@@ -323,9 +559,6 @@
   .it-quiz-dates-row input[type="date"] { flex: 1; }
   .it-quiz-dates-sep { font-size: 0.72rem; color: var(--muted); }
   .it-quiz-dates-note { font-size: 0.7rem; color: var(--accent); margin-bottom: 0.6rem; min-height: 1em; }
-  .it-quiz-ai-box { background: rgba(255,209,102,0.06); border: 1px dashed var(--accent); border-radius: 10px; padding: 0.7rem 0.8rem; margin-bottom: 1rem; }
-  .it-quiz-ai-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; color: var(--accent); margin-bottom: 0.4rem; }
-  .it-quiz-ai-parse-btn { margin-top: 0.5rem; width: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 7px; padding: 0.55rem; cursor: pointer; }
   .it-quiz-ai-parse-note { font-size: 0.68rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4; }
   .it-mode-btn { display: block; width: 100%; text-align: right; margin-bottom: 0.7rem; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; cursor: pointer; }
   .it-mode-btn:hover { border-color: var(--accent); }
@@ -864,13 +1097,6 @@
     <div class="it-section-label">📝 בואו נבנה לכם מסלול</div>
     <div class="it-quiz-sub">עונים על כמה שאלות קצרות, ואנחנו בונים טיוטת מסלול שלמה שאפשר לערוך ולכוון אחר כך.</div>
 
-    <div class="it-quiz-ai-box">
-      <div class="it-quiz-ai-label">✨ או פשוט תארו את הטיול במילים חופשיות</div>
-      <textarea id="itinQuizFreeText" class="it-ai-input" placeholder="למשל: זוג בלי ילדים, 12 לילות, נוחתים בטוקיו וטסים הביתה מאוסקה, אוהבים אוכל ואונסן, כבר היינו פעם אחת ביפן ולא רוצים לחזור לקיוטו..."></textarea>
-      <button type="button" class="it-quiz-ai-parse-btn" onclick="itinParseQuizFromText()">🤖 מלאו לי את השאלון לפי זה</button>
-      <div id="itinQuizAiParseNote" class="it-quiz-ai-parse-note"></div>
-    </div>
-
     <div class="it-section-label">מתי הטיול? (לא חובה, אבל מאפשר גם התאמת אירועים בתאריכים שלכם)</div>
     <div class="it-quiz-dates-row">
       <input type="date" id="itinQuizStartDate" class="it-search-input" oninput="itinQuizDatesChanged()">
@@ -968,13 +1194,15 @@
     <div id="itinCharacterSummary"></div>
     <div id="itinSummaryWarnings"></div>
 
-    <div class="it-section-label">🤖 שאלו על המסלול</div>
-    <div class="it-ai-box">
-      <div class="it-ai-note">כותבים שאלה, לוחצים, והשאלה מועתקת ללוח כולל כל המסלול שלכם כהקשר. לא ניתן לענות ישירות כאן (זה דף סטטי בלי שרת), אבל אפשר להדביק את זה ישר בקלוד, ג׳מיני או ChatGPT ולקבל תשובה.</div>
-      <textarea id="itinAiQuestion" class="it-ai-input" placeholder="למשל: האם זה מסלול טוב למשפחה עם ילדים קטנים? יש לי עוד יומיים פנויים, מה כדאי להוסיף?"></textarea>
-      <button type="button" class="it-ai-ask-btn" onclick="itinAskAI()">✨ הכינו שאלה עם המסלול</button>
-      <div id="itinAiResponse"></div>
-    </div>
+    <details class="it-ai-details">
+      <summary>🤖 שאלו על המסלול</summary>
+      <div class="it-ai-box">
+        <div class="it-ai-note">כותבים שאלה, לוחצים, והיא מועתקת ללוח עם כל המסלול כהקשר, כדי להדביק בקלוד/ג׳מיני/ChatGPT.</div>
+        <textarea id="itinAiQuestion" class="it-ai-input" placeholder="למשל: האם זה מסלול טוב למשפחה עם ילדים קטנים? יש לי עוד יומיים פנויים, מה כדאי להוסיף?"></textarea>
+        <button type="button" class="it-ai-ask-btn" onclick="itinAskAI()">✨ הכינו שאלה עם המסלול</button>
+        <div id="itinAiResponse"></div>
+      </div>
+    </details>
 
     <div class="it-section-label">📤 ייצוא</div>
     <div class="it-export-row">
@@ -1698,6 +1926,11 @@ let itinQuiz = {
   regions: new Set(),
   visited: new Set(), // destinations already visited on a past trip, to skip
 };
+// Map of destination name -> { score, reason }, filled by asking AI to
+// weigh which destinations best fit the quiz answers. Stays null if the
+// call hasn't run yet, isn't available, or failed — the generator always
+// works fine without it, just with slightly less nuanced prioritization.
+let itinAiDestinationScores = null;
 
 const ITIN_DESTINATIONS = [
   { name: 'Tokyo', lat: 35.6812, lng: 139.7671, nights: '3-5 (בסיס)', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות','נגישות'], what: ['אוכל','ערים','קניות','חיי לילה','מוזיקה'], crowd: null, anchor: 'שער הכניסה הנפוץ ביותר, כל שכונה מרגישה כמו עיר אחרת בפני עצמה', vibe: { text: 'מבקרים חוזרים מתארים את סנסו-ג\'י כמקום שבכל ביקור נותן שוב את "אותה תחושת שלווה", למרות שהוא הומה אנשים ביום. בלילה, כשהמקדש מואר ושקט, זו חוויה שונה לגמרי, יותר מדיטטיבית.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'טוקיו (Tokyo)', homeCount: 235, peopleVibe: 'מנומסים ומדויקים, אבל שמורים יותר עם זרים ולא נוטים ליזום שיחה. אנגלית בסיסית קיימת בתחבורה ובאזורי תיירות, מחוץ לזה מוגבלת.' },
@@ -2464,57 +2697,6 @@ const ITIN_MONTH_TO_SEASON = {
 // pace, season, regions: [...], visitNumber, nights }). Until that branch
 // exists server-side, this will show a clear "not available yet" message
 // rather than silently failing.
-async function itinParseQuizFromText() {
-  const textEl = document.getElementById('itinQuizFreeText');
-  const noteEl = document.getElementById('itinQuizAiParseNote');
-  const text = textEl.value.trim();
-  if (!text) {
-    noteEl.textContent = 'כתבו קודם כמה מילים על הטיול.';
-    return;
-  }
-  noteEl.textContent = '🤖 קורא/ת את התיאור...';
-  try {
-    const resp = await fetch(AI_SEARCH_WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'parse_trip_quiz',
-        text: text,
-        options: {
-          start: ITIN_START_OPTIONS,
-          who: ITIN_WHO_OPTIONS,
-          what: ITIN_WHAT_OPTIONS,
-          pace: ITIN_PACE_OPTIONS,
-          season: ITIN_SEASON_OPTIONS,
-          regions: ITIN_REGION_OPTIONS,
-          visitNumber: ITIN_VISIT_OPTIONS,
-        },
-      }),
-    });
-    const data = await resp.json();
-    if (!resp.ok || data.error || !data.result) {
-      noteEl.textContent = data.error === 'rate_limited'
-        ? 'הגעתם למגבלת החיפושים החכמים להיום, אפשר למלא את השאלון ידנית בינתיים.'
-        : 'המילוי האוטומטי לא זמין כרגע (ייתכן שהתכונה הזו עוד לא נפרסה בצד השרת), אפשר למלא ידנית למטה.';
-      return;
-    }
-    const r = data.result;
-    if (r.start && ITIN_START_OPTIONS.includes(r.start)) itinQuiz.start = r.start;
-    if (r.end && ITIN_START_OPTIONS.includes(r.end)) itinQuiz.end = r.end;
-    if (r.who && ITIN_WHO_OPTIONS.includes(r.who)) itinQuiz.who = r.who;
-    if (Array.isArray(r.what)) itinQuiz.what = new Set(r.what.filter(w => ITIN_WHAT_OPTIONS.includes(w)));
-    if (r.pace && ITIN_PACE_OPTIONS.includes(r.pace)) itinQuiz.pace = r.pace;
-    if (r.season && ITIN_SEASON_OPTIONS.includes(r.season)) itinQuiz.season = r.season;
-    if (Array.isArray(r.regions)) itinQuiz.regions = new Set(r.regions.filter(x => ITIN_REGION_OPTIONS.includes(x)));
-    if (r.visitNumber && ITIN_VISIT_OPTIONS.includes(r.visitNumber)) itinQuiz.visitNumber = r.visitNumber;
-    if (typeof r.nights === 'number' && r.nights > 0) itinQuiz.nights = Math.round(r.nights);
-    itinRenderQuizChips();
-    noteEl.textContent = '✓ מילאנו את השאלון למטה לפי התיאור שלכם, אפשר לעבור עליו ולתקן לפני שיוצרים את המסלול.';
-  } catch (err) {
-    noteEl.textContent = 'המילוי האוטומטי לא זמין כרגע, אפשר למלא ידנית למטה.';
-  }
-}
-
 function itinQuizDatesChanged() {
   const startVal = document.getElementById('itinQuizStartDate').value;
   const endVal = document.getElementById('itinQuizEndDate').value;
@@ -2709,6 +2891,66 @@ function itinDestEventMatch(d) {
   return d.eventWindows.find(w => itinEventOverlapsTrip(w, tripStart, tripEnd)) || null;
 }
 
+// Compact version of every destination for the AI ranking call — enough
+// for the model to make an informed judgment call (region, tags, crowd
+// level, a short anchor line) without sending the full vibe/quote text.
+function itinBuildDestinationsPayloadForAI() {
+  return ITIN_DESTINATIONS.map(d => ({
+    name: d.name,
+    region: d.region,
+    who: d.who,
+    what: d.what,
+    crowd: d.crowd || null,
+    nights: d.nights,
+    anchor: d.anchor,
+  }));
+}
+
+// Asks AI to weigh which destinations best fit this specific trip, given
+// the quiz answers and the real destination list — nuance a fixed
+// point-scoring formula can't fully capture (e.g. balancing several
+// competing interests, or reading between the lines of a pace preference).
+// It only ever scores/ranks destinations that already exist in the given
+// list; it never decides the actual route, order, or claims any specific
+// travel connection — that's still entirely handled by the graph-based
+// generator below, so nothing it says can introduce an impossible leg.
+// Returns a Map(name -> {score, reason}), or null if unavailable.
+async function itinFetchAiDestinationRanking() {
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'rank_itinerary_destinations',
+        quiz: {
+          nights: itinQuiz.nights,
+          start: itinQuiz.start,
+          end: itinQuiz.end,
+          visitNumber: itinQuiz.visitNumber,
+          who: itinQuiz.who,
+          what: [...itinQuiz.what],
+          pace: itinQuiz.pace,
+          season: itinQuiz.season,
+          regions: [...itinQuiz.regions],
+          visited: [...itinQuiz.visited],
+        },
+        destinations: itinBuildDestinationsPayloadForAI(),
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error || !data.result || !Array.isArray(data.result.ranked)) return null;
+    const map = new Map();
+    data.result.ranked.forEach(item => {
+      if (item && typeof item.name === 'string' && typeof item.score === 'number') {
+        map.set(item.name, { score: item.score, reason: item.reason || '' });
+      }
+    });
+    return map.size > 0 ? map : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function itinScoreForQuiz(d, hops) {
   let score = -hops * 12;
   if (itinQuiz.who && d.who.includes(itinQuiz.who)) score += 6;
@@ -2726,6 +2968,13 @@ function itinScoreForQuiz(d, hops) {
   if (itinQuiz.visitNumber === 'ביקרתי 3+ פעמים') {
     if (d.crowd === 'hidden-gem') score += 3;
     if (d.crowd === 'popular') score -= 3;
+  }
+  // If AI weighed in on this destination (0-10 scale from the ranking
+  // call), let it meaningfully shift preference among reachable
+  // candidates — but hop-distance above still dominates, so it can never
+  // push the generator toward something that isn't actually reachable.
+  if (itinAiDestinationScores && itinAiDestinationScores.has(d.name)) {
+    score += itinAiDestinationScores.get(d.name).score * 1.5;
   }
   return score;
 }
@@ -2760,13 +3009,19 @@ function itinFindPath(fromName, toName) {
   return null; // no path found
 }
 
-function itinGenerateQuizRoute() {
+async function itinGenerateQuizRoute() {
   const errEl = document.getElementById('itinQuizError');
   errEl.innerHTML = '';
   if (!itinQuiz.start) {
     errEl.innerHTML = '<div class="it-quiz-error">בחרו קודם מאיזה שער נכנסים.</div>';
     return;
   }
+
+  errEl.innerHTML = '<div class="it-quiz-ai-parse-note">🤖 מתייעצים עם AI על היעדים שהכי מתאימים לכם...</div>';
+  itinAiDestinationScores = await itinFetchAiDestinationRanking();
+  errEl.innerHTML = itinAiDestinationScores
+    ? '<div class="it-quiz-ai-parse-note">✓ AI עזר לתעדף את היעדים לפי התשובות שלכם.</div>'
+    : '<div class="it-quiz-ai-parse-note">ה-AI לא היה זמין הפעם, בונים לפי הניקוד הרגיל בלבד.</div>';
 
   const endName = itinQuiz.end && itinQuiz.end !== itinQuiz.start ? itinQuiz.end : null;
   const route = [itinQuiz.start];
@@ -2968,6 +3223,7 @@ function itinResetRoute() {
   itinActiveSeason = null;
   itinNightOverrides = {};
   itinEditingStopIndex = null;
+  itinAiDestinationScores = null;
   itinClearSearch();
   document.getElementById('itinMainScreen').style.display = 'none';
   document.getElementById('itinSummaryScreen').style.display = 'none';
@@ -3165,6 +3421,7 @@ function itinRenderOptimizationSuggestion() {
 
 let itinPendingOptimizedRoute = null;
 let itinEditingStopIndex = null; // index into itinRoute whose nights stepper is currently open
+let itinSummaryExpandedStop = null; // name of the stop whose full info is expanded inline in the summary list
 function itinApplyOptimizedRoute() {
   if (!itinPendingOptimizedRoute) return;
   itinRoute = itinPendingOptimizedRoute.slice();
@@ -3266,10 +3523,12 @@ function itinRenderSummaryMap() {
   setTimeout(() => itinSummaryLeafletMap.invalidateSize(), 50);
 }
 
-function itinShowSummary() {
-  document.getElementById('itinExportNote').innerHTML = '';
-  document.getElementById('itinAiResponse').innerHTML = '';
-  document.getElementById('itinAiQuestion').value = '';
+function itinToggleSummaryDetail(name) {
+  itinSummaryExpandedStop = (itinSummaryExpandedStop === name) ? null : name;
+  itinRenderSummaryList();
+}
+
+function itinRenderSummaryList() {
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
   const listEl = document.getElementById('itinSummaryList');
   let totalDays = 0;
@@ -3285,29 +3544,70 @@ function itinShowSummary() {
       connector = '<div class="it-summary-connector">' + mode.emoji + ' <b>' + mode.label + '</b> · ⏱️ ' + itinFormatDuration(km) +
         (direct ? '' : ' · <span class="it-no-direct">↺ לא קשר ישיר בגרף</span>') + '</div>';
     }
-    return connector + '<div class="it-summary-row"><div class="it-summary-num">' + (i + 1) + '.</div>' +
-      '<div class="it-summary-name">' + d.name + '</div>' +
-      '<div class="it-summary-nights">' + itinNightsLabel(d) + '</div></div>';
+    const isExpanded = itinSummaryExpandedStop === d.name;
+    const detailHtml = isExpanded
+      ? '<div class="it-summary-detail">' + itinDestCardHtml(d, {}) + '</div>'
+      : '';
+    return connector + '<div class="it-summary-row">' +
+      '<div class="it-summary-num">' + (i + 1) + '.</div>' +
+      '<div class="it-summary-name" onclick="itinToggleSummaryDetail(\'' + d.name.replace(/'/g, "\\'") + '\')">' + d.name + (isExpanded ? ' ▾' : ' ▸') + '</div>' +
+      '<div class="it-summary-nights">' + itinNightsLabel(d) + '</div></div>' +
+      detailHtml;
   }).join('');
+  return { stops, totalDays };
+}
+
+async function itinFetchAiRouteSummary(stops) {
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'summarize_itinerary',
+        route: stops.map(d => ({ name: d.name, region: d.region, nights: itinGetNights(d), who: d.who, what: d.what, crowd: d.crowd || null })),
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error || !data.result || !data.result.character) return null;
+    return data.result.character;
+  } catch (e) {
+    return null;
+  }
+}
+
+function itinShowSummary() {
+  document.getElementById('itinExportNote').innerHTML = '';
+  document.getElementById('itinAiResponse').innerHTML = '';
+  document.getElementById('itinAiQuestion').value = '';
+  itinSummaryExpandedStop = null;
+  const { stops, totalDays } = itinRenderSummaryList();
 
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
   document.getElementById('itinSummaryTotal').innerHTML =
     stops.length + ' תחנות · בערך <b>' + totalDays + ' לילות</b> · סה"כ נסיעה כ-<b>' + itinFormatHoursValue(totalHours) + '</b> (כ-' + analysis.totalKm + ' ק"מ קו אווירי)';
 
-  document.getElementById('itinCharacterSummary').innerHTML =
-    '<div class="it-character-box"><div class="it-character-label">✦ אופי הטיול</div>' + itinBuildCharacterSummary(stops) + '</div>';
+  // Show the deterministic character summary immediately (instant, always
+  // available), then quietly swap in an AI-written version if one arrives —
+  // richer prose that can weigh the whole route together, without making
+  // the person wait for it before seeing anything.
+  const characterEl = document.getElementById('itinCharacterSummary');
+  characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">✦ אופי הטיול</div>' + itinBuildCharacterSummary(stops) + '</div>';
+  itinFetchAiRouteSummary(stops).then(aiText => {
+    const stillOnSummary = document.getElementById('itinSummaryScreen').style.display === 'block';
+    if (aiText && stillOnSummary) {
+      characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">✦ אופי הטיול</div>' + aiText + '</div>';
+    }
+  });
 
+  // Only surface a note here when there's actually something worth
+  // flagging (a real zigzag, or a genuinely better ordering) — a route
+  // that's simply fine doesn't need its own box saying so.
   const warnEl = document.getElementById('itinSummaryWarnings');
   let warnHtml = '';
   if (analysis.latReversals >= 2) {
     warnHtml = '<div class="it-warning-box"><div class="it-warning-label">⚠️ ייתכן זיגזג גיאוגרפי</div>' +
-      'המסלול משנה כיוון צפון-דרום כמה פעמים, ייתכן שיש נסיעות כפולות באותו אזור. כדאי לבדוק אם אפשר לסדר את התחנות ברצף גיאוגרפי הגיוני יותר.</div>';
-  } else if (analysis.latReversals === 1) {
-    warnHtml = '<div class="it-warning-box"><div class="it-warning-label">💡 שינוי כיוון אחד במסלול</div>' +
-      'יש שינוי כיוון צפון-דרום אחד במסלול. לרוב זה סביר (למשל טיול יום וחזרה), אבל שווה לוודא שזה מכוון.</div>';
-  } else {
-    warnHtml = '<div class="it-ok-box">✓ המסלול נראה רציף גיאוגרפית, בלי זיגזוג בולט.</div>';
+      'המסלול משנה כיוון צפון-דרום כמה פעמים, ייתכן שיש נסיעות כפולות באותו אזור.</div>';
   }
   const routeNames = itinRoute.slice();
   const currentKm = itinRouteTotalKmFor(routeNames);
@@ -3318,10 +3618,9 @@ function itinShowSummary() {
   const savedHours = currentHours - betterHours;
   if (savedKm >= 40 && savedKm / currentKm >= 0.08) {
     warnHtml += '<div class="it-optimize-box"><div class="it-optimize-title">💡 סידור אפשרי שחוסך נסיעה</div>' +
-      '<div class="it-optimize-text">אותן התחנות, בסדר אחר, בלי לחזור על אזורים שכבר עברתם בהם.</div>' +
       '<div class="it-optimize-route">' + itinRenderRouteNumbered(optimized.route) + '</div>' +
       '<div class="it-optimize-savings">חיסכון משוער: <b>' + itinFormatHoursValue(savedHours) + '</b> נסיעה · ' + Math.round(savedKm) + ' ק"מ פחות (' + Math.round(savedKm / currentKm * 100) + '%)</div>' +
-      '<div class="it-optimize-caveat">מעדיף קשרים תחבורתיים אמיתיים על פני קיצורי דרך בקו אווירי בלבד, אך זו עדיין הערכה.</div></div>';
+      '<div class="it-optimize-caveat">מעדיף קשרים תחבורתיים אמיתיים על פני קיצורי דרך בקו אווירי, זו עדיין הערכה.</div></div>';
   }
   warnEl.innerHTML = warnHtml;
 
@@ -3524,3 +3823,16 @@ function itinExportText() {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
