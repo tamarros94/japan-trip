@@ -203,6 +203,7 @@
   /* === מסלולים (itinerary builder) === */
   .it-map-wrap { border: 2px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 0.6rem; box-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
   #itinMap { height: 260px; background: var(--paper); }
+  #itinSummaryMap { height: 260px; background: var(--paper); }
   .leaflet-popup-content-wrapper { background: var(--surface); color: var(--ink); border-radius: 8px; }
   .leaflet-popup-content { font-family: 'Heebo', sans-serif; font-size: 0.78rem; direction: rtl; }
   .leaflet-popup-tip { background: var(--surface); }
@@ -311,6 +312,28 @@
   .it-character-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.65rem; font-weight: 700; color: #7dd3fc; margin-bottom: 0.3rem; }
   .it-ai-box { margin-bottom: 0.5rem; }
   .it-ai-note { font-size: 0.68rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.4rem; }
+  .it-quiz-toggle-btn { display: block; width: 100%; margin-top: 0.8rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: transparent; color: var(--accent); border: 2px dashed var(--accent); border-radius: 8px; padding: 0.6rem 0.8rem; cursor: pointer; }
+  .it-quiz-sub { font-size: 0.76rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.6rem; }
+  .it-quiz-nights-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 0.4rem; }
+  .it-quiz-nights-value { font-family: var(--pixel); font-size: 1.1rem; color: var(--accent); min-width: 2.5rem; text-align: center; }
+  .it-quiz-generate-btn { display: block; width: 100%; margin-top: 1rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.8rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 9px; padding: 0.75rem; cursor: pointer; }
+  .it-quiz-back-btn { display: block; width: 100%; margin-top: 0.6rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.7rem; background: transparent; color: var(--muted); border: 1px dashed var(--border); border-radius: 8px; padding: 0.5rem; cursor: pointer; }
+  .it-quiz-error { font-size: 0.72rem; color: #e08c5a; margin-top: 0.4rem; text-align: center; }
+  .it-quiz-dates-row { display: flex; align-items: center; gap: 8px; margin-bottom: 0.3rem; }
+  .it-quiz-dates-row input[type="date"] { flex: 1; }
+  .it-quiz-dates-sep { font-size: 0.72rem; color: var(--muted); }
+  .it-quiz-dates-note { font-size: 0.7rem; color: var(--accent); margin-bottom: 0.6rem; min-height: 1em; }
+  .it-quiz-ai-box { background: rgba(255,209,102,0.06); border: 1px dashed var(--accent); border-radius: 10px; padding: 0.7rem 0.8rem; margin-bottom: 1rem; }
+  .it-quiz-ai-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; color: var(--accent); margin-bottom: 0.4rem; }
+  .it-quiz-ai-parse-btn { margin-top: 0.5rem; width: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 7px; padding: 0.55rem; cursor: pointer; }
+  .it-quiz-ai-parse-note { font-size: 0.68rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4; }
+  .it-mode-btn { display: block; width: 100%; text-align: right; margin-bottom: 0.7rem; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; cursor: pointer; }
+  .it-mode-btn:hover { border-color: var(--accent); }
+  .it-mode-btn-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--ink); margin-bottom: 0.3rem; }
+  .it-mode-btn-sub { font-size: 0.74rem; color: var(--muted); line-height: 1.4; }
+  .it-quiz-visited-chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem; }
+  .it-quiz-visited-chip { font-size: 0.68rem; background: rgba(224,140,90,0.15); border: 1px solid #e08c5a; color: #f0b993; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .it-quiz-visited-result-btn { display: block; width: 100%; text-align: right; font-size: 0.72rem; background: var(--surface); border: 1px solid var(--border); color: var(--ink); border-radius: 6px; padding: 0.4rem 0.6rem; margin-top: 0.3rem; cursor: pointer; }
   .it-ai-input { width: 100%; box-sizing: border-box; font-family: 'Heebo', sans-serif; font-size: 0.78rem; padding: 0.55rem 0.7rem; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); color: var(--ink); min-height: 3.2rem; resize: vertical; }
   .it-ai-ask-btn { margin-top: 0.4rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 7px; padding: 0.5rem 0.9rem; cursor: pointer; }
   .it-ai-response { margin-top: 0.5rem; font-size: 0.76rem; line-height: 1.6; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 0.6rem 0.7rem; }
@@ -818,11 +841,83 @@
     <div class="kicker">✦ פרוטוטייפ ✦</div>
     <h1>🧭 בניית מסלול</h1>
   </div>
-  <div class="sub">בחרו למי המסלול ומה מעניין אתכם, ואז המשיכו מיעד ליעד</div>
+  <div class="sub">בחרו איך לבנות את המסלול</div>
 
-  <div id="itinStartScreen">
+  <div id="itinModeChoiceScreen">
+    <button type="button" class="it-mode-btn" onclick="itinChooseMode('manual')">
+      <div class="it-mode-btn-title">🧭 בונה לבד, יעד אחר יעד</div>
+      <div class="it-mode-btn-sub">בוחרים מאיפה מתחילים וממשיכים צעד-צעד עם המלצות בדרך</div>
+    </button>
+    <button type="button" class="it-mode-btn" onclick="itinChooseMode('quiz')">
+      <div class="it-mode-btn-title">📝 שאלון קצר, ואנחנו בונים טיוטה</div>
+      <div class="it-mode-btn-sub">עונים על כמה שאלות, ומקבלים מסלול מלא שאפשר לערוך אחר כך</div>
+    </button>
+  </div>
+
+  <div id="itinStartScreen" style="display:none;">
     <div class="it-section-label">מאיפה מתחילים? (שער כניסה בינלאומי)</div>
     <div id="itinStartCards"></div>
+    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
+  </div>
+
+  <div id="itinQuizScreen" style="display:none;">
+    <div class="it-section-label">📝 בואו נבנה לכם מסלול</div>
+    <div class="it-quiz-sub">עונים על כמה שאלות קצרות, ואנחנו בונים טיוטת מסלול שלמה שאפשר לערוך ולכוון אחר כך.</div>
+
+    <div class="it-quiz-ai-box">
+      <div class="it-quiz-ai-label">✨ או פשוט תארו את הטיול במילים חופשיות</div>
+      <textarea id="itinQuizFreeText" class="it-ai-input" placeholder="למשל: זוג בלי ילדים, 12 לילות, נוחתים בטוקיו וטסים הביתה מאוסקה, אוהבים אוכל ואונסן, כבר היינו פעם אחת ביפן ולא רוצים לחזור לקיוטו..."></textarea>
+      <button type="button" class="it-quiz-ai-parse-btn" onclick="itinParseQuizFromText()">🤖 מלאו לי את השאלון לפי זה</button>
+      <div id="itinQuizAiParseNote" class="it-quiz-ai-parse-note"></div>
+    </div>
+
+    <div class="it-section-label">מתי הטיול? (לא חובה, אבל מאפשר גם התאמת אירועים בתאריכים שלכם)</div>
+    <div class="it-quiz-dates-row">
+      <input type="date" id="itinQuizStartDate" class="it-search-input" oninput="itinQuizDatesChanged()">
+      <span class="it-quiz-dates-sep">עד</span>
+      <input type="date" id="itinQuizEndDate" class="it-search-input" oninput="itinQuizDatesChanged()">
+    </div>
+    <div id="itinQuizDatesNote" class="it-quiz-dates-note"></div>
+
+    <div class="it-section-label">כמה לילות בסך הכל?</div>
+    <div class="it-quiz-nights-row">
+      <button type="button" class="it-night-btn" onclick="itinQuizAdjustNights(-1)">−</button>
+      <span class="it-quiz-nights-value" id="itinQuizNightsValue">10</span>
+      <button type="button" class="it-night-btn" onclick="itinQuizAdjustNights(1)">+</button>
+    </div>
+
+    <div class="it-section-label">טסים ונוחתים ב...</div>
+    <div class="it-chips" id="itinQuizStartChips"></div>
+
+    <div class="it-section-label">טסים הביתה מ...</div>
+    <div class="it-chips" id="itinQuizEndChips"></div>
+
+    <div class="it-section-label">כמה פעמים ביקרתם ביפן?</div>
+    <div class="it-chips" id="itinQuizVisitChips"></div>
+
+    <div class="it-section-label">מי אתם</div>
+    <div class="it-chips" id="itinQuizWhoChips"></div>
+
+    <div class="it-section-label">מה מעניין אתכם</div>
+    <div class="it-chips" id="itinQuizWhatChips"></div>
+
+    <div class="it-section-label">קצב מועדף</div>
+    <div class="it-chips" id="itinQuizPaceChips"></div>
+
+    <div class="it-section-label">עונה (לא חובה)</div>
+    <div class="it-chips" id="itinQuizSeasonChips"></div>
+
+    <div class="it-section-label">אזורים שממש מעניינים אתכם (לא חובה, אפשר לדלג)</div>
+    <div class="it-chips" id="itinQuizRegionChips"></div>
+
+    <div class="it-section-label">איפה כבר הייתם? (לא חובה, נדלג עליהם)</div>
+    <div class="it-quiz-visited-chosen" id="itinQuizVisitedChosen"></div>
+    <input type="text" id="itinQuizVisitedSearch" class="it-search-input" placeholder="חפשו יעד כדי לסמן שכבר הייתם שם..." oninput="itinRenderQuizVisitedResults()">
+    <div id="itinQuizVisitedResults"></div>
+
+    <button type="button" class="it-quiz-generate-btn" onclick="itinGenerateQuizRoute()">✨ בנו לי מסלול</button>
+    <div id="itinQuizError"></div>
+    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
   </div>
 
   <div id="itinMainScreen" style="display:none;">
@@ -867,6 +962,7 @@
 
   <div id="itinSummaryScreen" style="display:none;">
     <div class="it-section-label">📋 סיכום המסלול</div>
+    <div class="it-map-wrap"><div id="itinSummaryMap"></div></div>
     <div id="itinSummaryList"></div>
     <div class="it-summary-total" id="itinSummaryTotal"></div>
     <div id="itinCharacterSummary"></div>
@@ -888,6 +984,7 @@
     <div id="itinExportNote"></div>
 
     <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
+    <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
     <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
   </div>
 </div>
@@ -1582,16 +1679,35 @@ const ITIN_REGION_BOUNDS = {
 
 // ערי כניסה אפשריות (שדות תעופה בינלאומיים עיקריים ליפן)
 const ITIN_START_OPTIONS = ['Tokyo', 'Osaka', 'Fukuoka (Kyushu)'];
+const ITIN_PACE_OPTIONS = ['מהיר', 'בינוני', 'רגוע'];
+// Target average nights per real overnight stop for each pace, used only to
+// decide how many stops the generator adds before the night budget runs out.
+const ITIN_PACE_TARGET_NIGHTS = { 'מהיר': 1.5, 'בינוני': 2.5, 'רגוע': 3.5 };
+const ITIN_VISIT_OPTIONS = ['פעם ראשונה', 'ביקרתי פעם-פעמיים', 'ביקרתי 3+ פעמים'];
+let itinQuiz = {
+  nights: 10,
+  start: null,
+  end: null, // departure gateway, if different from start (open-jaw flight)
+  startDate: null,
+  endDate: null,
+  visitNumber: null,
+  who: null,
+  what: new Set(),
+  pace: 'בינוני',
+  season: null,
+  regions: new Set(),
+  visited: new Set(), // destinations already visited on a past trip, to skip
+};
 
 const ITIN_DESTINATIONS = [
   { name: 'Tokyo', lat: 35.6812, lng: 139.7671, nights: '3-5 (בסיס)', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות','נגישות'], what: ['אוכל','ערים','קניות','חיי לילה','מוזיקה'], crowd: null, anchor: 'שער הכניסה הנפוץ ביותר, כל שכונה מרגישה כמו עיר אחרת בפני עצמה', vibe: { text: 'מבקרים חוזרים מתארים את סנסו-ג\'י כמקום שבכל ביקור נותן שוב את "אותה תחושת שלווה", למרות שהוא הומה אנשים ביום. בלילה, כשהמקדש מואר ושקט, זו חוויה שונה לגמרי, יותר מדיטטיבית.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'טוקיו (Tokyo)', homeCount: 235, peopleVibe: 'מנומסים ומדויקים, אבל שמורים יותר עם זרים ולא נוטים ליזום שיחה. אנגלית בסיסית קיימת בתחבורה ובאזורי תיירות, מחוץ לזה מוגבלת.' },
   { name: 'Osaka', lat: 34.6937, lng: 135.5023, nights: '2-3', region: 'קנסאי', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות'], what: ['אוכל','חיי לילה'], crowd: 'popular', anchor: 'Dotonbori + USJ, האוכל הכי טוב ליחס מחיר-איכות בכל יפן', vibe: { text: 'מבקר אחד תיאר את Dotonbori כמו "טיימס סקוור שהתחתן עם שוק אוכל", רועש, ניאון, וריח של תמנון על האש שאיכשהו עובד. אחר כתב שזה "לא מנסה להיות עדין, זה פלקס חושי", וזה בדיוק הקטע.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'אוסקה (Osaka)', homeCount: 27, peopleVibe: 'המוניטין המקומי: חמים, ישירים, לא פורמליים ומצחיקים, נחשבת ה\'בירה הקומית\' של יפן. הרבה יותר פתוחים ליוזמת שיחה עם זרים מטוקיו.' },
   { name: 'Fukuoka (Kyushu)', lat: 33.5904, lng: 130.4017, nights: '2-3', region: 'קיושו', who: ['סולו','זוג'], what: ['אוכל','רואדטריפ'], crowd: 'underrated', anchor: 'yatai (דוכני רחוב) + שער נוח לכל קיושו, מעט תיירים זרים ביחס לגודל העיר' , homeCityKey: 'פוקואוקה / האקאטה (Fukuoka/Hakata)', homeCount: 9, peopleVibe: 'קיושו נחשבת חמה וידידותית יותר מהממוצע היפני, פחות פורמלית מהונשו, אבל אנגלית מוגבלת יחסית מחוץ לאזורי תיירות מרכזיים.' , vibe: { text: 'עיר נמל רגועה ולא ממהרת; יש שהתרשמו בהתחלה שהיא \'סטרילית\' וחסרת יפן הישנה, אבל התאהבו בה עם הזמן. אחרים מונים אותה בין המקומות האהובים עליהם ביותר בזכות האוכל והאותנטיות.', source: 'בלוגי מטיילים (This Way to Japan, Travels With Elle)' } },
   { name: 'Hakone', lat: 35.2323, lng: 139.1069, nights: '1-2', region: 'קנטו', who: ['זוג','משפחה + ילדים גדולים'], what: ["צ'יל/onsen"], crowd: 'overrated', anchor: 'ryokan עם onsen פרטי, אבל שימו לב: הפך למפעל תיירים, ונוף פוג\'י חסום בעננים לעיתים קרובות' , homeCityKey: 'הקונה (Hakone)', homeCount: 1 , vibe: { text: 'מתח אמיתי: חלק מרגישים שזו \'מלכודת תיירים\' עמוסה, בעוד אחרים מגנים על מוזיאון האוויר הפתוח ברמה עולמית ולינת onsen אותנטית. בקירוב מחצית מהימים נוף פוג\'י מוסתר בעננים.', source: 'TripAdvisor, The Flashpacker' } },
-  { name: 'Kyoto', lat: 35.0116, lng: 135.7681, nights: '2-3', region: 'קנסאי', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות'], what: ['אוכל','ערים'], crowd: 'popular', anchor: 'מקדשים ומסורת ברמה שאין שני לה, גם אם חלק מהאתרים המפורסמים עמוסים', seasonalNote: { seasons: ['אביב','סתיו'], text: 'פריחת הדובדבן (סוף מרץ עד תחילת אפריל) והשלכת (סוף נובמבר) הן העונות העמוסות והיפות ביותר, במיוחד סביב Arashiyama וMaruyama Park.' }, vibe: { text: 'הפער בין הציפייה למציאות אמיתי: מבקרים שהגיעו לפושימי אינארי או קינקאקוג\'י בשעות הבוקר המוקדמות מתארים חוויה כמעט מיסטית ושקטה, בעוד שאותו מקום בצהריים מתואר כ"מרוץ לתמונה ולא זמן להתבונן". התזמון קובע הכל.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'קיוטו (Kyoto)', homeCount: 44, peopleVibe: 'מנומסים מאוד אך שמורים ורשמיים. יש אמירה מקומית שקיוטואים \'מנומסים מדי בשביל להיות כנים\' (תרבות טאטמה/הונה חזקה). פחות ספונטניים מאוסקה.' },
+  { name: 'Kyoto', lat: 35.0116, lng: 135.7681, nights: '2-3', region: 'קנסאי', who: ['סולו','זוג','משפחה + ילדים גדולים','משפחה + פעוטות'], what: ['אוכל','ערים'], crowd: 'popular', anchor: 'מקדשים ומסורת ברמה שאין שני לה, גם אם חלק מהאתרים המפורסמים עמוסים', seasonalNote: { seasons: ['אביב','סתיו'], text: 'פריחת הדובדבן (סוף מרץ עד תחילת אפריל) והשלכת (סוף נובמבר) הן העונות העמוסות והיפות ביותר, במיוחד סביב Arashiyama וMaruyama Park.' }, eventWindows: [{ start: '03-25', end: '04-08', label: 'שיא פריחת הדובדבן' }, { start: '11-15', end: '11-30', label: 'שיא השלכת' }], vibe: { text: 'הפער בין הציפייה למציאות אמיתי: מבקרים שהגיעו לפושימי אינארי או קינקאקוג\'י בשעות הבוקר המוקדמות מתארים חוויה כמעט מיסטית ושקטה, בעוד שאותו מקום בצהריים מתואר כ"מרוץ לתמונה ולא זמן להתבונן". התזמון קובע הכל.', source: 'Google Reviews (Wanderlog)' } , homeCityKey: 'קיוטו (Kyoto)', homeCount: 44, peopleVibe: 'מנומסים מאוד אך שמורים ורשמיים. יש אמירה מקומית שקיוטואים \'מנומסים מדי בשביל להיות כנים\' (תרבות טאטמה/הונה חזקה). פחות ספונטניים מאוסקה.' },
   { name: 'Nara', lat: 34.6851, lng: 135.8048, nights: 'טיול יום', region: 'קנסאי', who: ['סולו','משפחה + פעוטות'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'איילים חופשיים שממש מתקרבים אליכם, קומפקטית וקלה להליכה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן בפארק נארה פורחים בדרך כלל בתחילת אפריל, יחד עם האיילים זה שילוב פופולרי במיוחד.' }, homeCityKey: 'נארה (Nara)', homeCount: 1 , vibe: { text: 'חוויה דו-קוטבית: האיילים המקדים בקידה מרגש, אבל ליד הכניסה הם יכולים להיות תוקפניים ויש הרבה גללים בשטח. עצה חוזרת: להיכנס עמוק לפארק או להגיע מוקדם.', source: 'TripAdvisor, בלוג Danny CPH' } },
   { name: 'Kamakura', lat: 35.3193, lng: 139.5467, nights: 'טיול יום', region: 'קנטו', who: ['סולו','נגישות'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'פסל בודהה ענק + חוף, טיול יום קל מטוקיו שרוב הזרים מדלגים עליו' , homeCityKey: 'קמאקורה (Kamakura)', homeCount: 1 , vibe: { text: 'מתואר כ\'מלוח, משוחרר ומקומי יותר\' מקיוטו, אך תיירות-יתר אמיתית: כ-15.9 מיליון מבקרים ב-2024, ורק כ-6% מהם לנים בעיר בפועל.', source: 'Faroway, Unseen Japan' }, peopleVibe: 'כ-40% מהתושבים דיווחו בסקר עירוני שהתיירות משבשת את השגרה היומיומית שלהם.' },
-  { name: 'Nikko', lat: 36.7198, lng: 139.6982, nights: '1-2', region: 'קנטו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מקדשי UNESCO ומפלים באיכות של Hakone, בלי ההמונים' , seasonalNote: { seasons: ['סתיו'], text: 'אמצע עד סוף אוקטובר הוא שיא השלכת סביב אגם צ׳וזנג׳י ואיירוזאקה, מהיפים ביפן.' }, homeCityKey: 'ניקו (Nikko)', homeCount: 1 , vibe: { text: 'מקדש טושוגו מתואר כ\'קסום\' עם גילופים מרהיבים ביער ארז עתיק, אך יש שמצאו אותו \'ראוותני מדי\' והעדיפו מקדשים שקטים בסביבה. כניסה יקרה יחסית (¥1,600, או ¥2,400 בכרטיס משולב).', source: 'Travel Yes Please, TripAdvisor' } },
+  { name: 'Nikko', lat: 36.7198, lng: 139.6982, nights: '1-2', region: 'קנטו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מקדשי UNESCO ומפלים באיכות של Hakone, בלי ההמונים' , seasonalNote: { seasons: ['סתיו'], text: 'אמצע עד סוף אוקטובר הוא שיא השלכת סביב אגם צ׳וזנג׳י ואיירוזאקה, מהיפים ביפן.' }, eventWindows: [{ start: '10-15', end: '11-05', label: 'שיא השלכת' }], homeCityKey: 'ניקו (Nikko)', homeCount: 1 , vibe: { text: 'מקדש טושוגו מתואר כ\'קסום\' עם גילופים מרהיבים ביער ארז עתיק, אך יש שמצאו אותו \'ראוותני מדי\' והעדיפו מקדשים שקטים בסביבה. כניסה יקרה יחסית (¥1,600, או ¥2,400 בכרטיס משולב).', source: 'Travel Yes Please, TripAdvisor' } },
   { name: 'Izu Peninsula', lat: 34.9756, lng: 138.9461, nights: '2-3', region: 'קנטו', who: ['זוג'], what: ["צ'יל/onsen",'רואדטריפ'], crowd: 'underrated', anchor: 'onsen וחופים קרובים לטוקיו שרוב התיירים הזרים לא יודעים עליהם' , vibe: { text: 'מתואר כ\'יפן שלפני פריחת התיירות\', עם onsen רגועים וחוף מחוספס, בהשוואה לחוף אמלפי או הוואי. אזהרה: לא לתכנן כטיול יום אחד, תחבורה ציבורית דלילה בחוף המזרחי.', source: 'The Invisible Tourist, Wanderlust Chloe' }, peopleVibe: '\'כמה מהתושבים הכי ידידותיים\' ביפן, לפי בלוגרים; אזור פחות מתויר עם תחושת קרבה למקומיים.' },
   { name: 'Kanazawa', lat: 36.5613, lng: 136.6562, nights: '1-2', region: "צ'ובו", who: ['זוג','סולו'], what: ['ערים',"צ'יל/onsen"], crowd: 'underrated', anchor: 'אדריכלות תקופת אדו שלמה ורובע גיישה, בלי ההמונים של קיוטו' , homeCityKey: 'קנאזאווה (Kanazawa)', homeCount: 3 , vibe: { text: 'קנזאווה מכונה \'קיוטו הקטנה\' בלי הקהל, רובע הגיישה שקט בבוקר אך צפוף מסלפי-חכמים בצהריים.', source: 'Barefoot Surfer, Wapiti Travel' } },
   { name: 'Takayama', lat: 36.1461, lng: 137.2522, nights: '1-2', region: "צ'ובו", who: ['זוג','סולו','משפחה + ילדים גדולים'], what: ['ערים'], crowd: 'underrated', anchor: 'עיר עתיקה מתקופת אדו בהרי הצפון, גם היא הופכת עמוסה יותר' , vibe: { text: 'טקאיאמה משמרת עיר עתיקה מתקופת אדו. מקומיים ידידותיים במיוחד, אווירה נינוחה.', source: 'Barefoot Surfer, Wapiti Travel' } },
@@ -1609,7 +1725,7 @@ const ITIN_DESTINATIONS = [
   { name: 'Kawagoe', lat: 35.9251, lng: 139.4857, nights: 'טיול יום', region: 'קנטו', who: ['סולו','משפחה + פעוטות','נגישות'], what: ['ערים'], crowd: 'underrated', anchor: '"אדו הקטנה", 30 דק׳ מטוקיו, בלי לצאת רחוק ובלי הקהל של קיוטו' , homeCityKey: 'קוואגואה (Kawagoe)', homeCount: 1 , vibe: { text: '\'אדו הקטנה\' - רחובות מחסנים היסטוריים, קסם \'עולם ישן\', מטיילים בקימונו, וסמטת ממתקים ילדותית. מעט צפוף בסופי שבוע.', source: 'The Invisible Tourist' } },
   { name: 'Sendai', lat: 38.2682, lng: 140.8694, nights: '1', region: 'טוהוקו', who: ['סולו','משפחה + ילדים גדולים'], what: ['אוכל','ערים'], crowd: 'underrated', anchor: 'עיר טוהוקו הגדולה, שקטה יחסית וכמעט לא על מפת התיירים הזרים' , vibe: { text: 'סנדאי מתוארת כ\'עיר העצים\', קוסמופוליטית אך רגועה.', source: 'TripAdvisor' } },
   { name: 'Matsushima', lat: 38.3660, lng: 141.0480, nights: 'טיול יום', region: 'טוהוקו', who: ['סולו','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'מפרץ עם 260 איים, אחד משלושת הנופים הגדולים של יפן' , vibe: { text: 'מ\'שלושת הנופים הגדולים\' של יפן, קיבלה גם ביקורת שהיא \'מוערכת יתר על המידה במידה מה\', עם רושם שתלוי בסיור בסירה.', source: 'TripAdvisor' } },
-  { name: 'Ginzan Onsen', lat: 38.5747, lng: 140.5486, nights: '1-2', region: 'טוהוקו', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'hidden-gem', anchor: 'עיירת onsen עם תאורת גז, "טאישו רומן", יפנים עצמם מגדירים אותה כ"חלום" שרובם עוד לא הגיעו אליו' , seasonalNote: { seasons: ['חורף'], text: 'השלג יחד עם פנסי הגז המוארים בערב הם הסיבה המרכזית שרוב התמונות המפורסמות של המקום מצולמות בחורף.' }, vibe: { text: 'ארכיטיפ \'Spirited Away\' - ryokan מתקופת טאישו לאורך נהר, פנסי גז ושלג, מתואר כ\'קסום ומלכותי\'. מתח: צפוף ביום, וה\'קסם קורה כשמבקרי היום עוזבים\'. מ-2025 מכוניות פרטיות אסורות בכניסה לעיירה, יש להחנות ולהגיע בשאטל.', source: 'A Hive, Japanspecialist, News On Japan' }, peopleVibe: 'עיירה זעירה מאוד; נהגי מוניות ותושבים מתוארים כידידותיים.' },
+  { name: 'Ginzan Onsen', lat: 38.5747, lng: 140.5486, nights: '1-2', region: 'טוהוקו', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'hidden-gem', anchor: 'עיירת onsen עם תאורת גז, "טאישו רומן", יפנים עצמם מגדירים אותה כ"חלום" שרובם עוד לא הגיעו אליו' , seasonalNote: { seasons: ['חורף'], text: 'השלג יחד עם פנסי הגז המוארים בערב הם הסיבה המרכזית שרוב התמונות המפורסמות של המקום מצולמות בחורף.' }, eventWindows: [{ start: '12-15', end: '02-15', label: 'שלג ופנסי גז מוארים' }], vibe: { text: 'ארכיטיפ \'Spirited Away\' - ryokan מתקופת טאישו לאורך נהר, פנסי גז ושלג, מתואר כ\'קסום ומלכותי\'. מתח: צפוף ביום, וה\'קסם קורה כשמבקרי היום עוזבים\'. מ-2025 מכוניות פרטיות אסורות בכניסה לעיירה, יש להחנות ולהגיע בשאטל.', source: 'A Hive, Japanspecialist, News On Japan' }, peopleVibe: 'עיירה זעירה מאוד; נהגי מוניות ותושבים מתוארים כידידותיים.' },
   { name: 'Kobe', lat: 34.6901, lng: 135.1955, nights: '1', region: 'קנסאי', who: ['זוג','משפחה + ילדים גדולים'], what: ['אוכל','ערים'], crowd: 'underrated', anchor: 'בקר קובה ונמל קוסמופוליטי, 30 דק׳ מקיוטו ולא בלוח הזמנים הרגיל' , vibe: { text: 'קובה מתוארת כ\'לא מוערכת מספיק\', קוסמופוליטית אך רגועה, מהערים הכי ראויות למגורים ביפן, אך יש שמצאו את חיי הלילה \'מנומנמים\' לעומת אוסקה.', source: 'This Way to Japan' }, peopleVibe: 'בינלאומית ורגילה לזרים בזכות הנמל וה-Chinatown.' },
   { name: 'Arima Onsen', lat: 34.7975, lng: 135.2467, nights: '1', region: 'קנסאי', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'hidden-gem', anchor: '"החדר האחורי של קנסאי", עיירת אונסן עתיקה ממש מעל קובה' , vibe: { text: 'מתוארת כבעלת \'אווירה נוסטלגית ורגועה\'.', source: 'Amateur Traveler' }, peopleVibe: 'כפרית וחמה, אך עם אחוז נמוך מאוד של דוברי אנגלית.' },
   { name: 'Himeji', lat: 34.8394, lng: 134.6939, nights: 'טיול יום', region: 'קנסאי', who: ['משפחה + ילדים גדולים','סולו','נגישות'], what: ['ערים'], crowd: 'popular', anchor: 'הטירה היפה והשלמה ביותר ביפן, קלה כטיול יום' , vibe: { text: 'ניגוד אמיתי: יש שמתארים ביקור \'בדרגה 10 מתוך 10\' עם צללית מרשימה של \'האנפה הלבנה\', אך אחרים מוצאים שהפנים \'רק עץ, די משעמם\'. עמוס במיוחד בעונת פריחת הדובדבן.', source: 'Travel Caffeine, I Travel for the Stars' } },
@@ -1629,16 +1745,16 @@ const ITIN_DESTINATIONS = [
   { name: 'Beppu', lat: 33.2846, lng: 131.4913, nights: '1-2', region: 'קיושו', who: ['זוג','סולו'], what: ["צ'יל/onsen"], crowd: 'popular', anchor: '"8 הגיהנום" (jigoku), הכי הרבה מעיינות חמים ביפן' , vibe: { text: '\'בירת ה-onsen\' - קיטור עולה מפתחי ביוב, מגוון אמבטיות עצום (חול, בוץ). מוניטין מעורב: \'גימיקי/קיטש\', \'חוויית Las Vegas\' של onsen, ה-jigoku (גיהנום) מתוארים כ\'כמו פארק שעשועים\'.', source: 'Japan Activity, Beyond the Bay' } },
   { name: 'Kurokawa Onsen', lat: 33.0631, lng: 131.0736, nights: '1-2', region: 'קיושו', who: ['זוג'], what: ["צ'יל/onsen"], crowd: 'underrated', anchor: 'עיירת onsen כפרית קטנה, מהאהובות על יפנים אבל מעטים הזרים שמגיעים' , homeCityKey: 'קורוקאווה אונסן (Kurokawa Onsen)', homeCount: 2 , vibe: { text: 'עיירת onsen כפרית ואידילית ביער, גישה מוגבלת (רק כמה אוטובוסים) ולכן פחות קהל מיופוין/בפו. \'בריחת ה-onsen שמדמיינים\', מרחצאות כמעט ריקים. שמירה פעילה על אסתטיקה ללא ניאון או מלונות גדולים.', source: 'Where and Wander' } },
   { name: 'Kitsuki', lat: 33.4167, lng: 131.6167, nights: '1-2', region: 'קיושו', who: ['סולו','זוג'], what: ['ערים'], crowd: 'hidden-gem', anchor: 'עיירת סמוראים קטנה, "ליטל קיוטו של קיושו", כמעט ולא תיירותי בכלל' , homeCityKey: 'קיטסוקי (Kitsuki)', homeCount: 2, peopleVibe: 'עיירה קטנה עם מעט תיירים זרים, כך שיש נטייה להיות סקרנים וחביבים כלפי מבקרים חדשים, אבל אנגלית כמעט לא קיימת.' , vibe: { text: 'מכונה \'ליטל קיוטו של קיושו\', עיירת טירה בצורת סנדוויץ\' עם קווי חשמל קבורים לשמירה על האסתטיקה. הליכה בקימונו ברחובות מתוארת כ\'לחיות את החלום\' של יפן העתיקה, רחוק מהמוני קיוטו.', source: 'WarmCheapTrips' } },
-  { name: 'Karatsu', lat: 33.4498, lng: 129.9694, nights: 'טיול יום', region: 'קיושו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','רואדטריפ'], crowd: 'hidden-gem', anchor: 'עיירת נמל וטירה עם פסטיבל Karatsu Kunchi בנובמבר, ומיקום העלילה של האנימה Yuri on Ice, כמעט בלי תיירים זרים' , homeCityKey: 'קראטסו (Karatsu)', homeCount: 2 , vibe: { text: 'טירת קראטסו והעיר שסביבה משמשות כהשראה למקום העלילה של Yuri on Ice, כך שמעריצי האנימה מגיעים במיוחד. פסטיבל Karatsu Kunchi (נובמבר) כולל תהלוכת עגלות ענק מעץ ולכה, אירוע מקומי בעיקרו עם מעט מאוד תיירים זרים.', source: 'yokatoko-fukuoka.jp' } },
-  { name: 'Saga', lat: 33.2494, lng: 130.2988, nights: '1', region: 'קיושו', who: ['משפחה + ילדים גדולים','זוג','סולו'], what: ['הייקינג/טבע','ערים'], crowd: 'hidden-gem', anchor: 'פסטיבל כדורים פורחים הגדול באסיה, סוף אוקטובר עד תחילת נובמבר' , seasonalNote: { seasons: ['סתיו'], text: 'פסטיבל הבלונים הבינלאומי של סאגה מתקיים בדרך כלל בשבוע האחרון של אוקטובר או הראשון של נובמבר, כ-100 כדורים פורחים באוויר בבת אחת.' }, vibe: { text: 'בלוגרית ילידת סאגה כתבה שגדלה על הפסטיבל הזה כדבר מובן מאליו, ורק אחרי שעברה לטוקיו הבינה כמה גדול ומיוחד הוא בקנה מידה יפני.', source: 'בלוגרית יפנית אישית (note.com)' } },
-  { name: 'Arita', lat: 33.1897, lng: 129.8961, nights: 'טיול יום', region: 'קיושו', who: ['זוג','סולו','משפחה + ילדים גדולים'], what: ['קניות','ערים'], crowd: 'hidden-gem', anchor: 'עיירת פורצלן בת יותר מ-400 שנה, כל העיר היא בעצם חנויות קרמיקה' , seasonalNote: { seasons: ['אביב'], text: 'שוק הקרמיקה השנתי (Arita Toukiichi) מתקיים סביב שבוע הזהב, 29 באפריל עד 5 במאי, כשכל הרחוב המרכזי הופך לתערוכת מכירה.' }, vibe: { text: 'כותבת שמתמחה בכלי חרס תיארה שכל העיר היא בעצם אולם תצוגה אחד גדול, וכדאי להקדיש לזה יום שלם בלי למהר בין החנויות.', source: 'בלוגרית יפנית אישית (note.com)' } },
-  { name: 'Yanagawa', lat: 33.1608, lng: 130.4017, nights: 'טיול יום', region: 'קיושו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'עיירת תעלות שקטה, שייט בסירת עץ בין בתי סוחרים היסטוריים, מהיפות בקיושו בעונת השלכת' , seasonalNote: { seasons: ['סתיו'], text: 'בנובמבר השלכת צובעת את גדות התעלה בכתום ואדום, זו העונה המומלצת ביותר לשייט כאן.' }, homeCityKey: 'יאנגאווה (Yanagawa)', homeCount: 1 , vibe: { text: 'שייט איטי על תעלות מוקפות בתי סוחרים ישנים, בנובמבר השלכת צובעת את גדות התעלה בכתום ואדום. המנה המקומית האייקונית היא אנגוילה מאודה על אורז.', source: 'מקורות מקומיים' } },
+  { name: 'Karatsu', lat: 33.4498, lng: 129.9694, nights: 'טיול יום', region: 'קיושו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','רואדטריפ'], crowd: 'hidden-gem', anchor: 'עיירת נמל וטירה עם פסטיבל Karatsu Kunchi בנובמבר, ומיקום העלילה של האנימה Yuri on Ice, כמעט בלי תיירים זרים' , eventWindows: [{ start: '11-02', end: '11-04', label: 'פסטיבל Karatsu Kunchi' }], homeCityKey: 'קראטסו (Karatsu)', homeCount: 2 , vibe: { text: 'טירת קראטסו והעיר שסביבה משמשות כהשראה למקום העלילה של Yuri on Ice, כך שמעריצי האנימה מגיעים במיוחד. פסטיבל Karatsu Kunchi (נובמבר) כולל תהלוכת עגלות ענק מעץ ולכה, אירוע מקומי בעיקרו עם מעט מאוד תיירים זרים.', source: 'yokatoko-fukuoka.jp' } },
+  { name: 'Saga', lat: 33.2494, lng: 130.2988, nights: '1', region: 'קיושו', who: ['משפחה + ילדים גדולים','זוג','סולו'], what: ['הייקינג/טבע','ערים'], crowd: 'hidden-gem', anchor: 'פסטיבל כדורים פורחים הגדול באסיה, סוף אוקטובר עד תחילת נובמבר' , seasonalNote: { seasons: ['סתיו'], text: 'פסטיבל הבלונים הבינלאומי של סאגה מתקיים בדרך כלל בשבוע האחרון של אוקטובר או הראשון של נובמבר, כ-100 כדורים פורחים באוויר בבת אחת.' }, eventWindows: [{ start: '10-25', end: '11-05', label: 'פסטיבל הבלונים הבינלאומי' }], vibe: { text: 'בלוגרית ילידת סאגה כתבה שגדלה על הפסטיבל הזה כדבר מובן מאליו, ורק אחרי שעברה לטוקיו הבינה כמה גדול ומיוחד הוא בקנה מידה יפני.', source: 'בלוגרית יפנית אישית (note.com)' } },
+  { name: 'Arita', lat: 33.1897, lng: 129.8961, nights: 'טיול יום', region: 'קיושו', who: ['זוג','סולו','משפחה + ילדים גדולים'], what: ['קניות','ערים'], crowd: 'hidden-gem', anchor: 'עיירת פורצלן בת יותר מ-400 שנה, כל העיר היא בעצם חנויות קרמיקה' , seasonalNote: { seasons: ['אביב'], text: 'שוק הקרמיקה השנתי (Arita Toukiichi) מתקיים סביב שבוע הזהב, 29 באפריל עד 5 במאי, כשכל הרחוב המרכזי הופך לתערוכת מכירה.' }, eventWindows: [{ start: '04-29', end: '05-05', label: 'שוק הקרמיקה Arita Toukiichi' }], vibe: { text: 'כותבת שמתמחה בכלי חרס תיארה שכל העיר היא בעצם אולם תצוגה אחד גדול, וכדאי להקדיש לזה יום שלם בלי למהר בין החנויות.', source: 'בלוגרית יפנית אישית (note.com)' } },
+  { name: 'Yanagawa', lat: 33.1608, lng: 130.4017, nights: 'טיול יום', region: 'קיושו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'עיירת תעלות שקטה, שייט בסירת עץ בין בתי סוחרים היסטוריים, מהיפות בקיושו בעונת השלכת' , seasonalNote: { seasons: ['סתיו'], text: 'בנובמבר השלכת צובעת את גדות התעלה בכתום ואדום, זו העונה המומלצת ביותר לשייט כאן.' }, eventWindows: [{ start: '11-01', end: '11-30', label: 'שיא השלכת בתעלות' }], homeCityKey: 'יאנגאווה (Yanagawa)', homeCount: 1 , vibe: { text: 'שייט איטי על תעלות מוקפות בתי סוחרים ישנים, בנובמבר השלכת צובעת את גדות התעלה בכתום ואדום. המנה המקומית האייקונית היא אנגוילה מאודה על אורז.', source: 'מקורות מקומיים' } },
   { name: 'Usuki', lat: 33.1219, lng: 131.8047, nights: 'טיול יום', region: 'קיושו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע','ערים'], crowd: 'hidden-gem', anchor: 'בודהות חצובות בסלע גיר בן יותר מאלף שנה, אוצר לאומי כמעט בלי תיירים זרים' , homeCityKey: 'אוסוקי (Usuki)', homeCount: 1 , vibe: { text: 'הפסלים החצובים ישירות בתוך צוק אבן גיר נחשבים לאחד האוצרות הלאומיים הפחות מוכרים ביפן. המקומיים מגיעים לכאן לשלווה, לא לתיירות. עיירת הטירה הקטנה סביב שקטה ונעימה להליכה.', source: 'מקורות מקומיים' } },
   { name: 'Fuji Five Lakes', lat: 35.5000, lng: 138.7667, nights: 'טיול יום', region: "צ'ובו", who: ['זוג','משפחה + ילדים גדולים','סולו'], what: ['הייקינג/טבע','רואדטריפ'], crowd: 'overrated', anchor: 'נוף הר פוג\'י מעל אגם קאוואגוצ\'יקו, אבל עומס תיירים כבד ותצפית שהעננים חוסמים לעיתים קרובות' , seasonalNote: { seasons: ['סתיו','אביב'], text: 'באמצע נובמבר עלי המייפל ליד הפגודה האדומה Chureito בשיא הצבע. באביב (אמצע אפריל עד תחילת יוני) יש את פסטיבל שיבזקורה, שדות פרחי מוס ורודים מול ההר.' }, homeCityKey: 'אזור הר פוג\'י (Fuji Five Lakes)', homeCount: 5 , vibe: { text: 'האזור סביב חמשת האגמים מציע תצפיות קלאסיות להר פוג\'י, כולל הפגודה האדומה Chureito עם נוף מרהיב בעונת הסתיו. מתח אמיתי: עומס תיירים כבד הוביל להצבת גדרות חסימה במקומות תצפית פופולריים בעיר עצמה, וההר עצמו מוסתר בעננים בחלק ניכר מהימים.', source: 'דיווחים מקומיים' } },
   { name: 'Kagoshima', lat: 31.5966, lng: 130.5571, nights: '2', region: 'קיושו', who: ['סולו','זוג'], what: ['הייקינג/טבע','רואדטריפ'], crowd: 'underrated', anchor: 'הר געש סאקוראג׳ימה הפעיל מול העיר, ממש נדיר לראות דבר כזה' , vibe: { text: 'כתב אחד תיאר תחושה \'קרועה בין המשכות לאי-נוחות\': נמשך כי העיר מקסימה ותוססת אך לא קדחתנית, אי-נוחות כי הר הגעש סאקוראג\'ימה הפעיל מכסה אותה באפר. אווירת \'מטרופולין אירופי קטן\'.', source: 'SCMP' }, peopleVibe: 'מקומיים ידידותיים ומזמינים, רגילים לאפר הוולקני כחלק מהחיים.' },
   { name: 'Miyazaki', lat: 31.9077, lng: 131.4202, nights: '2', region: 'קיושו', who: ['סולו','זוג'], what: ['הייקינג/טבע','רואדטריפ'], crowd: 'hidden-gem', anchor: 'חופי גלישה ומקדשים דרומיים, כמעט ולא בלוח הזמנים של תיירים' , vibe: { text: 'עיר שמשית ורגועה עם אווירת נופש טרופי וגלישה. טאקאצ\'יהו הסמוכה מתוארת כ\'שליו, כמעט מיסטי\', עם קניון מים ברקת שנחשב \'עולמי אחר\'.', source: 'Japan Experience, Rakuten' } },
   { name: 'Otaru', lat: 43.1907, lng: 140.9947, nights: 'טיול יום/1', region: 'הוקאידו', who: ['זוג'], what: ['ערים',"צ'יל/onsen"], crowd: 'popular', anchor: 'תעלה רומנטית + זכוכית מנופחת, יעד יום קלאסי מסאפורו' , vibe: { text: '\'רומנטית\', \'נוסטלגית\', \'אגדתית\' - התעלה (1,140 מ\', הושלמה ב-1923) ומחסני האבן עם 63 פנסי גז מוארים בין הערביים. מתח: \'תיירותית מאוד, אבל שמחנו שבאנו\', \'צפוף בתיירים\'. עדיף מוקדם או בערב.', source: 'GLTJP, TripAdvisor' } },
-  { name: 'Furano', lat: 43.3428, lng: 142.3826, nights: '1', region: 'הוקאידו', who: ['זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'שדות לבנדר קיציים, נוף כמו ציור (עמוס יוני-יולי)' , seasonalNote: { seasons: ['קיץ'], text: 'שדות הלבנדר בשיאם באמצע עד סוף יולי, זה הזמן להגיע אם זו הסיבה למסע.' }, vibe: { text: 'שדות פרחים קיציים \'כמו מספר סיפורים\', יעד לובה בשיא (אמצע-סוף יולי). חוות טומיטה \'יעד מוביל, בלתי נמנע להתמודד עם הקהל\'.', source: 'JRPass, Space Stories' } },
+  { name: 'Furano', lat: 43.3428, lng: 142.3826, nights: '1', region: 'הוקאידו', who: ['זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'שדות לבנדר קיציים, נוף כמו ציור (עמוס יוני-יולי)' , seasonalNote: { seasons: ['קיץ'], text: 'שדות הלבנדר בשיאם באמצע עד סוף יולי, זה הזמן להגיע אם זו הסיבה למסע.' }, eventWindows: [{ start: '07-10', end: '07-25', label: 'שיא פריחת הלבנדר' }], vibe: { text: 'שדות פרחים קיציים \'כמו מספר סיפורים\', יעד לובה בשיא (אמצע-סוף יולי). חוות טומיטה \'יעד מוביל, בלתי נמנע להתמודד עם הקהל\'.', source: 'JRPass, Space Stories' } },
   { name: 'Biei', lat: 43.6167, lng: 142.4667, nights: '1', region: 'הוקאידו', who: ['זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'popular', anchor: 'גבעות פסטורליות ועצי בודד מפורסמים, נוסעים בין השדות ברכב' },
   { name: 'Hakodate', lat: 41.7688, lng: 140.7288, nights: '1-2', region: 'הוקאידו', who: ['סולו','זוג'], what: ['אוכל','ערים'], crowd: 'popular', anchor: 'תצפית לילה מוכרת מהר, פירות ים בשוק הבוקר' , vibe: { text: '\'מהערים הכי לא מוערכות ביפן, אווירה בינלאומית נינוחה ופירות ים טריים\'. נוף לילה מהר האקודטה, שוק בוקר, מבצר גוריוקאקו, ומדרונות מוטומאצ\'י עם השפעה מערבית \'אקזוטית\', דומה במידה ל-Yokohama/Kobe.', source: 'MyTravelBuzzg, Zooming Japan' }, peopleVibe: 'עיר נמל נינוחה עם מורשת מערבית ניכרת.' },
   { name: 'Niseko', lat: 42.8048, lng: 140.6874, nights: '2-3', region: 'הוקאידו', who: ['זוג','סולו'], what: ['רואדטריפ','הייקינג/טבע'], crowd: 'overrated', anchor: 'שלג מעולה, אבל הפך למקום יקר ומיועד לתיירים זרים יותר מיפני אמיתי' , vibe: { text: 'אתר סקי בינלאומי ש\'כמעט לא מרגיש כמו יפן, כמעט מדינה זרה בתוך יפן\', אנגלית בכל מקום, אבקת שלג אגדית. מתח: \'תמחור חמדני בניהול זרים\', לא זול או ייחודי כמו אתרי סקי יפניים אחרים.', source: 'Japan Guide, The World Pursuit' }, peopleVibe: 'הכי קל ביפן לדוברי לא-יפנית - תפריטים ושילוט אנגלית כברירת מחדל, צוות בינלאומי. קוצ\'אן הסמוכה שומרת על אופי \'עיר מקומית מתפקדת\'.' },
@@ -1649,7 +1765,7 @@ const ITIN_DESTINATIONS = [
   { name: 'Ishigaki', lat: 24.3448, lng: 124.1572, nights: '2', region: 'אוקינאווה', who: ['זוג','משפחה + פעוטות'], what: ["צ'יל/onsen",'הייקינג/טבע'], crowd: 'underrated', anchor: 'איים דרומיים עם חופים כמעט קריביים, מוקד תוסס לדילוג בין איים (טאקטומי, איריומוטה)' , vibe: { text: 'מוקד תוסס להרפתקאות ודילוג בין איים, עם מסעדות וחיי לילה.', source: 'TripAdvisor' }, peopleVibe: 'תרבות אי (ריוקיו) חמה ורגועה. אנגלית מוגבלת אך בסיסית עובדת במרכז.' },
   { name: 'Miyako', lat: 24.7828, lng: 125.2814, nights: '1-2', region: 'אוקינאווה', who: ['זוג','משפחה + פעוטות'], what: ["צ'יל/onsen"], crowd: 'underrated', anchor: 'חופים והרפיה עם מים צלולים (Miyako Blue) וגשרי איים, פחות מוכר מנאהא עצמה' , vibe: { text: 'לחופים והרפיה עם מים צלולים (\'Miyako Blue\') וגשרי איים.', source: 'TripAdvisor' }, peopleVibe: 'תרבות אי (ריוקיו) חמה ורגועה, אנגלית מוגבלת מאוד מחוץ למרכז.' },
   { name: 'Hirosaki', lat: 40.6031, lng: 140.4638, nights: '1-2', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: 'עיירת טירה עם פריחת דובדבן אגדית, בתי לבנים אדומות וקצב חיים אנושי שרוב הזרים מדלגים עליו' , vibe: { text: 'מטיילת יפנית תיארה את הירושאקי כעיר שהכי כיף לשוטט בה ברגל, עד כדי כך שהיא שקלה ברצינות לעבור לגור שם.', source: 'בלוגרית יפנית אישית (4travel)' } },
-  { name: 'Kakunodate', lat: 39.5975, lng: 140.5675, nights: '1', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: '"קיוטו הקטנה של הצפון", רובע סמוראים שמור עם מאות עצי דובדבן בוכה, עמוס רק בעונת הפריחה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן הבוכה פורחים בדרך כלל סביב סוף אפריל, זו התקופה שבה המקום הכי עמוס אבל גם הכי מרשים.' }, vibe: { text: 'בלוגר מקומי כתב שקאקונודטה היא פשוט עיר נחמדה, ואפילו הניב המקומי נשמע רך ומהנה.', source: 'בלוגר יפני אישי (gunmablog)' } },
+  { name: 'Kakunodate', lat: 39.5975, lng: 140.5675, nights: '1', region: 'טוהוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים','הייקינג/טבע'], crowd: 'underrated', anchor: '"קיוטו הקטנה של הצפון", רובע סמוראים שמור עם מאות עצי דובדבן בוכה, עמוס רק בעונת הפריחה' , seasonalNote: { seasons: ['אביב'], text: 'עצי הדובדבן הבוכה פורחים בדרך כלל סביב סוף אפריל, זו התקופה שבה המקום הכי עמוס אבל גם הכי מרשים.' }, eventWindows: [{ start: '04-20', end: '05-05', label: 'שיא פריחת הדובדבן הבוכה' }], vibe: { text: 'בלוגר מקומי כתב שקאקונודטה היא פשוט עיר נחמדה, ואפילו הניב המקומי נשמע רך ומהנה.', source: 'בלוגר יפני אישי (gunmablog)' } },
   { name: 'Aizu-Wakamatsu', lat: 37.4950, lng: 139.9297, nights: '1', region: 'טוהוקו', who: ['זוג','משפחה + ילדים גדולים'], what: ['ערים'], crowd: 'underrated', anchor: 'עיירת טירת סמוראים (צורוגה), עיר טוהוקו שקטה עם היסטוריה עמוקה' },
   { name: 'Ouchijuku', lat: 37.3167, lng: 139.7833, nights: 'טיול יום', region: 'טוהוקו', who: ['זוג','משפחה + ילדים גדולים'], what: ['אוכל'], crowd: 'hidden-gem', anchor: 'כפר אדו עם גגות קש, שבו אוכלים סובה עם כרישה שלמה במקום מקלות' , vibe: { text: 'בלוגרית תיארה איך במבט ראשון הכריכה עם הכרישה נראית מרשימה לתמונה, אבל בפועל קשה מאוד לאכול איתה.', source: 'בלוגרית יפנית אישית (יוזוטה סנפו)' } },
   { name: 'Oirase Gorge', lat: 40.4383, lng: 140.9153, nights: '1', region: 'טוהוקו', who: ['סולו','זוג'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'נחל הררי עם עשרות מפלים לאורך כ-14 ק"מ' },
@@ -1665,7 +1781,7 @@ const ITIN_DESTINATIONS = [
   { name: 'Gokayama', lat: 36.4833, lng: 136.9167, nights: 'טיול יום', region: "צ'ובו", who: ['זוג','סולו'], what: ['הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'כפרי גג קש שקטים יותר משיראקאווה-גו הסמוכה' },
   { name: 'Sado Island', lat: 38.0500, lng: 138.3667, nights: '2', region: "צ'ובו", who: ['סולו','זוג'], what: ['הייקינג/טבע',"צ'יל/onsen"], crowd: 'hidden-gem', anchor: 'אי גדול ואיטי עם היסטוריית מכרות זהב, תופי טאיקו, פירות ים ושמיים זרועי כוכבים' , vibe: { text: 'מטיילת שחיפשה טיול סולו רגוע כתבה שסאדו התאים לה בול: בלי רכב, פירות ים, בתי קפה ושמיים זרועי כוכבים.', source: 'בלוגרית יפנית אישית (4travel)' } },
   { name: 'Chichibu', lat: 35.9906, lng: 139.0864, nights: '1', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע','רואדטריפ'], crowd: 'underrated', anchor: 'בריחת הרים קלה מטוקיו, מקדשים ואונסן משובח, קרוב אך מרגיש רחוק' , vibe: { text: 'בלוגר תיאר אווירה טובה, אוכל ברמה גבוהה ואונסן משובח, וציין שיש כל כך הרבה לראות שממש נהנה מהטיול הסולו.', source: 'בלוגר יפני אישי (happymedia-salaryman)' } },
-  { name: 'Nagatoro', lat: 36.1167, lng: 139.1000, nights: 'טיול יום', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'רפטינג בנהר וקרח בחורף, ממש ליד צ׳יצ׳יבו' , seasonalNote: { seasons: ['חורף'], text: 'בחודשי החורף (ינואר-פברואר) יוצרים תצורות קרח מוארות בערוץ הנהר, אטרקציה עונתית ייחודית.' } },
+  { name: 'Nagatoro', lat: 36.1167, lng: 139.1000, nights: 'טיול יום', region: 'קנטו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'underrated', anchor: 'רפטינג בנהר וקרח בחורף, ממש ליד צ׳יצ׳יבו' , seasonalNote: { seasons: ['חורף'], text: 'בחודשי החורף (ינואר-פברואר) יוצרים תצורות קרח מוארות בערוץ הנהר, אטרקציה עונתית ייחודית.' }, eventWindows: [{ start: '01-10', end: '02-15', label: 'תצורות קרח מוארות' }] },
   { name: 'Kochi', lat: 33.5597, lng: 133.5311, nights: '1', region: 'שיקוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['ערים'], crowd: 'underrated', anchor: 'עיירת טירה נינוחה ותרבות קצוצי בוניטו' , vibe: { text: 'תושב קוצ׳י כותב בלוג תחת הכותרת "מבלה בנחת בקוצ׳י", מה שמשקף בדיוק את הקצב הרגוע של המקום.', source: 'תושב יפני אישי (livedoor)' } },
   { name: 'Shimanto River', lat: 33.0167, lng: 132.9333, nights: '1', region: 'שיקוקו', who: ['סולו','זוג','משפחה + ילדים גדולים'], what: ['הייקינג/טבע'], crowd: 'hidden-gem', anchor: 'הנהר הכי ארוך בשיקוקו, נטול סכרים גדולים ולכן צלול במיוחד, גשרי צלילה נמוכים' },
 ];
@@ -1864,6 +1980,7 @@ function itinAdjustNights(name, delta) {
 }
 
 let itinLeafletMap, itinMarkerLayer, itinLineLayer, itinRegionLayer, itinMapInitialized = false;
+let itinSummaryLeafletMap, itinSummaryMapInitialized = false;
 function itinInitMap() {
   if (typeof L === 'undefined') {
     document.getElementById('itinMap').outerHTML = '<div style="padding:1.2rem; text-align:center; color:var(--muted); font-size:0.78rem;">🗺️ המפה לא נטענה (בעיית רשת או חסימה של ספריית Leaflet החיצונית).<br>הרשימה למטה עדיין עובדת רגיל.</div>';
@@ -2310,6 +2427,478 @@ function itinStartCardHtml(d) {
   );
 }
 
+function itinChooseMode(mode) {
+  document.getElementById('itinModeChoiceScreen').style.display = 'none';
+  if (mode === 'manual') {
+    document.getElementById('itinStartScreen').style.display = 'block';
+    document.getElementById('itinQuizScreen').style.display = 'none';
+  } else {
+    document.getElementById('itinQuizScreen').style.display = 'block';
+    document.getElementById('itinStartScreen').style.display = 'none';
+    itinRenderQuizChips();
+  }
+}
+
+function itinBackToModeChoice() {
+  document.getElementById('itinStartScreen').style.display = 'none';
+  document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinModeChoiceScreen').style.display = 'block';
+}
+
+// Which broad season each month falls in (rough, Northern Hemisphere Japan).
+const ITIN_MONTH_TO_SEASON = {
+  1: 'חורף', 2: 'חורף', 3: 'אביב', 4: 'אביב', 5: 'אביב', 6: 'קיץ',
+  7: 'קיץ', 8: 'קיץ', 9: 'סתיו', 10: 'סתיו', 11: 'סתיו', 12: 'חורף',
+};
+
+// Uses AI only to translate a free-text trip description into the same
+// structured quiz fields the deterministic generator already consumes, so
+// the actual route is still always built by the graph-verified algorithm,
+// never by the model itself. This reuses the same Cloudflare Worker that
+// already powers the AI place search (AI_SEARCH_WORKER_URL), but with a
+// different "action" so the worker can route it to a different prompt.
+// NOTE: this requires the worker to actually implement the
+// action: 'parse_trip_quiz' branch (system prompt: given free text and the
+// list of valid who/what/region/season/gateway options below, return a JSON
+// object with the matching subset of { start, end, who, what: [...],
+// pace, season, regions: [...], visitNumber, nights }). Until that branch
+// exists server-side, this will show a clear "not available yet" message
+// rather than silently failing.
+async function itinParseQuizFromText() {
+  const textEl = document.getElementById('itinQuizFreeText');
+  const noteEl = document.getElementById('itinQuizAiParseNote');
+  const text = textEl.value.trim();
+  if (!text) {
+    noteEl.textContent = 'כתבו קודם כמה מילים על הטיול.';
+    return;
+  }
+  noteEl.textContent = '🤖 קורא/ת את התיאור...';
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'parse_trip_quiz',
+        text: text,
+        options: {
+          start: ITIN_START_OPTIONS,
+          who: ITIN_WHO_OPTIONS,
+          what: ITIN_WHAT_OPTIONS,
+          pace: ITIN_PACE_OPTIONS,
+          season: ITIN_SEASON_OPTIONS,
+          regions: ITIN_REGION_OPTIONS,
+          visitNumber: ITIN_VISIT_OPTIONS,
+        },
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error || !data.result) {
+      noteEl.textContent = data.error === 'rate_limited'
+        ? 'הגעתם למגבלת החיפושים החכמים להיום, אפשר למלא את השאלון ידנית בינתיים.'
+        : 'המילוי האוטומטי לא זמין כרגע (ייתכן שהתכונה הזו עוד לא נפרסה בצד השרת), אפשר למלא ידנית למטה.';
+      return;
+    }
+    const r = data.result;
+    if (r.start && ITIN_START_OPTIONS.includes(r.start)) itinQuiz.start = r.start;
+    if (r.end && ITIN_START_OPTIONS.includes(r.end)) itinQuiz.end = r.end;
+    if (r.who && ITIN_WHO_OPTIONS.includes(r.who)) itinQuiz.who = r.who;
+    if (Array.isArray(r.what)) itinQuiz.what = new Set(r.what.filter(w => ITIN_WHAT_OPTIONS.includes(w)));
+    if (r.pace && ITIN_PACE_OPTIONS.includes(r.pace)) itinQuiz.pace = r.pace;
+    if (r.season && ITIN_SEASON_OPTIONS.includes(r.season)) itinQuiz.season = r.season;
+    if (Array.isArray(r.regions)) itinQuiz.regions = new Set(r.regions.filter(x => ITIN_REGION_OPTIONS.includes(x)));
+    if (r.visitNumber && ITIN_VISIT_OPTIONS.includes(r.visitNumber)) itinQuiz.visitNumber = r.visitNumber;
+    if (typeof r.nights === 'number' && r.nights > 0) itinQuiz.nights = Math.round(r.nights);
+    itinRenderQuizChips();
+    noteEl.textContent = '✓ מילאנו את השאלון למטה לפי התיאור שלכם, אפשר לעבור עליו ולתקן לפני שיוצרים את המסלול.';
+  } catch (err) {
+    noteEl.textContent = 'המילוי האוטומטי לא זמין כרגע, אפשר למלא ידנית למטה.';
+  }
+}
+
+function itinQuizDatesChanged() {
+  const startVal = document.getElementById('itinQuizStartDate').value;
+  const endVal = document.getElementById('itinQuizEndDate').value;
+  const noteEl = document.getElementById('itinQuizDatesNote');
+  itinQuiz.startDate = startVal || null;
+  itinQuiz.endDate = endVal || null;
+  if (!startVal || !endVal) { noteEl.textContent = ''; return; }
+  const start = new Date(startVal);
+  const end = new Date(endVal);
+  const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) {
+    noteEl.textContent = 'תאריך הסיום צריך להיות אחרי תאריך ההתחלה.';
+    return;
+  }
+  itinQuiz.nights = diffDays;
+  document.getElementById('itinQuizNightsValue').textContent = itinQuiz.nights;
+  const startMonth = start.getMonth() + 1;
+  const derivedSeason = ITIN_MONTH_TO_SEASON[startMonth];
+  itinQuiz.season = derivedSeason;
+  noteEl.textContent = 'זה ' + diffDays + ' לילות, ועדכנו את העונה ל' + derivedSeason + ' בהתאם. נבדוק גם אם יש אירועים בתאריכים האלה.';
+  itinRenderQuizChips();
+}
+
+function itinQuizAdjustNights(delta) {
+  itinQuiz.nights = Math.max(2, Math.min(60, itinQuiz.nights + delta));
+  document.getElementById('itinQuizNightsValue').textContent = itinQuiz.nights;
+}
+
+function itinRenderQuizChips() {
+  document.getElementById('itinQuizNightsValue').textContent = itinQuiz.nights;
+
+  const startEl = document.getElementById('itinQuizStartChips');
+  startEl.innerHTML = '';
+  ITIN_START_OPTIONS.forEach(name => {
+    const d = ITIN_DESTINATIONS.find(x => x.name === name);
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.start === name ? ' active' : '');
+    b.textContent = (ITIN_DESTINATION_EMOJI[name] || '') + ' ' + name;
+    b.onclick = () => { itinQuiz.start = name; itinRenderQuizChips(); };
+    startEl.appendChild(b);
+  });
+
+  const endEl = document.getElementById('itinQuizEndChips');
+  endEl.innerHTML = '';
+  const sameBtn = document.createElement('button');
+  sameBtn.className = 'it-chip' + (itinQuiz.end == null ? ' active' : '');
+  sameBtn.textContent = '↩ אותו שער כמו הנחיתה';
+  sameBtn.onclick = () => { itinQuiz.end = null; itinRenderQuizChips(); };
+  endEl.appendChild(sameBtn);
+  ITIN_START_OPTIONS.forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.end === name ? ' active' : '');
+    b.textContent = (ITIN_DESTINATION_EMOJI[name] || '') + ' ' + name;
+    b.onclick = () => { itinQuiz.end = name; itinRenderQuizChips(); };
+    endEl.appendChild(b);
+  });
+
+  const visitEl = document.getElementById('itinQuizVisitChips');
+  visitEl.innerHTML = '';
+  ITIN_VISIT_OPTIONS.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.visitNumber === v ? ' active' : '');
+    b.textContent = v;
+    b.onclick = () => { itinQuiz.visitNumber = (itinQuiz.visitNumber === v) ? null : v; itinRenderQuizChips(); };
+    visitEl.appendChild(b);
+  });
+
+  const whoEl = document.getElementById('itinQuizWhoChips');
+  whoEl.innerHTML = '';
+  ITIN_WHO_OPTIONS.forEach(w => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.who === w ? ' active' : '');
+    b.textContent = w;
+    b.onclick = () => { itinQuiz.who = (itinQuiz.who === w) ? null : w; itinRenderQuizChips(); };
+    whoEl.appendChild(b);
+  });
+
+  const whatEl = document.getElementById('itinQuizWhatChips');
+  whatEl.innerHTML = '';
+  ITIN_WHAT_OPTIONS.forEach(w => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.what.has(w) ? ' active' : '');
+    b.textContent = w;
+    b.onclick = () => { itinQuiz.what.has(w) ? itinQuiz.what.delete(w) : itinQuiz.what.add(w); itinRenderQuizChips(); };
+    whatEl.appendChild(b);
+  });
+
+  const paceEl = document.getElementById('itinQuizPaceChips');
+  paceEl.innerHTML = '';
+  ITIN_PACE_OPTIONS.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.pace === p ? ' active' : '');
+    b.textContent = p;
+    b.onclick = () => { itinQuiz.pace = p; itinRenderQuizChips(); };
+    paceEl.appendChild(b);
+  });
+
+  const seasonEl = document.getElementById('itinQuizSeasonChips');
+  seasonEl.innerHTML = '';
+  ITIN_SEASON_OPTIONS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.season === s ? ' active' : '');
+    b.textContent = ITIN_SEASON_EMOJI[s] + ' ' + s;
+    b.onclick = () => { itinQuiz.season = (itinQuiz.season === s) ? null : s; itinRenderQuizChips(); };
+    seasonEl.appendChild(b);
+  });
+
+  const regionEl = document.getElementById('itinQuizRegionChips');
+  regionEl.innerHTML = '';
+  ITIN_REGION_OPTIONS.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'it-chip' + (itinQuiz.regions.has(r) ? ' active' : '');
+    b.textContent = (ITIN_REGION_EMOJI[r] || '') + ' ' + (ITIN_REGION_LABELS[r] || r);
+    b.onclick = () => { itinQuiz.regions.has(r) ? itinQuiz.regions.delete(r) : itinQuiz.regions.add(r); itinRenderQuizChips(); };
+    regionEl.appendChild(b);
+  });
+
+  itinRenderQuizVisitedChosen();
+  itinRenderQuizVisitedResults();
+}
+
+function itinRenderQuizVisitedChosen() {
+  const el = document.getElementById('itinQuizVisitedChosen');
+  el.innerHTML = '';
+  [...itinQuiz.visited].forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'it-quiz-visited-chip';
+    b.textContent = (ITIN_DESTINATION_EMOJI[name] || '') + ' ' + name + ' ✕';
+    b.onclick = () => { itinQuiz.visited.delete(name); itinRenderQuizVisitedChosen(); };
+    el.appendChild(b);
+  });
+}
+
+function itinRenderQuizVisitedResults() {
+  const input = document.getElementById('itinQuizVisitedSearch');
+  const el = document.getElementById('itinQuizVisitedResults');
+  const query = (input.value || '').trim().toLowerCase();
+  el.innerHTML = '';
+  if (!query) return;
+  const matches = ITIN_DESTINATIONS
+    .filter(d => !itinQuiz.visited.has(d.name) && d.name.toLowerCase().includes(query))
+    .slice(0, 8);
+  matches.forEach(d => {
+    const b = document.createElement('button');
+    b.className = 'it-quiz-visited-result-btn';
+    b.textContent = '+ ' + (ITIN_DESTINATION_EMOJI[d.name] || '') + ' ' + d.name;
+    b.onclick = () => {
+      itinQuiz.visited.add(d.name);
+      input.value = '';
+      itinRenderQuizVisitedChosen();
+      itinRenderQuizVisitedResults();
+    };
+    el.appendChild(b);
+  });
+}
+
+// Greedy route generator: walks the real continuations graph from the
+// chosen gateway, at each step picking whichever reachable, not-yet-used
+// destination scores best against the quiz answers (closeness/directness,
+// who/what/season/region match, and a small nudge toward less touristy
+// crowd tags), until the night budget set by the pace runs out. Afterward,
+// it does a second pass adding compatible day trips (0 nights) next to
+// overnight stops that are already in the route, since those don't cost
+// anything from the night budget.
+function itinMDToNum(md) {
+  const [m, d] = md.split('-').map(Number);
+  return m * 100 + d;
+}
+
+// Checks whether a destination's known event window (month-day only, no
+// year) overlaps the actual trip dates entered in the quiz. Handles windows
+// that wrap around the new year (like a winter illumination running
+// December into February).
+function itinEventOverlapsTrip(eventWindow, tripStartDate, tripEndDate) {
+  const tripStartMD = (tripStartDate.getMonth() + 1) * 100 + tripStartDate.getDate();
+  const tripEndMD = (tripEndDate.getMonth() + 1) * 100 + tripEndDate.getDate();
+  const evStart = itinMDToNum(eventWindow.start);
+  const evEnd = itinMDToNum(eventWindow.end);
+  const overlap = (aS, aE, bS, bE) => aS <= bE && bS <= aE;
+  if (evStart <= evEnd) {
+    if (tripStartMD <= tripEndMD) return overlap(tripStartMD, tripEndMD, evStart, evEnd);
+    return overlap(tripStartMD, 1231, evStart, evEnd) || overlap(101, tripEndMD, evStart, evEnd);
+  }
+  if (tripStartMD <= tripEndMD) return overlap(tripStartMD, tripEndMD, evStart, 1231) || overlap(tripStartMD, tripEndMD, 101, evEnd);
+  return true;
+}
+
+function itinDestEventMatch(d) {
+  if (!d.eventWindows || !itinQuiz.startDate || !itinQuiz.endDate) return null;
+  const tripStart = new Date(itinQuiz.startDate);
+  const tripEnd = new Date(itinQuiz.endDate);
+  return d.eventWindows.find(w => itinEventOverlapsTrip(w, tripStart, tripEnd)) || null;
+}
+
+function itinScoreForQuiz(d, hops) {
+  let score = -hops * 12;
+  if (itinQuiz.who && d.who.includes(itinQuiz.who)) score += 6;
+  if (itinQuiz.what.size > 0) { [...itinQuiz.what].forEach(w => { if (d.what.includes(w)) score += 4; }); }
+  if (itinQuiz.season && d.seasonalNote && d.seasonalNote.seasons.includes(itinQuiz.season)) score += 5;
+  if (itinDestEventMatch(d)) score += 9; // a real dated event beats a broad season match
+  if (itinQuiz.regions.size > 0 && itinQuiz.regions.has(d.region)) score += 10;
+  if (d.crowd === 'hidden-gem') score += 3;
+  if (d.crowd === 'underrated') score += 1.5;
+  if (d.crowd === 'overrated') score -= 3;
+  // First-timers generally still want the well-known highlights; repeat
+  // visitors usually already did those and are more interested in
+  // destinations off the beaten path.
+  if (itinQuiz.visitNumber === 'פעם ראשונה' && d.crowd === 'popular') score += 2;
+  if (itinQuiz.visitNumber === 'ביקרתי 3+ פעמים') {
+    if (d.crowd === 'hidden-gem') score += 3;
+    if (d.crowd === 'popular') score -= 3;
+  }
+  return score;
+}
+
+// Like itinComputeHops, but reconstructs the actual sequence of stops for
+// the shortest real path between two destinations, not just the hop count.
+function itinFindPath(fromName, toName) {
+  if (fromName === toName) return [fromName];
+  const parent = new Map();
+  const seen = new Set([fromName]);
+  let frontier = [fromName];
+  while (frontier.length > 0) {
+    const next = [];
+    for (const name of frontier) {
+      const neighbors = ITIN_CONTINUATIONS[name] || [];
+      for (const n of neighbors) {
+        if (!seen.has(n)) {
+          seen.add(n);
+          parent.set(n, name);
+          if (n === toName) {
+            const path = [toName];
+            let cur = toName;
+            while (parent.has(cur)) { cur = parent.get(cur); path.unshift(cur); }
+            return path;
+          }
+          next.push(n);
+        }
+      }
+    }
+    frontier = next;
+  }
+  return null; // no path found
+}
+
+function itinGenerateQuizRoute() {
+  const errEl = document.getElementById('itinQuizError');
+  errEl.innerHTML = '';
+  if (!itinQuiz.start) {
+    errEl.innerHTML = '<div class="it-quiz-error">בחרו קודם מאיזה שער נכנסים.</div>';
+    return;
+  }
+
+  const endName = itinQuiz.end && itinQuiz.end !== itinQuiz.start ? itinQuiz.end : null;
+  const route = [itinQuiz.start];
+  // Already-visited destinations are excluded from consideration entirely,
+  // as if they'd already been used, so the generator never re-suggests them.
+  const used = new Set([itinQuiz.start, ...itinQuiz.visited]);
+  const nightOverrides = {};
+  const startDest = ITIN_DESTINATIONS.find(d => d.name === itinQuiz.start);
+  const startBaseNights = itinParseNightsNum(startDest.nights) || 3;
+  const endDest = endName ? ITIN_DESTINATIONS.find(d => d.name === endName) : null;
+  const endBaseNights = endDest ? (itinParseNightsNum(endDest.nights) || 2) : 0;
+  let remainingNights = itinQuiz.nights - startBaseNights - endBaseNights;
+
+  const paceTarget = ITIN_PACE_TARGET_NIGHTS[itinQuiz.pace] || 2.5;
+
+  let guard = 0;
+  while (remainingNights > 0.5 && route.length < 16 && guard < 60) {
+    guard++;
+    const current = route[route.length - 1];
+    const hopsMap = itinComputeHops(current);
+    let best = null, bestScore = -Infinity;
+    for (const d of ITIN_DESTINATIONS) {
+      if (used.has(d.name)) continue;
+      if (endName && d.name === endName) continue; // saved for the final leg
+      const baseNights = itinParseNightsNum(d.nights);
+      if (baseNights === 0) continue; // day trips are handled in the second pass
+      const hops = hopsMap.has(d.name) ? hopsMap.get(d.name) : 999;
+      if (hops > 3) continue;
+      const score = itinScoreForQuiz(d, hops);
+      if (score > bestScore) { bestScore = score; best = d; }
+    }
+    if (!best) break;
+    route.push(best.name);
+    used.add(best.name);
+    // The requested pace drives the length of stay directly (both longer
+    // and shorter than a destination's own suggested range), since "pace"
+    // is meant to override individual defaults, not just cap them down.
+    let nights = Math.round(paceTarget);
+    nights = Math.max(1, Math.min(nights, Math.round(remainingNights) || 1));
+    const defaultNights = itinGetNights(best);
+    if (nights !== defaultNights) nightOverrides[best.name] = nights - defaultNights;
+    remainingNights -= nights;
+  }
+
+  // Immediately tidy up the freshly-built backbone with the same 2-opt pass
+  // used for manual routes, so a freshly generated draft doesn't need an
+  // obvious "you could reorder this" suggestion the moment it's shown.
+  const optimizedBackbone = itinTwoOptImprove(route).route;
+  route.length = 0;
+  route.push(...optimizedBackbone);
+
+  // Second pass: slot in day trips (0 nights) that are directly reachable
+  // from a stop already in the route and match the quiz's interests, since
+  // they don't cost anything from the night budget. A day trip inserted
+  // between two overnight stops must connect directly to BOTH of them,
+  // otherwise the very next leg in the route would be a connection that
+  // doesn't actually exist (e.g. Himeji is a great day trip from Osaka, but
+  // inserting it between Osaka and Fukuoka implied a direct Himeji ->
+  // Fukuoka leg that isn't real). Only at the true end of the route, where
+  // there's no "next" stop to connect to, is the "before" connection enough.
+  const finalRoute = [];
+  route.forEach((name, i) => {
+    finalRoute.push(name);
+    const nextStop = route[i + 1] || null;
+    const hopsMap = itinComputeHops(name);
+    const dayTripCandidate = ITIN_DESTINATIONS
+      .filter(d => {
+        if (used.has(d.name) || itinParseNightsNum(d.nights) !== 0) return false;
+        if (hopsMap.get(d.name) !== 1) return false;
+        if (nextStop && !itinHasDirectEdge(d.name, nextStop)) return false;
+        return true;
+      })
+      .sort((a, b) => itinScoreForQuiz(b, 1) - itinScoreForQuiz(a, 1))[0];
+    if (dayTripCandidate) {
+      finalRoute.push(dayTripCandidate.name);
+      used.add(dayTripCandidate.name);
+    }
+  });
+
+  // If a different departure gateway was requested, attach a real path to
+  // it. If it's not directly reachable from the last stop, this inserts
+  // whichever real intermediate stops the graph actually requires, rather
+  // than pretending a direct connection exists.
+  let extraNote = '';
+  if (endName && finalRoute[finalRoute.length - 1] !== endName) {
+    const lastStop = finalRoute[finalRoute.length - 1];
+    const path = itinFindPath(lastStop, endName);
+    if (path && path.length > 1) {
+      const inserted = path.slice(1);
+      inserted.forEach(name => { finalRoute.push(name); used.add(name); });
+      if (inserted.length > 1) {
+        extraNote = ' (נוספו עוד ' + (inserted.length - 1) + ' עצירות מעבר כדי להגיע בפועל ל-' + endName + ')';
+      }
+    }
+  }
+
+  if (itinQuiz.startDate && itinQuiz.endDate) {
+    const eventMatches = finalRoute
+      .map(name => ITIN_DESTINATIONS.find(d => d.name === name))
+      .filter(Boolean)
+      .map(d => ({ d, match: itinDestEventMatch(d) }))
+      .filter(x => x.match);
+    if (eventMatches.length > 0) {
+      extraNote += ' 🎉 ' + eventMatches.map(x => x.d.name + ' (' + x.match.label + ')').join(', ') + ' חופפים בדיוק לתאריכים שהזנתם.';
+    }
+  }
+
+  itinLaunchGeneratedRoute(finalRoute, nightOverrides, extraNote);
+}
+
+function itinLaunchGeneratedRoute(route, nightOverrides, extraNote) {
+  itinRoute = route.slice();
+  itinUsedNames = new Set(route);
+  itinNightOverrides = nightOverrides || {};
+  document.getElementById('itinModeChoiceScreen').style.display = 'none';
+  document.getElementById('itinStartScreen').style.display = 'none';
+  document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinMainScreen').style.display = 'block';
+  if (!itinMapInitialized) {
+    itinInitMap();
+    itinMapInitialized = true;
+  }
+  itinRender();
+  itinShowSummary();
+  document.getElementById('itinAiQuestion').value = 'זה מסלול טיוטה שנוצר אוטומטית לפי שאלון. תעברו עליו: יש משהו הגיוני יותר לשנות, יעד שכדאי להוסיף או להוריד, או סדר שהייתי צריך לשקול מחדש?';
+  if (extraNote) {
+    const warnEl = document.getElementById('itinSummaryWarnings');
+    warnEl.innerHTML = '<div class="it-warning-box"><div class="it-warning-label">💡 הערה על הטיוטה</div>המסלול הזה נוצר אוטומטית לפי השאלון.' + extraNote + '</div>' + warnEl.innerHTML;
+  }
+  if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
+}
+
 function itinRenderStartCards() {
   const el = document.getElementById('itinStartCards');
   el.innerHTML = '';
@@ -2382,7 +2971,9 @@ function itinResetRoute() {
   itinClearSearch();
   document.getElementById('itinMainScreen').style.display = 'none';
   document.getElementById('itinSummaryScreen').style.display = 'none';
-  document.getElementById('itinStartScreen').style.display = 'block';
+  document.getElementById('itinStartScreen').style.display = 'none';
+  document.getElementById('itinQuizScreen').style.display = 'none';
+  document.getElementById('itinModeChoiceScreen').style.display = 'block';
   itinRenderStartCards();
 }
 
@@ -2635,6 +3226,46 @@ function itinBuildCharacterSummary(stops) {
   return text;
 }
 
+function itinRenderSummaryMap() {
+  if (typeof L === 'undefined') return;
+  if (!itinSummaryMapInitialized) {
+    const container = document.getElementById('itinSummaryMap');
+    if (!container) return;
+    itinSummaryLeafletMap = L.map('itinSummaryMap', { zoomControl: true, attributionControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 12 }).addTo(itinSummaryLeafletMap);
+    itinSummaryMapInitialized = true;
+  }
+  itinSummaryLeafletMap.eachLayer(layer => { if (!layer._url) itinSummaryLeafletMap.removeLayer(layer); });
+
+  const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(d => d.name === name)).filter(Boolean);
+  if (stops.length === 0) return;
+
+  stops.forEach((d, i) => {
+    const emoji = ITIN_DESTINATION_EMOJI[d.name] || ITIN_REGION_EMOJI[d.region] || '📍';
+    const size = 28;
+    const icon = L.divIcon({
+      className: '',
+      html: '<div style="background:#6ee7a8;width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:2px solid rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:' + Math.round(size * 0.6) + 'px;line-height:1;">' + emoji + '</div>',
+      iconSize: [size, size], iconAnchor: [size / 2, size / 2], popupAnchor: [0, -size / 2],
+    });
+    L.marker([d.lat, d.lng], { icon }).addTo(itinSummaryLeafletMap)
+      .bindPopup('<b>' + (i + 1) + '. ' + d.name + '</b><br>' + itinNightsLabel(d));
+
+    if (i > 0) {
+      const prev = stops[i - 1];
+      const km = itinHaversineKm(prev.lat, prev.lng, d.lat, d.lng);
+      const mode = itinTransportMode(prev.name, d.name, km);
+      L.polyline([[prev.lat, prev.lng], [d.lat, d.lng]], { color: '#6ee7a8', weight: 2, dashArray: '4 4' })
+        .addTo(itinSummaryLeafletMap)
+        .bindTooltip(mode.emoji + ' ' + mode.label + ' · ' + itinFormatDuration(km), { sticky: true });
+    }
+  });
+
+  const bounds = L.latLngBounds(stops.map(d => [d.lat, d.lng]));
+  itinSummaryLeafletMap.fitBounds(bounds, { padding: [30, 30] });
+  setTimeout(() => itinSummaryLeafletMap.invalidateSize(), 50);
+}
+
 function itinShowSummary() {
   document.getElementById('itinExportNote').innerHTML = '';
   document.getElementById('itinAiResponse').innerHTML = '';
@@ -2696,12 +3327,21 @@ function itinShowSummary() {
 
   document.getElementById('itinMainScreen').style.display = 'none';
   document.getElementById('itinSummaryScreen').style.display = 'block';
+  itinRenderSummaryMap();
 }
 
 function itinBackToEditing() {
   document.getElementById('itinSummaryScreen').style.display = 'none';
   document.getElementById('itinMainScreen').style.display = 'block';
   if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
+}
+
+function itinBackToQuiz() {
+  document.getElementById('itinSummaryScreen').style.display = 'none';
+  document.getElementById('itinMainScreen').style.display = 'none';
+  document.getElementById('itinModeChoiceScreen').style.display = 'none';
+  document.getElementById('itinQuizScreen').style.display = 'block';
+  itinRenderQuizChips();
 }
 
 // --- Export: Google Maps + plain text ---
