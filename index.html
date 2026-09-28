@@ -287,6 +287,18 @@
   .lodging-vibe-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
   .lodging-vibe-chip { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.6rem; padding: 0.18rem 0.5rem; border-radius: 12px; background: rgba(125,211,252,0.12); color: #7dd3fc; border: 1px solid rgba(125,211,252,0.3); }
   .itinerary-page { display: none; max-width: 480px; margin: 0 auto; width: 100%; }
+  .myarea-page { display: none; max-width: 700px; margin: 0 auto; width: 100%; }
+  .myarea-page.open { display: block; }
+  .myarea-section { margin-bottom: 1.3rem; }
+  .myarea-section-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; }
+  .myarea-empty { color: var(--muted); font-size: 0.78rem; background: var(--surface); border: 2px dashed var(--border); border-radius: 9px; padding: 0.9rem; text-align: center; }
+  .myarea-item { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.5rem; box-shadow: 2px 2px 0 rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+  .myarea-item-name { font-weight: 600; font-size: 0.82rem; }
+  .myarea-item-meta { font-size: 0.68rem; color: var(--muted); }
+  .myarea-itin-summary { background: var(--surface); border: 2px solid var(--gold); border-radius: 9px; padding: 0.9rem; box-shadow: 3px 3px 0 rgba(0,0,0,0.35); }
+  .myarea-itin-stops { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
+  .myarea-itin-stop { background: var(--paper); border: 1.5px solid var(--border); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.72rem; }
+  .myarea-open-btn { display: inline-block; margin-top: 0.4rem; background: linear-gradient(90deg, #3a1c6e 0%, #7b2d8e 50%, #d94f8c 100%); color: #fff; border: 2px solid #d94f8c; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: var(--pixel), 'Heebo', sans-serif; }
   .itinerary-page.open { display: block; }
   .shopping-back-btn { margin-bottom: 1rem; }
   .shop-tier-label { display: flex; align-items: center; gap: 0.5rem; font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 700; font-size: 0.85rem; color: #fff; text-shadow: 1.5px 1.5px 0 #1a1330, -1px -1px 0 #1a1330, 1px -1px 0 #1a1330, -1px 1px 0 #1a1330; background: linear-gradient(90deg, #3a1c6e 0%, #7b2d8e 35%, #d94f8c 65%, #f4915a 90%, #ffd68a 100%); margin: 2rem 0 0.9rem; padding: 0.65rem 0.9rem; border-radius: 8px; border: 2.5px solid #1a1330; box-shadow: 4px 4px 0 rgba(0,0,0,0.45); }
@@ -295,12 +307,14 @@
   .shop-cat-btn { font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 500; font-size: 0.65rem; padding: 0.45rem 0.7rem; border: 2px solid var(--border); border-radius: 7px; background: var(--surface); cursor: pointer; color: var(--muted); box-shadow: 2px 2px 0 rgba(0,0,0,0.3); transition: transform 0.05s, box-shadow 0.05s; }
   .shop-cat-group-label { flex-basis: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--accent); margin: 0.3rem 0 0.1rem; opacity: 0.85; }
   .shop-cat-group-label-2 { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 2px dashed var(--border); }
-  .auth-area { display: flex; align-items: center; justify-content: flex-end; margin: 0.5rem 0 0.9rem; min-height: 40px; }
-  .auth-signed-in { display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 2px solid var(--border); border-radius: 9px; padding: 0.35rem 0.6rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; }
-  .auth-avatar { width: 24px; height: 24px; border-radius: 50%; }
+  .auth-area { display: inline-flex; align-items: center; }
+  .auth-signed-in.nav-pill { display: flex; gap: 0.45rem; padding: 0.4rem 0.65rem; }
+  .auth-avatar { width: 20px; height: 20px; border-radius: 50%; }
   .auth-name { color: var(--ink); font-weight: 600; }
-  .auth-sync-status { color: var(--muted); font-size: 0.62rem; }
-  .auth-signout-btn { background: none; border: 1.5px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; color: var(--muted); cursor: pointer; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.62rem; }
+  .auth-sync-status { color: var(--muted); font-size: 0.6rem; }
+  .auth-signout-btn { background: none; border: none; border-right: 1.5px solid var(--border); padding-right: 0.45rem; margin-right: -0.1rem; color: var(--muted); cursor: pointer; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.6rem; }
+  #googleSignInBtn { display: inline-block; }
+  #googleSignInBtn > div { border-radius: 999px !important; overflow: hidden; }
   .shop-cat-btn:active { transform: translate(2px,2px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
   .shop-cat-btn.active { background: linear-gradient(90deg, #3a1c6e 0%, #7b2d8e 50%, #d94f8c 100%); color: #fff; border-color: #d94f8c; }
   .shop-section.shop-hidden { display: none; }
@@ -1087,6 +1101,29 @@
     <div id="lodgingHotelFlatList"></div>
   </div>
 </div>
+<div class="myarea-page" id="myAreaPage">
+  <button type="button" class="nav-pill shopping-back-btn" onclick="document.getElementById('myAreaPage').classList.remove('open'); document.querySelector('.page').style.display='block';">→ חזרה לרשימה</button>
+  <div class="hero-sky">
+    <span class="hero-star s1">✦</span><span class="hero-star s2">✦</span><span class="hero-star s3">✧</span>
+    <div class="kicker">✦ הכל שלך, במקום אחד ✦</div>
+    <h1>📚 האזור שלי</h1>
+  </div>
+
+  <div class="myarea-section">
+    <div class="myarea-section-title">🧭 המסלול שלי</div>
+    <div id="myAreaItinerary"></div>
+  </div>
+
+  <div class="myarea-section">
+    <div class="myarea-section-title">🛍️ רשימת הקניות שלי <span id="myAreaShopCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
+    <div id="myAreaShopping"></div>
+  </div>
+
+  <div class="myarea-section">
+    <div class="myarea-section-title">♥ המלצות ששמרתי <span id="myAreaRecsCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
+    <div id="myAreaRecs"></div>
+  </div>
+</div>
 <div class="itinerary-page" id="itineraryPage">
   <button type="button" class="nav-pill shopping-back-btn" onclick="document.getElementById('itineraryPage').classList.remove('open'); document.querySelector('.page').style.display='block';">→ חזרה לרשימה</button>
   <div class="hero-sky">
@@ -1291,17 +1328,18 @@
     <button type="button" class="nav-pill" onclick="document.getElementById('shoppingPage').classList.add('open'); document.querySelector('.page').style.display='none';">🛍️ קניות</button>
     <button type="button" class="nav-pill" onclick="document.getElementById('lodgingPage').classList.add('open'); document.querySelector('.page').style.display='none'; lodgingInit();">🛏️ לינה</button>
     <button type="button" class="nav-pill" onclick="document.getElementById('itineraryPage').classList.add('open'); document.querySelector('.page').style.display='none';">🧭 מסלולים</button>
+    <button type="button" class="nav-pill" onclick="document.getElementById('myAreaPage').classList.add('open'); document.querySelector('.page').style.display='none'; renderMyArea();">📚 האזור שלי</button>
     <button type="button" class="nav-pill" onclick="document.querySelector('.about-modal').classList.add('open'); document.querySelector('.drawer-overlay').classList.add('open');">ℹ️ מי אני</button>
     <button type="button" class="nav-pill" onclick="document.querySelector('.roadmap-modal').classList.add('open'); document.querySelector('.drawer-overlay').classList.add('open');">🛠️ תכנון</button>
     <button type="button" class="nav-pill" onclick="document.querySelector('.feedback-modal').classList.add('open'); document.querySelector('.drawer-overlay').classList.add('open');">💬 פידבק</button>
-  </div>
-  <div id="authArea" class="auth-area">
-    <div id="googleSignInBtn"></div>
-    <div id="authSignedIn" class="auth-signed-in" style="display:none;">
-      <img id="authAvatar" class="auth-avatar" alt="">
-      <span id="authName" class="auth-name"></span>
-      <span id="authSyncStatus" class="auth-sync-status"></span>
-      <button type="button" class="auth-signout-btn" id="authSignOutBtn">התנתקות</button>
+    <div id="authArea" class="auth-area">
+      <div id="googleSignInBtn"></div>
+      <div id="authSignedIn" class="auth-signed-in nav-pill" style="display:none;">
+        <img id="authAvatar" class="auth-avatar" alt="">
+        <span id="authName" class="auth-name"></span>
+        <span id="authSyncStatus" class="auth-sync-status"></span>
+        <button type="button" class="auth-signout-btn" id="authSignOutBtn">התנתקות</button>
+      </div>
     </div>
   </div>
   <div class="hero-sky">
@@ -1899,8 +1937,23 @@ function applySavedRecMarkers() {
 // search) and load them back on any device. Everything still works with
 // zero setup if this is left unconfigured — it just stays device-local.
 const GOOGLE_CLIENT_ID = document.querySelector('meta[name="google-signin-client_id"]').content;
+const AUTH_PROFILE_CACHE_KEY = 'japanTripAuthProfile';
 let currentIdToken = null;
 let cloudSyncTimer = null;
+
+function cacheAuthProfile(profile) {
+  try { localStorage.setItem(AUTH_PROFILE_CACHE_KEY, JSON.stringify(profile)); } catch (e) {}
+}
+function loadCachedAuthProfile() {
+  try { return JSON.parse(localStorage.getItem(AUTH_PROFILE_CACHE_KEY)); } catch (e) { return null; }
+}
+function showSignedInUI(profile, statusText) {
+  document.getElementById('googleSignInBtn').style.display = 'none';
+  document.getElementById('authSignedIn').style.display = '';
+  document.getElementById('authAvatar').src = profile.picture || '';
+  document.getElementById('authName').textContent = profile.name || profile.email || '';
+  setSyncStatus(statusText);
+}
 
 function handleGoogleCredential(response) {
   currentIdToken = response.credential;
@@ -1908,6 +1961,19 @@ function handleGoogleCredential(response) {
 }
 
 function initGoogleSignIn() {
+  // Google's silent "One Tap" re-authentication (auto_select + prompt())
+  // doesn't reliably fire on every page load — browsers can suppress it
+  // after a dismissal, or block it via third-party cookie/FedCM
+  // restrictions — so relying on it alone made the site look "logged out"
+  // on refresh even though nothing was actually lost (the checklist,
+  // itinerary, and saved recs all still live in localStorage regardless).
+  // Fix: immediately restore the signed-in look from a locally cached
+  // profile (name/picture only, never the token itself, which expires in
+  // ~1 hour and shouldn't be reused past that), then attempt the real
+  // silent reconnect in the background to regain live sync capability.
+  const cached = loadCachedAuthProfile();
+  if (cached) showSignedInUI(cached, 'שמור במכשיר (מתחבר מחדש...)');
+
   if (typeof google === 'undefined' || !google.accounts || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
     return; // Google script not loaded yet, or the site owner hasn't configured a Client ID
   }
@@ -1919,7 +1985,18 @@ function initGoogleSignIn() {
   google.accounts.id.renderButton(document.getElementById('googleSignInBtn'), {
     theme: 'outline', size: 'medium', text: 'signin', shape: 'pill', locale: 'iw',
   });
-  google.accounts.id.prompt(); // silent auto sign-in on return visits, no-op if never signed in before
+  if (cached) {
+    // Already showing the cached identity — a failed/suppressed silent
+    // prompt should just leave that in place, not fall back to a visible
+    // sign-in button the person didn't ask for.
+    google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        setSyncStatus('לחצי להתחברות מחדש לסנכרון');
+      }
+    });
+  } else {
+    google.accounts.id.prompt();
+  }
 }
 window.addEventListener('load', () => setTimeout(initGoogleSignIn, 300));
 
@@ -1972,6 +2049,7 @@ async function cloudLoadAndApply() {
     document.getElementById('authSignedIn').style.display = '';
     document.getElementById('authAvatar').src = profile.picture || '';
     document.getElementById('authName').textContent = profile.name || profile.email || '';
+    cacheAuthProfile(profile);
     setSyncStatus('מסונכרן ✓');
   } catch (e) {
     setSyncStatus('שגיאת חיבור');
@@ -2005,6 +2083,7 @@ function cloudSyncDebounced() {
 
 document.getElementById('authSignOutBtn').addEventListener('click', () => {
   currentIdToken = null;
+  try { localStorage.removeItem(AUTH_PROFILE_CACHE_KEY); } catch (e) {}
   if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
   document.getElementById('googleSignInBtn').style.display = '';
   document.getElementById('authSignedIn').style.display = 'none';
@@ -2087,6 +2166,68 @@ function tabelogTip(score, source) {
   if (source === 'HotPepper') return 'ציון מ-5 | HotPepper';
   return '';
 }
+
+function renderMyArea() {
+  // --- Itinerary summary ---
+  const itinEl = document.getElementById('myAreaItinerary');
+  const savedItin = itinLoadSavedState();
+  const routeToShow = (itinRoute && itinRoute.length > 0) ? itinRoute : (savedItin ? savedItin.route : null);
+  if (!routeToShow || routeToShow.length === 0) {
+    itinEl.innerHTML = '<div class="myarea-empty">עדיין לא בנית מסלול. <button type="button" class="myarea-open-btn" onclick="document.getElementById(\'myAreaPage\').classList.remove(\'open\'); document.getElementById(\'itineraryPage\').classList.add(\'open\');">🧭 בנייה עכשיו</button></div>';
+  } else {
+    const stopsHtml = routeToShow.map(name => {
+      const emoji = (typeof ITIN_DESTINATION_EMOJI !== 'undefined' && ITIN_DESTINATION_EMOJI[name]) || '📍';
+      return '<span class="myarea-itin-stop">' + emoji + ' ' + esc(name) + '</span>';
+    }).join('');
+    itinEl.innerHTML = '<div class="myarea-itin-summary">' +
+      '<div style="font-size:0.78rem; color:var(--muted);">' + routeToShow.length + ' תחנות</div>' +
+      '<div class="myarea-itin-stops">' + stopsHtml + '</div>' +
+      '<button type="button" class="myarea-open-btn" onclick="document.getElementById(\'myAreaPage\').classList.remove(\'open\'); document.getElementById(\'itineraryPage\').classList.add(\'open\');">🧭 פתיחת המסלול המלא</button>' +
+    '</div>';
+  }
+
+  // --- Shopping checklist ---
+  const shopEl = document.getElementById('myAreaShopping');
+  const checkedKeys = Object.keys(shopChecklist).filter(k => shopChecklist[k]);
+  document.getElementById('myAreaShopCount').textContent = checkedKeys.length ? '(' + checkedKeys.length + ')' : '';
+  if (checkedKeys.length === 0) {
+    shopEl.innerHTML = '<div class="myarea-empty">עדיין לא סימנת פריטים בעמוד הקניות.</div>';
+  } else {
+    // Shop items are static HTML on the shopping page, not a JS data array —
+    // pull their name/description straight from the DOM regardless of
+    // whether that page is currently visible.
+    const shopItemsByName = {};
+    document.querySelectorAll('.shop-item').forEach(item => {
+      const key = shopItemKey(item);
+      if (key) shopItemsByName[key] = item.querySelector('.shop-item-desc');
+    });
+    shopEl.innerHTML = checkedKeys.map(key => {
+      const descEl = shopItemsByName[key];
+      const desc = descEl ? descEl.textContent : '';
+      return '<div class="myarea-item"><div><div class="myarea-item-name">' + esc(key) + '</div>' +
+        (desc ? '<div class="myarea-item-meta">' + esc(desc) + '</div>' : '') + '</div></div>';
+    }).join('');
+  }
+
+  // --- Saved recommendations ---
+  const recsEl = document.getElementById('myAreaRecs');
+  const savedKeys = Object.keys(savedRecs).filter(k => savedRecs[k]);
+  document.getElementById('myAreaRecsCount').textContent = savedKeys.length ? '(' + savedKeys.length + ')' : '';
+  if (savedKeys.length === 0) {
+    recsEl.innerHTML = '<div class="myarea-empty">עדיין לא שמרת המלצות (לחצי על ♡ בכרטיסייה של כל מקום).</div>';
+  } else {
+    const byTitle = {};
+    DATA.forEach(d => { byTitle[d.title] = d; });
+    recsEl.innerHTML = savedKeys.map(key => {
+      const d = byTitle[key];
+      if (!d) return '';
+      const meta = [d.category, d.city].filter(Boolean).join(' · ');
+      return '<div class="myarea-item"><div><div class="myarea-item-name">' + esc(d.title) + '</div>' +
+        '<div class="myarea-item-meta">' + esc(meta) + '</div></div></div>';
+    }).join('');
+  }
+}
+
 
 function render() {
   let filtered = DATA;
