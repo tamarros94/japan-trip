@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Pixelify+Sans:wght@400;500;600;700&family=DotGothic16&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta name="google-signin-client_id" content="387116894151-he6ot8pe12ihce896p6fhgfsph4qcnhb.apps.googleusercontent.com">
 <style>
   :root {
     --ink: #ece6dd; --paper: #16102a; --red: #ff6b8b; --gold: #ffd166;
@@ -153,6 +155,8 @@
   .card { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 0.85rem 1.05rem; margin-bottom: 0.75rem; overflow-wrap: break-word; box-shadow: 3px 3px 0 rgba(0,0,0,0.35); }
   .card.has-personal { border-color: var(--green); border-width: 2px; }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 0.35rem; }
+  .card-save-btn { background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; order: -1; }
+  .card-save-btn.saved { color: #ff6b8b; }
   .card-title { font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 600; font-size: 1rem; line-height: 1.5; min-width: 0; overflow-wrap: break-word; word-break: break-word; color: var(--ink); }
   .card-cat { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.35); box-shadow: 2px 2px 0 rgba(0,0,0,0.35); }
   .badge { display: inline-block; font-family: 'Heebo', sans-serif; font-size: 0.62rem; line-height: 1.5; padding: 0.2rem 0.55rem; border-radius: 5px; margin-bottom: 0.35rem; margin-left: 0.3rem; background: rgba(230,160,90,0.18); color: #ffb877; font-weight: 600; border: 1.5px solid rgba(255,184,119,0.4); }
@@ -291,11 +295,27 @@
   .shop-cat-btn { font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 500; font-size: 0.65rem; padding: 0.45rem 0.7rem; border: 2px solid var(--border); border-radius: 7px; background: var(--surface); cursor: pointer; color: var(--muted); box-shadow: 2px 2px 0 rgba(0,0,0,0.3); transition: transform 0.05s, box-shadow 0.05s; }
   .shop-cat-group-label { flex-basis: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--accent); margin: 0.3rem 0 0.1rem; opacity: 0.85; }
   .shop-cat-group-label-2 { margin-top: 0.7rem; padding-top: 0.6rem; border-top: 2px dashed var(--border); }
+  .auth-area { display: flex; align-items: center; justify-content: flex-end; margin: 0.5rem 0 0.9rem; min-height: 40px; }
+  .auth-signed-in { display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 2px solid var(--border); border-radius: 9px; padding: 0.35rem 0.6rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; }
+  .auth-avatar { width: 24px; height: 24px; border-radius: 50%; }
+  .auth-name { color: var(--ink); font-weight: 600; }
+  .auth-sync-status { color: var(--muted); font-size: 0.62rem; }
+  .auth-signout-btn { background: none; border: 1.5px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; color: var(--muted); cursor: pointer; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.62rem; }
   .shop-cat-btn:active { transform: translate(2px,2px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
   .shop-cat-btn.active { background: linear-gradient(90deg, #3a1c6e 0%, #7b2d8e 50%, #d94f8c 100%); color: #fff; border-color: #d94f8c; }
   .shop-section.shop-hidden { display: none; }
   .shop-icon { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.12); font-size: 1rem; flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.25); }
   .shop-item { position: relative; background: var(--surface); border: 1.5px solid rgba(255,209,102,0.35); border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.7rem; box-shadow: 3px 3px 0 rgba(0,0,0,0.35); }
+  .shop-item.shop-item-checked { border-color: #6ee7a8; background: rgba(110,231,168,0.08); }
+  .shop-check-btn { position: absolute; top: 0.55rem; left: 0.6rem; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); background: var(--paper); color: transparent; font-size: 0.85rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.05s; }
+  .shop-check-btn:active { transform: scale(0.9); }
+  .shop-item-checked .shop-check-btn { background: #6ee7a8; border-color: #4bc98a; color: #12261c; }
+  .shop-checklist-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; background: var(--surface); border: 2px solid var(--border); border-radius: 9px; padding: 0.55rem 0.8rem; margin-bottom: 0.9rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.72rem; }
+  .shop-checklist-count { color: var(--ink); font-weight: 700; }
+  .shop-checklist-toggle { background: var(--surface); border: 2px solid var(--border); border-radius: 7px; padding: 0.35rem 0.6rem; cursor: pointer; color: var(--muted); font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.68rem; }
+  .shop-checklist-toggle.active { background: linear-gradient(90deg, #3a1c6e 0%, #7b2d8e 50%, #d94f8c 100%); color: #fff; border-color: #d94f8c; }
+  :root[data-theme="light"] .shop-item.shop-item-checked { background: rgba(31,157,99,0.08); border-color: #1f9d63; }
+  :root[data-theme="light"] .shop-item-checked .shop-check-btn { background: #1f9d63; border-color: #1a8555; color: #fff; }
   .shop-item.is-personal { border-color: rgba(110,231,168,0.55); border-width: 1.5px; }
   .shop-item-name { font-size: 0.86rem; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 0.4rem; }
   .shop-item-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.55; margin-top: 0.3rem; }
@@ -585,6 +605,11 @@
     <h1>🛍️ קניות</h1>
   </div>
 
+  <div class="shop-checklist-bar">
+    <span class="shop-checklist-count" id="shopChecklistCount">0 פריטים ברשימה שלך</span>
+    <button type="button" class="shop-checklist-toggle" id="shopChecklistToggle">✓ הצג רק את הנבחרים</button>
+  </div>
+
   <div class="shop-cat-filters" id="shopCatFilters">
     <button type="button" class="shop-cat-btn" data-shopcat="💄 טיפוח">💄 טיפוח</button>
     <button type="button" class="shop-cat-btn" data-shopcat="💋 איפור">💋 איפור</button>
@@ -601,6 +626,18 @@
 
   <div class="shop-section" data-shopcat="💄 טיפוח">
   <div class="shop-tier-label">💄 טיפוח</div>
+  <div class="shop-item is-personal">
+    <div class="shop-item-name"><span class="shop-icon">🧼</span>Biore 隠れ角栓 自己崩壊 (Kakusen Houkai)</div>
+    <span class="badge badge-personal">⭐ המלצה אישית שלי</span>
+    <div class="shop-item-desc">מ-tokyo.zebra: ה"BEST" מבין 3 אופציות לנקבוביות/פקקי חלב. סבון פנים דיפ-קליי של Kao שמפרק פקקי חלב נסתרים בעדינות</div>
+    <a class="shop-item-link" href="https://www.google.com/search?tbm=isch&q=Biore+隠れ角栓+自己崩壊+ディープクレイ洗顔" target="_blank">📷 תמונה</a>
+  </div>
+  <div class="shop-item is-personal">
+    <div class="shop-item-name"><span class="shop-icon">✨</span>YA-MAN (מכשיר EMS/RF לפנים)</div>
+    <span class="badge badge-personal">⭐ המלצה אישית שלי</span>
+    <div class="shop-item-desc">מ-tokyo.zebra: ה"BEST" מבין 3 אופציות לצניחה/רפיון בעור הפנים. מכשיר EMS+RF ביתי לחיטוב ומיצוק</div>
+    <a class="shop-item-link" href="https://www.google.com/search?tbm=isch&q=YA-MAN+EMS+RF+face+device" target="_blank">📷 תמונה</a>
+  </div>
   <div class="shop-item">
     <div class="shop-item-name"><span class="shop-icon">🧼</span>KANEBO, Scrubbing Mud Wash</div>
     <div class="shop-item-desc">סבון פנים עם תג "היכל התהילה" ב-@cosme, 17,473 ביקורות וזכיית פרס Best Cosme 2025. סבון שפילינג עדין המנקה לעומק בלי לייבש</div>
@@ -1258,6 +1295,15 @@
     <button type="button" class="nav-pill" onclick="document.querySelector('.roadmap-modal').classList.add('open'); document.querySelector('.drawer-overlay').classList.add('open');">🛠️ תכנון</button>
     <button type="button" class="nav-pill" onclick="document.querySelector('.feedback-modal').classList.add('open'); document.querySelector('.drawer-overlay').classList.add('open');">💬 פידבק</button>
   </div>
+  <div id="authArea" class="auth-area">
+    <div id="googleSignInBtn"></div>
+    <div id="authSignedIn" class="auth-signed-in" style="display:none;">
+      <img id="authAvatar" class="auth-avatar" alt="">
+      <span id="authName" class="auth-name"></span>
+      <span id="authSyncStatus" class="auth-sync-status"></span>
+      <button type="button" class="auth-signout-btn" id="authSignOutBtn">התנתקות</button>
+    </div>
+  </div>
   <div class="hero-sky">
     <span class="hero-star s1">✦</span><span class="hero-star s2">✦</span><span class="hero-star s3">✧</span>
     <div class="kicker">✦ עודכן לאחרונה: יולי 2026 ✦</div>
@@ -1754,6 +1800,216 @@ document.querySelectorAll('.shop-cat-btn').forEach(btn => {
   });
 });
 
+// --- Shopping checklist (persisted in localStorage) ---
+const SHOP_CHECKLIST_KEY = 'japanTripShopChecklist';
+function loadShopChecklist() {
+  try { return JSON.parse(localStorage.getItem(SHOP_CHECKLIST_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveShopChecklist(obj) {
+  try { localStorage.setItem(SHOP_CHECKLIST_KEY, JSON.stringify(obj)); }
+  catch (e) { /* storage unavailable, silently skip persistence */ }
+}
+function shopItemKey(itemEl) {
+  const nameEl = itemEl.querySelector('.shop-item-name');
+  return nameEl ? nameEl.textContent.trim() : null;
+}
+let shopChecklist = loadShopChecklist();
+let shopShowOnlyChecked = false;
+
+function updateShopChecklistCount() {
+  const n = Object.keys(shopChecklist).filter(k => shopChecklist[k]).length;
+  const el = document.getElementById('shopChecklistCount');
+  if (el) el.textContent = n + (n === 1 ? ' פריט ברשימה שלך' : ' פריטים ברשימה שלך');
+}
+function applyShopChecklistVisibility() {
+  document.querySelectorAll('.shop-item').forEach(item => {
+    if (shopShowOnlyChecked) {
+      const key = shopItemKey(item);
+      item.style.display = (key && shopChecklist[key]) ? '' : 'none';
+    } else {
+      item.style.display = '';
+    }
+  });
+}
+function initShopChecklist() {
+  document.querySelectorAll('.shop-item').forEach(item => {
+    if (item.querySelector('.shop-check-btn')) return; // already initialized
+    const key = shopItemKey(item);
+    if (!key) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'shop-check-btn';
+    btn.setAttribute('aria-label', 'סמן כפריט ברשימה שלי');
+    btn.textContent = '✓';
+    if (shopChecklist[key]) item.classList.add('shop-item-checked');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isChecked = item.classList.toggle('shop-item-checked');
+      shopChecklist[key] = isChecked;
+      saveShopChecklist(shopChecklist);
+      updateShopChecklistCount();
+      if (shopShowOnlyChecked && !isChecked) item.style.display = 'none';
+    });
+    item.insertBefore(btn, item.firstChild);
+  });
+  updateShopChecklistCount();
+}
+document.getElementById('shopChecklistToggle').addEventListener('click', function() {
+  shopShowOnlyChecked = !shopShowOnlyChecked;
+  this.classList.toggle('active', shopShowOnlyChecked);
+  this.textContent = shopShowOnlyChecked ? '✓ מציג רק נבחרים' : '✓ הצג רק את הנבחרים';
+  applyShopChecklistVisibility();
+});
+initShopChecklist();
+
+// --- Saved recommendations (persisted in localStorage, same pattern as the shopping checklist) ---
+const SAVED_RECS_KEY = 'japanTripSavedRecs';
+function loadSavedRecs() {
+  try { return JSON.parse(localStorage.getItem(SAVED_RECS_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveSavedRecs(obj) {
+  try { localStorage.setItem(SAVED_RECS_KEY, JSON.stringify(obj)); }
+  catch (e) { /* storage unavailable, silently skip persistence */ }
+  cloudSyncDebounced();
+}
+let savedRecs = loadSavedRecs();
+function toggleSavedRec(btn, event) {
+  event.stopPropagation();
+  const key = btn.dataset.key;
+  if (!key) return;
+  const isSaved = btn.classList.toggle('saved');
+  btn.textContent = isSaved ? '♥' : '♡';
+  savedRecs[key] = isSaved;
+  saveSavedRecs(savedRecs);
+}
+function applySavedRecMarkers() {
+  document.querySelectorAll('.card-save-btn').forEach(btn => {
+    const key = btn.dataset.key;
+    const isSaved = !!savedRecs[key];
+    btn.classList.toggle('saved', isSaved);
+    btn.textContent = isSaved ? '♥' : '♡';
+  });
+}
+
+// --- Google sign-in + cloud sync ---
+// Lets a signed-in visitor save their shopping checklist, itinerary, and
+// saved recommendations to the cloud (via the same worker that powers AI
+// search) and load them back on any device. Everything still works with
+// zero setup if this is left unconfigured — it just stays device-local.
+const GOOGLE_CLIENT_ID = document.querySelector('meta[name="google-signin-client_id"]').content;
+let currentIdToken = null;
+let cloudSyncTimer = null;
+
+function handleGoogleCredential(response) {
+  currentIdToken = response.credential;
+  cloudLoadAndApply();
+}
+
+function initGoogleSignIn() {
+  if (typeof google === 'undefined' || !google.accounts || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
+    return; // Google script not loaded yet, or the site owner hasn't configured a Client ID
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: true,
+  });
+  google.accounts.id.renderButton(document.getElementById('googleSignInBtn'), {
+    theme: 'outline', size: 'medium', text: 'signin', shape: 'pill', locale: 'iw',
+  });
+  google.accounts.id.prompt(); // silent auto sign-in on return visits, no-op if never signed in before
+}
+window.addEventListener('load', () => setTimeout(initGoogleSignIn, 300));
+
+function setSyncStatus(text) {
+  const el = document.getElementById('authSyncStatus');
+  if (el) el.textContent = text;
+}
+
+async function cloudLoadAndApply() {
+  if (!currentIdToken) return;
+  setSyncStatus('טוען...');
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'load_user_data', idToken: currentIdToken }),
+    });
+    const json = await resp.json();
+    if (!resp.ok) {
+      setSyncStatus('שגיאת חיבור');
+      return;
+    }
+    const data = json.data || {};
+    const profile = json.profile || {};
+
+    // Merge cloud data in: cloud data wins for each piece it actually has,
+    // local-only data (e.g. first time signing in on a device that already
+    // had local picks) is preserved rather than wiped.
+    if (data.shopChecklist) {
+      shopChecklist = { ...shopChecklist, ...data.shopChecklist };
+      saveShopChecklist(shopChecklist);
+      document.querySelectorAll('.shop-item').forEach(item => {
+        const key = shopItemKey(item);
+        item.classList.toggle('shop-item-checked', !!(key && shopChecklist[key]));
+      });
+      updateShopChecklistCount();
+    }
+    if (data.savedRecs) {
+      savedRecs = { ...savedRecs, ...data.savedRecs };
+      saveSavedRecs(savedRecs);
+      applySavedRecMarkers();
+    }
+    if (data.itinerary && Array.isArray(data.itinerary.route) && data.itinerary.route.length > 0 && itinRoute.length === 0) {
+      // Only adopt the cloud itinerary if there's no in-progress local one,
+      // to avoid silently overwriting a route someone's actively building.
+      try { localStorage.setItem(ITIN_SAVE_KEY, JSON.stringify(data.itinerary)); } catch (e) {}
+    }
+
+    document.getElementById('googleSignInBtn').style.display = 'none';
+    document.getElementById('authSignedIn').style.display = '';
+    document.getElementById('authAvatar').src = profile.picture || '';
+    document.getElementById('authName').textContent = profile.name || profile.email || '';
+    setSyncStatus('מסונכרן ✓');
+  } catch (e) {
+    setSyncStatus('שגיאת חיבור');
+  }
+}
+
+async function cloudSaveNow() {
+  if (!currentIdToken) return;
+  setSyncStatus('שומר...');
+  try {
+    const itinerary = itinLoadSavedState() || {};
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save_user_data',
+        idToken: currentIdToken,
+        data: { shopChecklist, savedRecs, itinerary },
+      }),
+    });
+    setSyncStatus(resp.ok ? 'מסונכרן ✓' : 'שגיאת שמירה');
+  } catch (e) {
+    setSyncStatus('שגיאת שמירה');
+  }
+}
+function cloudSyncDebounced() {
+  if (!currentIdToken) return; // not signed in — stays purely device-local, no network call
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(cloudSaveNow, 1500);
+}
+
+document.getElementById('authSignOutBtn').addEventListener('click', () => {
+  currentIdToken = null;
+  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
+  document.getElementById('googleSignInBtn').style.display = '';
+  document.getElementById('authSignedIn').style.display = 'none';
+});
+
 document.getElementById('bookOnly').addEventListener('change', e => { bookOnly = e.target.checked; render(); });
 document.getElementById('tabelogInfoBtn').addEventListener('click', function(e) {
   e.stopPropagation();
@@ -1949,6 +2205,7 @@ function render() {
     const catColor = CATEGORY_COLOR[d.category] || '#555';
     card.innerHTML =
       '<div class="card-top">' +
+        '<button type="button" class="card-save-btn" data-key="' + esc(d.title) + '" onclick="toggleSavedRec(this, event)">♡</button>' +
         '<span class="card-title">' + esc(d.title) + '</span>' +
         '<span class="card-cat" data-tip="' + esc(d.category) + '" style="background:' + catColor + '; box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 0 0 2px rgba(255,255,255,0.25);">' + (CATEGORY_EMOJI[d.category] || '📍') + '</span>' +
       '</div>' +
@@ -1969,6 +2226,7 @@ function render() {
     more.textContent = 'מציג 150 מתוך ' + filtered.length + ', סננו לפי קטגוריה או חפשו כדי לדייק';
     list.appendChild(more);
   }
+  applySavedRecMarkers();
 }
 
 render();
@@ -2688,6 +2946,7 @@ function itinSaveState() {
     // Storage unavailable — the trip still works this session, it just
     // won't survive a refresh. Not worth interrupting the person over.
   }
+  cloudSyncDebounced();
 }
 
 function itinClearSavedState() {
