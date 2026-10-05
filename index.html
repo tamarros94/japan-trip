@@ -22,11 +22,24 @@ if (/[?&]debug\b/.test(location.search)) {
   showDbg('debug on');
   window.addEventListener('error', function (e) { showDbg('ERR ' + e.message + ' @' + e.lineno); });
   window.addEventListener('unhandledrejection', function (e) { showDbg('REJ ' + e.reason); });
+  // Reports page width vs the screen and the widest elements that stick out (ignoring the fixed sheets).
+  var dbgWidth = function (label) {
+    var de = document.documentElement, w = de.clientWidth, offenders = [];
+    document.querySelectorAll('body *').forEach(function (el) {
+      if (el.closest('.side-drawer, .select-sheet, .more-sheet, .sheet-panel, .info-modal, .drawer-overlay, .tabbar, #catFilters, #dbgBox')) return;
+      var r = el.getBoundingClientRect();
+      if (r.width && (r.right > w + 2 || r.left < -2)) offenders.push({ n: (el.className || el.tagName).toString().slice(0, 30), l: Math.round(r.left), r: Math.round(r.right) });
+    });
+    offenders.sort(function (a, b) { return Math.max(b.r - w, -b.l) - Math.max(a.r - w, -a.l); });
+    showDbg(label + ' w=' + w + ' scrollW=' + de.scrollWidth + ' scrollX=' + Math.round(window.scrollX) + ' vv=' + (window.visualViewport ? Math.round(window.visualViewport.width) : '?') +
+      ' offenders=' + offenders.length + ' ' + JSON.stringify(offenders.slice(0, 4)));
+  };
+  window.addEventListener('load', function () { setTimeout(function () { dbgWidth('loaded'); }, 1000); });
   var nativeFetch = window.fetch;
   window.fetch = function (url, init) {
     var action = '';
     try { action = JSON.parse(init.body).action; } catch (e) {}
-    return nativeFetch.apply(this, arguments).then(function (r) { showDbg('fetch ' + action + ' ' + r.status); return r; },
+    return nativeFetch.apply(this, arguments).then(function (r) { showDbg('fetch ' + action + ' ' + r.status); setTimeout(function () { dbgWidth('after ' + action); }, 400); return r; },
       function (e) { showDbg('fetch ' + action + ' failed: ' + e); throw e; });
   };
 }
