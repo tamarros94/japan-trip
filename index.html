@@ -380,6 +380,18 @@
   .auth-signed-in.nav-pill { display: flex; gap: 0.45rem; padding: 0.4rem 0.65rem; }
   .auth-avatar { width: 20px; height: 20px; border-radius: 50%; }
   .auth-name { color: var(--ink); font-weight: 600; }
+  /* The avatar + name open "האזור שלי"; the separate tab is hidden while signed in. */
+  .auth-profile-btn { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px; padding: 0 0.3rem; background: none; border: 0; border-radius: 10px; color: inherit; font: inherit; cursor: pointer; }
+  .auth-profile-btn[aria-current="page"] .auth-name { box-shadow: inset 0 -3px 0 var(--accent); }
+  body.signed-in .tab[data-page="myarea"], body.signed-in .desk-link[data-page="myarea"] { display: none; }
+  body.signed-in .tabbar { grid-template-columns: repeat(5, 1fr); }
+  /* On phones the signed-in chip is wide; put it under the title instead of squeezing the title. */
+  @media (max-width: 600px) {
+    body.signed-in .site-header-row { flex-wrap: wrap; }
+    body.signed-in .site-brand { flex-basis: 100%; }
+    .auth-name { white-space: nowrap; }
+    .auth-sync-status { max-width: 7.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
   .auth-sync-status { color: var(--muted); font-size: 0.75rem; }
   .auth-signout-btn { background: none; border: none; border-right: 1.5px solid var(--border); padding-right: 0.45rem; margin-right: -0.1rem; color: var(--muted); cursor: pointer; position: relative; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; }
   #googleSignInBtn { display: inline-block; }
@@ -1554,8 +1566,10 @@
       <div id="authArea" class="auth-area">
         <div id="googleSignInBtn"></div>
       <div id="authSignedIn" class="auth-signed-in nav-pill" style="display:none;">
-        <img id="authAvatar" class="auth-avatar" alt="">
-        <span id="authName" class="auth-name"></span>
+        <button type="button" class="auth-profile-btn" data-page="myarea" onclick="showPage('myarea')" aria-label="האזור שלי">
+          <img id="authAvatar" class="auth-avatar" alt="">
+          <span id="authName" class="auth-name"></span>
+        </button>
         <span id="authSyncStatus" class="auth-sync-status"></span>
         <button type="button" class="auth-signout-btn" id="authSignOutBtn">התנתקות</button>
       </div>
@@ -2194,6 +2208,7 @@ function loadCachedAuthProfile() {
 function showSignedInUI(profile, statusText) {
   document.getElementById('googleSignInBtn').style.display = 'none';
   document.getElementById('authSignedIn').style.display = '';
+  document.body.classList.add('signed-in');
   document.getElementById('authAvatar').src = profile.picture || '';
   document.getElementById('authName').textContent = profile.name || profile.email || '';
   setSyncStatus(statusText);
@@ -2291,6 +2306,7 @@ async function cloudLoadAndApply() {
 
     document.getElementById('googleSignInBtn').style.display = 'none';
     document.getElementById('authSignedIn').style.display = '';
+    document.body.classList.add('signed-in');
     document.getElementById('authAvatar').src = profile.picture || '';
     document.getElementById('authName').textContent = profile.name || profile.email || '';
     cacheAuthProfile(profile);
@@ -2332,6 +2348,7 @@ document.getElementById('authSignOutBtn').addEventListener('click', () => {
   if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
   document.getElementById('googleSignInBtn').style.display = '';
   document.getElementById('authSignedIn').style.display = 'none';
+  document.body.classList.remove('signed-in');
   socialReset();
 });
 
@@ -6472,5 +6489,6 @@ function itinExportText() {
 }
 
 </script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57ed878b71b6407bb875aa050f035c1f"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
