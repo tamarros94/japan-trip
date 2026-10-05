@@ -629,9 +629,21 @@
   /* Social: reviews. Rating lines stay hidden until the visitor is signed in. */
   .card-rating, .shop-rating { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; background: none; border: 0; cursor: pointer; font: inherit; font-size: 0.8rem; color: var(--gold); text-align: start; }
   .card-rating[hidden], .shop-rating[hidden] { display: none; }
-  .card-rating.empty, .shop-rating.empty { color: var(--muted); }
+  .rating-chip { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 0.75rem; padding: 3px 10px; border: 1px solid var(--accent); border-radius: 999px; color: var(--gold); }
+  .rating-chip.empty-chip { border-style: dashed; border-color: var(--border); color: var(--muted); }
+  .rating-label { color: var(--accent); font-weight: 700; }
   .rating-count { color: var(--muted); }
+  .rv-head { position: sticky; top: -1rem; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: var(--surface); }
+  .rv-head h4 { position: static; margin: 0; padding: 0; }
+  .rv-close { min-width: 44px; min-height: 44px; background: none; border: 0; cursor: pointer; font-size: 1.2rem; color: var(--muted); }
+  .rv-notice { color: var(--green); font-size: 0.8rem; margin-top: 0.5rem; }
+  .rv-mine { width: 100%; text-align: start; cursor: pointer; font: inherit; color: var(--ink); }
+  .rv-mine .myarea-item-meta { margin-top: 0.15rem; }
   .review-sheet { max-height: 85vh; }
+  /* On wide screens the review sheet is a centered dialog instead of a full-width bottom sheet. */
+  @media (min-width: 900px) {
+    .review-sheet { left: 50%; right: auto; bottom: auto; top: 50%; transform: translate(-50%, -50%); width: min(560px, 92vw); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+  }
   .rv-summary { font-size: 0.85rem; color: var(--gold); margin-bottom: 0.7rem; }
   .rv-compose { background: var(--paper); border: 1px solid var(--border); border-radius: 14px; padding: 0.8rem; margin-bottom: 0.9rem; }
   .rv-stars { display: flex; gap: 4px; margin-bottom: 0.5rem; }
@@ -672,6 +684,8 @@
   <button type="button" class="tab" data-page="myarea" onclick="showPage('myarea')"><span class="ti" aria-hidden="true">📚</span>האזור שלי</button>
   <button type="button" class="tab" aria-haspopup="true" onclick="openOverlay('#moreSheet')"><span class="ti" aria-hidden="true">⋯</span>עוד</button>
 </nav>
+<!-- Outside the page containers so it also opens from "האזור שלי" -->
+<div class="select-sheet review-sheet" id="reviewSheet" role="dialog" aria-modal="true" aria-label="ביקורות"></div>
 <div class="more-sheet" id="moreSheet" role="dialog" aria-modal="true" aria-label="עוד">
   <button type="button" onclick="closeOverlays(); openOverlay('.side-drawer')">🗺️ מפות</button>
   <button type="button" onclick="closeOverlays(); openOverlay('.about-modal')">ℹ️ מי אני</button>
@@ -1313,6 +1327,11 @@
     <div id="myAreaRecs"></div>
   </div>
 
+  <div class="myarea-section" id="myAreaRatings" hidden>
+    <div class="myarea-section-title">⭐ הדירוגים שלי <span id="myRatingsCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
+    <div id="myRatingsList"></div>
+  </div>
+
   <div class="myarea-section" id="myAreaProfile" hidden>
     <div class="myarea-section-title">👤 הפרופיל שלי</div>
     <div class="profile-row">
@@ -1600,7 +1619,6 @@
     </div>
   </div>
   <div class="select-sheet" id="selectSheet" role="dialog" aria-modal="true"></div>
-  <div class="select-sheet review-sheet" id="reviewSheet" role="dialog" aria-modal="true" aria-label="ביקורות"></div>
   <div id="count"></div>
   <div id="list"></div>
 </div>
@@ -2370,12 +2388,40 @@ function socialReset() {
 
 // My Area: display name for reviews, plus the report queue for admins.
 function renderSocialMyArea() {
+  document.getElementById('myAreaRatings').hidden = !socialMe;
   document.getElementById('myAreaProfile').hidden = !socialMe;
   document.getElementById('myAreaAdmin').hidden = !(socialMe && socialMe.isAdmin);
   if (!socialMe) return;
   const input = document.getElementById('profileNameInput');
   if (document.activeElement !== input) input.value = socialMe.displayName;
+  loadMyRatings();
   if (socialMe.isAdmin) loadAdminReports();
+}
+
+// "My ratings": every place the visitor reviewed, so one can be reopened to edit or delete.
+async function loadMyRatings() {
+  if (!socialMe) return;
+  const el = document.getElementById('myRatingsList');
+  const res = await socialCall('list_my_reviews');
+  if (!res) return;
+  if (!res.ok) { el.innerHTML = '<div class="myarea-empty">' + esc(socialErrorText(res)) + '</div>'; return; }
+  const reviews = res.data.reviews || [];
+  document.getElementById('myRatingsCount').textContent = reviews.length ? '(' + reviews.length + ')' : '';
+  el.innerHTML = reviews.length ? reviews.map(r => {
+    const snippet = r.text ? ' · ' + esc(r.text.length > 60 ? r.text.slice(0, 60) + '…' : r.text) : '';
+    return '<button type="button" class="myarea-item rv-mine" data-key="' + escAttr(r.placeKey) + '" data-title="' + escAttr(r.placeKey.slice(2)) + '">' +
+      '<div><div class="myarea-item-name">' + esc(r.placeKey.slice(2)) + '</div>' +
+      '<div class="myarea-item-meta">' + starsText(r.rating) + snippet + (r.hidden ? ' · ממתין לבדיקה' : '') + '</div></div></button>';
+  }).join('') : '<div class="myarea-empty">עדיין לא דירגת מקומות (לחצי על שורת הדירוג בכרטיס של מקום).</div>';
+}
+
+document.getElementById('myRatingsList').addEventListener('click', (e) => {
+  const row = e.target.closest('.rv-mine');
+  if (row) openReviewSheet(row.dataset.key, row.dataset.title);
+});
+
+async function afterReviewChange() {
+  await Promise.all([refreshPlaceStats(), loadReviews(), loadMyRatings()]);
 }
 
 async function loadAdminReports() {
@@ -2422,9 +2468,13 @@ function starsText(n) {
 function reviewCountText(count) {
   return count === 1 ? 'ביקורת אחת' : count + ' ביקורות';
 }
-function ratingLineHtml(stat) {
-  if (!stat) return '☆ להיות הראשונים לדרג';
-  return starsText(stat[0]) + ' ' + stat[0].toFixed(1) + ' <span class="rating-count">· ' + reviewCountText(stat[1]) + '</span>';
+// Labeled chip so visitor ratings are not mistaken for source scores such as Tabelog.
+// compact: short count ("(3)") for the narrow card line; the sheet spells it out.
+function ratingLineHtml(stat, compact) {
+  if (!stat) return '<span class="rating-chip empty-chip">☆ היו הראשונים לדרג</span>';
+  const count = compact ? '(' + stat[1] + ')' : '· ' + reviewCountText(stat[1]);
+  return '<span class="rating-chip"><span class="rating-label">דירוג גולשים</span> ' + starsText(stat[0]) + ' ' +
+    stat[0].toFixed(1) + ' <span class="rating-count">' + count + '</span></span>';
 }
 
 function applyPlaceStats() {
@@ -2433,7 +2483,7 @@ function applyPlaceStats() {
     if (!socialMe) return;
     const stat = placeStats[btn.dataset.key];
     btn.classList.toggle('empty', !stat);
-    btn.innerHTML = ratingLineHtml(stat);
+    btn.innerHTML = ratingLineHtml(stat, true);
   });
 }
 
@@ -2515,7 +2565,8 @@ function renderReviewSheet() {
   const list = st.reviews === null ? '<div class="rv-empty">טוען...</div>'
     : st.reviews.length ? st.reviews.map(reviewRowHtml).join('') : '<div class="rv-empty">עדיין אין ביקורות</div>';
   sheet.innerHTML =
-    '<h4>' + esc(st.title) + '</h4>' +
+    '<div class="rv-head"><h4>' + esc(st.title) + '</h4>' +
+      '<button type="button" class="rv-close" data-act="close" aria-label="סגירה">✕</button></div>' +
     '<div class="rv-summary">' + ratingLineHtml(stat) + '</div>' +
     '<div class="rv-compose">' +
       '<div class="rv-stars" role="radiogroup" aria-label="דירוג">' + stars + '</div>' +
@@ -2523,6 +2574,7 @@ function renderReviewSheet() {
       '<div class="rv-counter"><span id="rvCount">' + st.draftText.length + '</span>/' + REVIEW_TEXT_MAX + '</div>' +
       '<button type="button" class="rv-submit" data-act="submit"' + (st.busy ? ' disabled' : '') + '>' + (mine ? 'עדכון הביקורת' : 'שליחה') + '</button>' +
       (st.error ? '<div class="rv-error" role="alert">' + esc(st.error) + '</div>' : '') +
+      (st.notice ? '<div class="rv-notice" role="status">' + esc(st.notice) + '</div>' : '') +
     '</div>' +
     '<div class="rv-list">' + list + '</div>';
 }
@@ -2536,7 +2588,8 @@ async function submitReview() {
   st.busy = false;
   if (!res || !res.ok) { st.error = res ? socialErrorText(res) : ''; renderReviewSheet(); return; }
   st.draftTouched = false;
-  await Promise.all([refreshPlaceStats(), loadReviews()]);
+  st.notice = 'הדירוג נשמר ✓';
+  await afterReviewChange();
 }
 
 async function reviewRowAction(act, id) {
@@ -2553,21 +2606,25 @@ async function reviewRowAction(act, id) {
   if (reviewState !== st) return;
   if (!res || !res.ok) { st.error = res ? socialErrorText(res) : ''; renderReviewSheet(); return; }
   st.error = '';
-  if (act === 'delete') { st.draftRating = 0; st.draftText = ''; st.draftTouched = false; }
-  await Promise.all([refreshPlaceStats(), loadReviews()]);
+  if (act === 'delete') { st.draftRating = 0; st.draftText = ''; st.draftTouched = false; st.notice = 'הביקורת נמחקה'; }
+  await afterReviewChange();
 }
 
 document.getElementById('reviewSheet').addEventListener('input', (e) => {
   if (!reviewState || !e.target.classList.contains('rv-text')) return;
   reviewState.draftText = e.target.value;
   reviewState.draftTouched = true;
+  reviewState.notice = '';
+  const notice = document.querySelector('#reviewSheet .rv-notice');
+  if (notice) notice.remove();
   document.getElementById('rvCount').textContent = e.target.value.length;
 });
 document.getElementById('reviewSheet').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-act]');
   if (!btn || !reviewState) return;
   const act = btn.dataset.act;
-  if (act === 'star') { reviewState.draftRating = Number(btn.dataset.value); reviewState.draftTouched = true; renderReviewSheet(); }
+  if (act === 'close') closeOverlays();
+  else if (act === 'star') { reviewState.draftRating = Number(btn.dataset.value); reviewState.draftTouched = true; reviewState.notice = ''; renderReviewSheet(); }
   else if (act === 'submit') submitReview();
   else reviewRowAction(act, Number(btn.dataset.id));
 });
