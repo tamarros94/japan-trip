@@ -151,6 +151,8 @@ if (/[?&]debug\b/.test(location.search)) {
   }
   * { box-sizing: border-box; }
   html, body { overflow-x: hidden; max-width: 100%; }
+  /* Google's sign in script parks a 1px screen reader element at left:-10000px. In this RTL page that widens the scroll area by 10000px on phones and scrolls the page away after login. */
+  body > div[style*="-10000px"] { left: 0 !important; pointer-events: none; }
   body { background: var(--paper); color: var(--ink); font-family: 'Heebo', sans-serif; margin: 0; padding: 1rem 1rem calc(76px + 1rem); }
   .site-header { margin-bottom: 1rem; }
   .site-header-row { display: flex; align-items: center; gap: 10px; min-height: 56px; }
