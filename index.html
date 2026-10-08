@@ -497,6 +497,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-chip.active { background: var(--accent); color: #2a1d0f; border-color: var(--accent); }
 
   .it-route-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0.4rem 0 0.2rem; }
+  .it-route-title:focus { outline: none; }
   .it-route-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--ink); }
   .it-menu-wrap { position: relative; }
   .it-icon-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
@@ -519,7 +520,10 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-route-stop { position: relative; border-bottom: 1px solid var(--border); padding: 0.4rem 0; transition: background 200ms ease-out; }
   .it-route-stop-new { background: rgba(155,156,255,0.18); }
   .it-route-main { display: flex; align-items: center; gap: 8px; }
-  .it-route-num { font-size: 0.75rem; font-weight: 700; color: var(--ink); background: var(--paper); border: 1px solid var(--border); border-radius: 50%; width: 28px; height: 28px; min-width: 28px; display: flex; align-items: center; justify-content: center; }
+  .it-drag { flex-shrink: 0; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--muted); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .it-route-stop-dragging { position: relative; z-index: 30; background: var(--surface); border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); transition: none; }
+  .it-route-stop:not(.it-route-stop-dragging) { transition: transform 150ms ease-out, background 200ms ease-out; }
+  .it-route-num { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
   .it-route-body { flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
   .it-route-stop-name { font-size: 1.1rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
   .it-route-stop-dates, .it-route-stop-event, .it-route-stop-lock { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
@@ -528,7 +532,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-step-btn:active { transform: scale(.97); }
   .it-step-btn:disabled { color: var(--muted); opacity: .5; cursor: default; }
   .it-step-value { min-width: 1.4rem; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--ink); }
-  .it-route-stop-locked .it-route-num { border-color: var(--accent); color: var(--accent); }
+  .it-route-stop-locked .it-drag { color: var(--accent); }
   .it-route-more { padding: 0.2rem 0 0.6rem; margin-inline-start: 36px; font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
   .it-route-more .it-more-line { margin-top: 0.4rem; }
   .it-route-more .it-more-label { font-size: 0.75rem; color: var(--muted); }
@@ -2328,7 +2332,7 @@ function initGoogleSignIn() {
     // sign-in button the person didn't ask for.
     google.accounts.id.prompt((notification) => {
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        setSyncStatus('לחצי להתחברות מחדש לסנכרון');
+        setSyncStatus(''); // nothing to press here, so show no status instead of a prompt that does nothing
       }
     });
   } else {
@@ -4299,8 +4303,8 @@ function itinRenderRoute() {
     const datesHtml = stopDates ? '<div class="it-route-stop-dates">' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
     const eventNote = d ? itinStopEventNote(d, stopDates) : '';
     const menuItems =
-      (i > 1 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', -1)">הזיזו למעלה</button>' : '') +
-      (i > 0 && i < itinRoute.length - 1 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', 1)">הזיזו למטה</button>' : '') +
+      (i > 0 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', -1)">הזיזו למעלה</button>' : '') +
+      (i < itinRoute.length - 1 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', 1)">הזיזו למטה</button>' : '') +
       '<button type="button" onclick="itinOpenMenu=null;itinToggleLockStop(\'' + q + '\')">' + (locked ? 'שחררו נעילת מיקום' : 'נעלו מיקום (האופטימיזציה לא תזיז)') + '</button>' +
       (i > 0 ? '<button type="button" onclick="itinOpenMenu=null;itinRemoveStop(' + i + ')">הסירו מהמסלול</button>' : '');
     let moreHtml = '';
@@ -4321,9 +4325,9 @@ function itinRenderRoute() {
     el.className = 'it-route-stop' + (locked ? ' it-route-stop-locked' : '') + (itinNewRowIndex === i ? ' it-route-stop-new' : '');
     el.innerHTML =
       '<div class="it-route-main">' +
-        '<div class="it-route-num">' + (i + 1) + '</div>' +
+        '<button type="button" class="it-drag" data-f="drag' + i + '" aria-label="הזיזו את ' + stop + ' (מקום ' + (i + 1) + ' מתוך ' + itinRoute.length + '), גררו או השתמשו בחצים" onpointerdown="itinDragStart(event, ' + i + ')" onkeydown="itinDragKey(event, ' + i + ')">⠿</button>' +
         '<div class="it-route-body" data-f="row' + i + '" tabindex="0" role="button" aria-expanded="' + open + '" onclick="itinToggleStopEditor(' + i + ')">' +
-          '<span class="it-route-stop-name">' + emoji + ' ' + stop + '</span>' + datesHtml +
+          '<span class="it-route-stop-name"><span class="it-route-num">' + (i + 1) + '.</span> ' + emoji + ' ' + stop + '</span>' + datesHtml +
           (eventNote ? '<div class="it-route-stop-event">' + eventNote + '</div>' : '') +
           (locked ? '<div class="it-route-stop-lock">מיקום נעול</div>' : '') +
         '</div>' +
@@ -4415,17 +4419,71 @@ function itinToggleMapStrip() {
   setTimeout(itinRenderMiniMap, 220); // after the height transition, so the map refits its real size
 }
 
-function itinMoveStop(index, direction) {
-  const newIndex = index + direction;
-  // Index 0 (where the trip starts) is never moved, and nothing can be
-  // pushed into that position either.
-  if (index <= 0 || newIndex <= 0 || newIndex >= itinRoute.length) return;
+function itinReorderStop(from, to) {
+  if (from === to || from < 0 || to < 0 || from >= itinRoute.length || to >= itinRoute.length) return;
   itinSnapshotForUndo();
-  const tmp = itinRoute[index];
-  itinRoute[index] = itinRoute[newIndex];
-  itinRoute[newIndex] = tmp;
+  itinRoute.splice(to, 0, itinRoute.splice(from, 1)[0]);
   itinEditingStopIndex = null;
   itinRender();
+}
+
+function itinMoveStop(index, direction) {
+  itinFocusKey = 'drag' + (index + direction);
+  itinReorderStop(index, index + direction);
+}
+
+function itinDragKey(e, i) {
+  const dir = e.key === 'ArrowUp' ? -1 : (e.key === 'ArrowDown' ? 1 : 0);
+  if (!dir) return;
+  e.preventDefault();
+  itinMoveStop(i, dir);
+}
+
+// Drag a row by its handle: the row follows the pointer, the rows it passes slide out of the way, and the order
+// changes once on release. Pointer events cover touch, pen and mouse.
+function itinDragStart(e, from) {
+  const handle = e.currentTarget;
+  const rows = [...document.querySelectorAll('#itinRouteStrip .it-route-stop')];
+  const row = rows[from];
+  if (!row || rows.length < 2) return;
+  e.preventDefault();
+  handle.setPointerCapture(e.pointerId);
+  const boxes = rows.map(r => r.getBoundingClientRect());
+  const startY = e.clientY;
+  const size = boxes[from].height;
+  let target = from;
+  row.classList.add('it-route-stop-dragging');
+  const scrollTimer = { id: 0, dir: 0 };
+  const edgeScroll = () => { if (scrollTimer.dir) { window.scrollBy(0, scrollTimer.dir * 12); scrollTimer.id = requestAnimationFrame(edgeScroll); } };
+  const move = (ev) => {
+    const dy = ev.clientY - startY;
+    row.style.transform = 'translateY(' + dy + 'px)';
+    const center = boxes[from].top + size / 2 + dy;
+    target = from;
+    boxes.forEach((box, i) => {
+      const mid = box.top + box.height / 2;
+      if (i < from && center < mid) target = Math.min(target, i);
+      if (i > from && center > mid) target = Math.max(target, i);
+    });
+    rows.forEach((r, i) => {
+      if (i === from) return;
+      const shift = (target < from && i >= target && i < from) ? size : ((target > from && i <= target && i > from) ? -size : 0);
+      r.style.transform = shift ? 'translateY(' + shift + 'px)' : '';
+    });
+    const dir = ev.clientY < 70 ? -1 : (ev.clientY > innerHeight - 150 ? 1 : 0);
+    if (dir !== scrollTimer.dir) { cancelAnimationFrame(scrollTimer.id); scrollTimer.dir = dir; if (dir) edgeScroll(); }
+  };
+  const end = (ev) => {
+    handle.removeEventListener('pointermove', move);
+    handle.removeEventListener('pointerup', end);
+    handle.removeEventListener('pointercancel', end);
+    cancelAnimationFrame(scrollTimer.id);
+    rows.forEach(r => { r.style.transform = ''; r.classList.remove('it-route-stop-dragging'); });
+    if (ev.type === 'pointerup' && target !== from) { itinFocusKey = 'drag' + target; itinReorderStop(from, target); }
+  };
+  handle.addEventListener('pointermove', move);
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
 }
 
 function itinToggleLockStop(name) {
