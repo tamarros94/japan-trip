@@ -81,8 +81,8 @@ if (/[?&]debug\b/.test(location.search)) {
   :root[data-theme="light"] .catbtn.active, :root[data-theme="light"] .lodging-city-btn.active,
   :root[data-theme="light"] .lodging-tab-btn.active, :root[data-theme="light"] .lodging-chip.active,
   :root[data-theme="light"] .it-chip.active, :root[data-theme="light"] .it-return-btn,
-  :root[data-theme="light"] .it-top-btn.it-finish-top, :root[data-theme="light"] .it-dead-end-btn,
-  :root[data-theme="light"] .it-quiz-generate-btn, :root[data-theme="light"] .it-ai-ask-btn { color: #fff; }
+  :root[data-theme="light"] .it-dead-end-btn,
+  :root[data-theme="light"] .it-ai-ask-btn { color: #fff; }
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   :root[data-theme="light"] .badge { background: #fdecd6; color: #7a4020; border-color: rgba(0,0,0,0.08); }
   :root[data-theme="light"] .badge-city { background: #eceefb; color: #3f4470; }
@@ -99,7 +99,7 @@ if (/[?&]debug\b/.test(location.search)) {
   :root[data-theme="light"] .cselect-trigger, :root[data-theme="light"] .tabelog-info, :root[data-theme="light"] .ai-toggle-btn,
   :root[data-theme="light"] .nav-pill, :root[data-theme="light"] .lodging-hotel-item, :root[data-theme="light"] .lodging-flat-nb-item,
   :root[data-theme="light"] .lodging-nb-card, :root[data-theme="light"] .it-map-wrap, :root[data-theme="light"] .it-mini-map-wrap,
-  :root[data-theme="light"] .it-chip, :root[data-theme="light"] .it-route-stop, :root[data-theme="light"] .it-current-card,
+  :root[data-theme="light"] .it-chip,
   :root[data-theme="light"] .it-dest-card, :root[data-theme="light"] .it-add-btn {
     box-shadow: 0 1px 5px rgba(120,100,90,0.10);
   }
@@ -110,19 +110,15 @@ if (/[?&]debug\b/.test(location.search)) {
      colors read as near-invisible low-contrast text, and the accent button
      (which needs to stay visually bright as a filled background, not dark
      like accent-as-text elsewhere) turned a muddy mustard. */
-  :root[data-theme="light"] .it-character-box { background: #eaf6fd; border-right-color: #2f8bc4; color: #204a63; }
+  :root[data-theme="light"] .it-character-box { background: #eaf6fd; border-color: #2f8bc4; color: #204a63; }
   :root[data-theme="light"] .it-character-label { color: #1f6f9c; }
-  :root[data-theme="light"] .it-top-btn.it-finish-top,
   :root[data-theme="light"] .it-dead-end-btn,
-  :root[data-theme="light"] .it-quiz-generate-btn,
   :root[data-theme="light"] .it-ai-ask-btn,
   :root[data-theme="light"] .lodging-city-btn.active,
   :root[data-theme="light"] .it-return-btn {
     background: #ffd166; border-color: #e0a936; color: #2a1d0f;
   }
-  :root[data-theme="light"] .it-template-use-btn,
   :root[data-theme="light"] .it-optimize-apply,
-  :root[data-theme="light"] .it-stop-editor-close,
   :root[data-theme="light"] .it-add-btn {
     background: #6ee7a8; color: #12261c;
   }
@@ -262,7 +258,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .card-by { font-size: 0.8rem; color: var(--muted); }
   .card-save-btn { background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; position: relative; }
   .card-save-btn::after { content: ""; position: absolute; inset: -14px; }
-  .filters-toggle-btn, .ai-toggle-btn, .cselect-trigger, .it-chip, .it-top-btn, .it-undo-btn, .it-search-input { min-height: 44px; }
+  .filters-toggle-btn, .ai-toggle-btn, .cselect-trigger, .it-chip, .it-search-input { min-height: 44px; }
   .it-add-btn, .it-home-link, .it-reset-filters-btn { position: relative; }
   .it-add-btn::after { content: ""; position: absolute; inset: -5px; }
   .it-home-link::after, .it-reset-filters-btn::after { content: ""; position: absolute; inset: -14px 0; }
@@ -489,12 +485,6 @@ if (/[?&]debug\b/.test(location.search)) {
   .stamp-caption { font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 600; font-size: 0.75rem; line-height: 1.6; color: var(--muted); text-align: center; margin-top: 0.3rem; max-width: 80px; }
   /* === מסלולים (itinerary builder) === */
   .it-map-wrap { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 0.6rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-  .it-mini-map-wrap { border: 1px solid var(--green); border-radius: 18px; overflow: hidden; margin: 0.5rem 0 0.7rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-  .it-mini-map-wrap #itinMiniMap { height: 150px; }
-  .it-flow-hint { font-size: 0.76rem; color: var(--accent); background: rgba(255,209,102,0.08); border: 1px dashed var(--accent); border-radius: 8px; padding: 0.5rem 0.7rem; margin-bottom: 0.7rem; line-height: 1.5; }
-  .it-map-details { margin-top: 0.8rem; }
-  .it-map-details summary { cursor: pointer; font-size: 0.78rem; color: var(--muted); padding: 0.5rem 0; }
-  #itinMap { height: 260px; background: var(--paper); }
   #itinSummaryMap { height: 260px; background: var(--paper); }
   .leaflet-popup-content-wrapper { background: var(--surface); color: var(--ink); border-radius: 8px; }
   .leaflet-popup-content { font-family: 'Heebo', sans-serif; font-size: 0.78rem; direction: rtl; }
@@ -506,33 +496,102 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-chip:active { transform: translate(2px,2px); box-shadow: 0 0 0 rgba(0,0,0,0.35); }
   .it-chip.active { background: var(--accent); color: #2a1d0f; border-color: var(--accent); }
 
-  .it-route-strip { display: flex; flex-direction: column; gap: 0; margin-bottom: 0.5rem; }
-  .it-route-stop { background: var(--surface); border: 1px solid var(--green); border-radius: 18px; padding: 0.7rem 0.85rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-  .it-route-num { font-family: var(--pixel); font-size: 0.85rem; color: var(--green); background: rgba(110,231,168,0.15); border: 1px solid var(--green); border-radius: 50%; width: 28px; height: 28px; min-width: 28px; display: flex; align-items: center; justify-content: center; }
-  .it-route-body { flex: 1; min-width: 0; }
-  .it-route-stop-name { cursor: pointer; font-family: var(--pixel); font-size: 0.95rem; color: var(--ink); display: block; }
-  .it-route-stop-nights { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
-  .it-route-stop-dates, .it-route-stop-event { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
-  .it-route-actions { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
-  .it-route-stop-editing { box-shadow: 0 0 0 2px var(--green); }
-  .it-stop-editor { background: rgba(110,231,168,0.08); border: 1px dashed var(--green); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.5rem 0; text-align: center; }
-  .it-stop-editor-info { text-align: right; margin-top: 0.6rem; }
-  .it-stop-editor-lock { display: block; width: 100%; margin: 0.5rem 0; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: transparent; border: 1px dashed var(--accent); color: var(--accent); border-radius: 999px; padding: 0.4rem; cursor: pointer; }
-  .it-stop-editor-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; color: var(--green); margin-bottom: 0.4rem; }
-  .it-stop-editor-close { margin-top: 0.5rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: var(--green); color: #12261c; border: none; border-radius: 999px; padding: 0.4rem 0.8rem; cursor: pointer; }
-  .it-route-stop .it-x { cursor: pointer; opacity: 0.7; font-size: 1rem; }
-  .it-route-stop .it-lock { cursor: pointer; opacity: 0.7; font-size: 0.95rem; }
-  .it-route-stop .it-move { cursor: pointer; opacity: 0.7; font-size: 0.85rem; padding: 0 2px; }
-  .it-route-stop .it-x, .it-route-stop .it-lock, .it-route-stop .it-move { background: none; border: none; color: inherit; font-family: inherit; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
-  .it-route-stop-locked { border-color: var(--accent); background: rgba(255,209,102,0.08); }
-  .it-route-stop-locked .it-route-num { color: var(--accent); border-color: var(--accent); background: rgba(255,209,102,0.15); }
-  .it-route-connector { display: flex; align-items: center; gap: 6px; padding: 0.3rem 0 0.3rem 13px; margin-right: 14px; border-right: 2px dashed var(--border); font-size: 0.75rem; color: var(--muted); }
-  .it-route-summary { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.8rem; }
-  .it-route-summary b { color: var(--accent); }
+  .it-route-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0.4rem 0 0.2rem; }
+  .it-route-title { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--ink); }
+  .it-menu-wrap { position: relative; }
+  .it-icon-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
+  .it-icon-btn:active { transform: scale(.97); }
+  .it-menu { position: absolute; inset-inline-start: 0; top: 100%; z-index: 20; min-width: 190px; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .it-menu button { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 12px; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 0.9rem; text-align: start; cursor: pointer; }
+  .it-menu button:hover { background: var(--paper); }
+  .it-menu button:disabled { color: var(--muted); cursor: default; }
+  .it-dates-row { min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+  .it-link-btn { min-height: 44px; min-width: 44px; padding: 0; background: none; border: 0; color: var(--accent); font-family: inherit; font-size: 0.9rem; text-decoration: underline; cursor: pointer; }
+  .it-dates-row input[type=date] { min-height: 44px; padding: 0 10px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 12px; font-family: inherit; font-size: 0.9rem; }
 
-  .it-current-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1rem 1.1rem; margin-bottom: 1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-  .it-current-card .kicker { font-family: var(--pixel); font-size: 0.75rem; opacity: 0.85; margin-bottom: 0.2rem; }
-  .it-current-card h2 { font-family: var(--pixel); margin: 0; font-size: 1.2rem; color: #ece6dd; }
+  .it-mini-map-wrap { position: relative; isolation: isolate; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin: 0.2rem 0 0.8rem; }
+  .it-mini-map-wrap #itinMiniMap { height: 96px; transition: height 200ms ease-out; }
+  .it-mini-map-wrap.expanded #itinMiniMap { height: 280px; }
+  .it-map-toggle { position: absolute; inset-block-end: 6px; inset-inline-start: 6px; z-index: 500; min-height: 44px; padding: 0 14px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 999px; font-family: inherit; font-size: 0.75rem; cursor: pointer; transition: transform 150ms ease; }
+  .it-map-toggle:active { transform: scale(.97); }
+
+  .it-route-strip { display: flex; flex-direction: column; margin-bottom: 0.2rem; }
+  .it-route-stop { position: relative; border-bottom: 1px solid var(--border); padding: 0.4rem 0; transition: background 200ms ease-out; }
+  .it-route-stop-new { background: rgba(155,156,255,0.18); }
+  .it-route-main { display: flex; align-items: center; gap: 8px; }
+  .it-route-num { font-size: 0.75rem; font-weight: 700; color: var(--ink); background: var(--paper); border: 1px solid var(--border); border-radius: 50%; width: 28px; height: 28px; min-width: 28px; display: flex; align-items: center; justify-content: center; }
+  .it-route-body { flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+  .it-route-stop-name { font-size: 1.1rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
+  .it-route-stop-dates, .it-route-stop-event, .it-route-stop-lock { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+  .it-stepper { display: inline-flex; align-items: center; flex-shrink: 0; }
+  .it-step-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
+  .it-step-btn:active { transform: scale(.97); }
+  .it-step-btn:disabled { color: var(--muted); opacity: .5; cursor: default; }
+  .it-step-value { min-width: 1.4rem; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+  .it-route-stop-locked .it-route-num { border-color: var(--accent); color: var(--accent); }
+  .it-route-more { padding: 0.2rem 0 0.6rem; margin-inline-start: 36px; font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
+  .it-route-more .it-more-line { margin-top: 0.4rem; }
+  .it-route-more .it-more-label { font-size: 0.75rem; color: var(--muted); }
+  .it-add-row { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; margin: 0.4rem 0 0.8rem; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 18px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 150ms ease; }
+  .it-add-row:active { transform: scale(.97); }
+  .it-analysis { margin: 0.4rem 0 0.8rem; }
+  .it-analysis summary { min-height: 44px; display: flex; align-items: center; font-size: 0.9rem; color: var(--muted); cursor: pointer; }
+  .it-analysis summary::after { content: "⌄"; margin-inline-start: 8px; }
+  #itinMainScreen { padding-bottom: 76px; }
+  .it-bar { position: fixed; inset-inline: 16px; max-width: 720px; margin-inline: auto; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 6px 6px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .it-bar-count { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+  .it-bar-finish { min-height: 44px; padding: 0 22px; background: var(--accent); color: #fff; border: 0; border-radius: 999px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 150ms ease; }
+  .it-bar-finish:active { transform: scale(.97); }
+  @media (min-width: 900px) { .it-bar { bottom: 16px; } }
+  .it-screen-title { font-size: 1.1rem; font-weight: 800; color: var(--ink); margin: 1rem 0 0.6rem; }
+  .it-screen-title:focus { outline: none; }
+  .it-choice, .it-resume-row { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; min-height: 88px; padding: 1rem 1.1rem; margin-bottom: 0.7rem; text-align: start; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); font-family: inherit; cursor: pointer; transition: transform 150ms ease; }
+  .it-resume-row { min-height: 72px; border-color: var(--accent); }
+  .it-resume-row[hidden] { display: none; }
+  .it-choice:active, .it-resume-row:active { transform: scale(.97); }
+  .it-choice.it-city { min-height: 56px; justify-content: center; }
+  .it-choice-title { font-size: 1.1rem; font-weight: 800; }
+  .it-choice-sub { font-size: 0.9rem; color: var(--muted); }
+  .it-wiz-top { display: flex; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
+  .it-dots { display: flex; gap: 6px; }
+  .it-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .it-dot.done { background: var(--accent); }
+  .it-wiz-count, .it-wiz-note { font-size: 0.75rem; color: var(--muted); }
+  .it-wiz-note { margin-bottom: 0.5rem; }
+  .it-wiz-hint { font-size: 0.9rem; color: var(--muted); margin: 0.8rem 0; }
+  .it-wiz-hint[hidden] { display: none; }
+  #itinQuizScreen { padding-bottom: 84px; }
+  .it-wiz-nav { padding-inline-start: 14px; }
+  .it-bar-finish:disabled { background: var(--border); color: var(--muted); cursor: default; }
+  .it-quiz-dates-row label { display: flex; flex-direction: column; flex: 1; font-size: 0.75rem; color: var(--muted); gap: 4px; }
+  .it-field-label { margin-top: 1rem; }
+  @media (prefers-reduced-motion: reduce) {
+    .it-sheet, .it-sheet-overlay, .it-route-stop, .it-mini-map-wrap #itinMiniMap, .it-icon-btn, .it-step-btn, .it-add-row, .it-choice, .it-resume-row, .it-bar-finish, .it-cand-add, .it-export-btn, .it-reset-btn { transition: none; }
+  }
+  .it-sheet-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.35); opacity: 0; visibility: hidden; transition: opacity 200ms ease-out, visibility 0s 200ms; }
+  .it-sheet-overlay.open { opacity: 1; visibility: visible; transition: opacity 200ms ease-out; }
+  .it-sheet { position: fixed; inset-inline: 0; bottom: 0; z-index: 202; max-width: 640px; margin-inline: auto; max-height: 88vh; overflow-y: auto; padding: 0 16px calc(16px + env(safe-area-inset-bottom)); background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0; box-shadow: 0 -6px 20px rgba(0,0,0,0.25); transform: translateY(100%); visibility: hidden; transition: transform 200ms ease-out, visibility 0s 200ms; }
+  .it-sheet.open { transform: none; visibility: visible; transition: transform 200ms ease-out; }
+  .it-sheet:focus { outline: none; }
+  .it-sheet-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; background: var(--surface); padding: 8px 0; }
+  .it-sheet-head h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--ink); }
+  .it-field-label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .it-filter-toggle { display: inline-flex; align-items: center; min-height: 44px; margin: 6px 0; padding: 0 14px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 999px; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: transform 150ms ease; }
+  .it-filter-toggle:active { transform: scale(.97); }
+  .it-filter-toggle::after { content: "⌄"; margin-inline-start: 8px; }
+  .it-sheet-map { isolation: isolate; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin: 6px 0 8px; }
+  #itinSheetMap { height: 140px; background: var(--paper); }
+  .it-sheet .it-chip { min-width: 44px; }
+  .it-cand { border-bottom: 1px solid var(--border); padding: 4px 0; }
+  .it-cand-main { display: flex; align-items: center; gap: 8px; }
+  .it-cand-body { flex: 1; min-width: 0; min-height: 44px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+  .it-cand-name { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+  .it-cand-meta, .it-cand-reason { font-size: 0.75rem; color: var(--muted); }
+  .it-cand-reason { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .it-cand-add { flex-shrink: 0; min-height: 44px; padding: 0 18px; background: var(--accent); color: #fff; border: 0; border-radius: 999px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 150ms ease; }
+  .it-cand-add:active { transform: scale(.97); }
+  .it-cand-more { padding: 2px 0 10px; font-size: 0.9rem; line-height: 1.5; color: var(--ink); }
+  .it-cand-more .it-more-line { margin-top: 0.4rem; }
 
   .it-dest-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.75rem 0.85rem; margin-bottom: 0.6rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
   .it-dest-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -564,19 +623,13 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-home-link { display: block; font-size: 0.75rem; color: var(--green); background: none; border: none; text-decoration: none; border-bottom: 1px dotted var(--green); margin: 0.4rem 0; padding: 0; cursor: pointer; font-family: 'Heebo', sans-serif; text-align: right; }
 
   .it-empty-state { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 1.5rem 1rem; }
-  .it-reset-btn { display: block; width: 100%; margin-top: 1rem; font-family: var(--pixel); font-size: 0.75rem; background: none; border: 1px dashed var(--border); color: var(--muted); padding: 0.5rem; border-radius: 999px; cursor: pointer; }
+  .it-reset-btn { display: block; width: 100%; min-height: 44px; margin-top: 0.7rem; font-family: inherit; font-size: 0.9rem; background: none; border: 1px solid var(--border); color: var(--ink); padding: 0.5rem; border-radius: 999px; cursor: pointer; transition: transform 150ms ease; }
+  .it-reset-btn:active, .it-export-btn:active, .it-ai-ask-btn:active { transform: scale(.97); }
 
-  .it-top-actions { display: flex; gap: 6px; margin-bottom: 0.7rem; }
-  .it-top-btn { flex: 1; font-family: var(--pixel); font-size: 0.75rem; padding: 0.5rem 0.4rem; border-radius: 999px; cursor: pointer; text-align: center; }
-  .it-undo-btn { display: block; width: 100%; margin: 0.5rem 0; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: transparent; border: 1px dashed var(--muted); color: var(--muted); border-radius: 999px; padding: 0.4rem; cursor: pointer; }
-  .it-top-btn.it-reset-top { background: none; border: 2px dashed var(--border); color: var(--muted); }
-  .it-top-btn.it-finish-top { background: var(--accent); border: 2px solid var(--accent); color: #2a1d0f; font-weight: 700; }
 
-  .it-search-wrap { position: relative; margin-bottom: 0.6rem; }
   .it-search-input { width: 100%; box-sizing: border-box; font-family: 'Heebo', sans-serif; font-size: 0.8rem; padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
   .it-search-input::placeholder { color: var(--muted); }
-  .it-search-results { margin-top: 0.4rem; }
-  .it-search-empty { font-size: 0.75rem; color: var(--muted); padding: 0.4rem 0.2rem; }
+  .it-search-empty { font-size: 0.9rem; color: var(--muted); padding: 0.8rem 0.2rem; }
 
   .it-filters-head { display: flex; align-items: center; justify-content: space-between; }
   .it-reset-filters-btn { font-family: 'Heebo', sans-serif; font-size: 0.75rem; color: var(--muted); background: none; border: none; text-decoration: underline dotted; cursor: pointer; padding: 0; margin: 1rem 0 0.4rem; }
@@ -594,16 +647,17 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-dead-end-btn { display: inline-block; margin-top: 0.6rem; font-family: var(--pixel); font-size: 0.75rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 999px; padding: 0.5rem 0.9rem; cursor: pointer; }
   .it-fallback-note { font-size: 0.75rem; color: var(--accent); margin: 0.5rem 0 0.6rem; }
 
-  .it-summary-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
-  .it-summary-num { font-family: var(--pixel); font-size: 0.75rem; color: var(--muted); width: 20px; }
-  .it-summary-name { font-family: var(--pixel); font-size: 0.82rem; flex: 1; cursor: pointer; }
+  .it-summary-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+  .it-summary-num { font-size: 0.9rem; color: var(--muted); min-width: 24px; }
+  .it-summary-name { font-size: 1.1rem; font-weight: 700; flex: 1; min-height: 44px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; color: var(--ink); }
+  .it-summary-dates { font-size: 0.75rem; font-weight: 400; color: var(--muted); }
   .it-summary-name:hover { color: var(--accent); }
-  .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.2rem 0 0.6rem; }
-  .it-summary-nights { font-size: 0.75rem; color: var(--accent); }
-  .it-summary-total { margin-top: 0.8rem; font-size: 0.85rem; text-align: center; }
+  .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.6rem 0.8rem; margin: 0.2rem 0 0.6rem; }
+  .it-summary-nights { font-size: 0.9rem; color: var(--muted); }
+  .it-summary-total { margin-top: 0.8rem; font-size: 0.9rem; text-align: center; }
   .it-summary-total b { color: var(--accent); font-family: var(--pixel); }
-  .it-warning-box { background: rgba(224,140,90,0.12); border-right: 3px solid #e08c5a; border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.75rem; color: #f0b993; line-height: 1.55; }
-  .it-optimize-box { background: rgba(110,231,168,0.08); border: 1px dashed var(--green); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.6rem 0; font-size: 0.75rem; color: var(--ink); line-height: 1.55; }
+  .it-warning-box { background: rgba(224,140,90,0.12); border: 1px solid #e08c5a; border-radius: 18px; padding: 0.7rem 0.9rem; margin: 0.8rem 0; font-size: 0.9rem; color: #f0b993; line-height: 1.55; }
+  .it-optimize-box { background: rgba(110,231,168,0.08); border: 1px solid var(--green); border-radius: 18px; padding: 0.7rem 0.9rem; margin: 0.6rem 0; font-size: 0.9rem; color: var(--ink); line-height: 1.55; }
   .it-optimize-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--green); margin-bottom: 0.3rem; }
   .it-optimize-text { color: var(--muted); margin-bottom: 0.4rem; }
   .it-optimize-route { font-size: 0.75rem; color: var(--ink); background: rgba(0,0,0,0.15); border-radius: 6px; padding: 0.4rem 0.5rem; margin-bottom: 0.4rem; }
@@ -616,16 +670,12 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-summary-connector { font-size: 0.75rem; color: var(--muted); padding: 0.2rem 0 0.2rem 1.5rem; }
   .it-summary-connector b { color: var(--ink); }
   .it-summary-connector .it-no-direct { color: #e08c5a; }
-  .it-character-box { background: rgba(125,211,252,0.06); border-right: 3px solid #7dd3fc; border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.76rem; color: #cfe9f7; line-height: 1.6; }
+  .it-character-box { background: rgba(125,211,252,0.06); border: 1px solid rgba(125,211,252,0.4); border-radius: 18px; padding: 0.7rem 0.9rem; margin: 0.8rem 0; font-size: 0.9rem; color: #cfe9f7; line-height: 1.6; }
   .it-character-live { font-size: 0.75rem; opacity: 0.9; margin: 0.5rem 0; }
-  .it-progress-label { font-size: 0.75rem; color: var(--muted); margin: 0.3rem 0 0.2rem; }
-  .it-progress-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 5px; overflow: hidden; }
-  .it-progress-fill { height: 100%; background: var(--green); border-radius: 5px; transition: width 0.3s ease; }
-  .it-progress-fill.it-progress-over { background: #e08c5a; }
   .it-character-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; font-weight: 700; color: #7dd3fc; margin-bottom: 0.3rem; }
   .it-ai-box { margin-bottom: 0.5rem; }
   .it-ai-details { margin: 0.8rem 0; }
-  .it-ai-details summary { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.78rem; color: var(--accent); cursor: pointer; padding: 0.3rem 0; list-style: none; }
+  .it-ai-details summary { min-height: 44px; display: flex; align-items: center; font-size: 0.9rem; color: var(--accent); cursor: pointer; list-style: none; }
   .it-ai-details summary::-webkit-details-marker { display: none; }
   .it-ai-details summary::before { content: '▸ '; }
   .it-ai-details[open] summary::before { content: '▾ '; }
@@ -637,47 +687,37 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-dest-extras[open] summary::before { content: '▾ '; }
   .it-ai-note { font-size: 0.75rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.4rem; }
   .it-quiz-toggle-btn { display: block; width: 100%; margin-top: 0.8rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: transparent; color: var(--accent); border: 1px dashed var(--accent); border-radius: 999px; padding: 0.6rem 0.8rem; cursor: pointer; }
-  .it-quiz-sub { font-size: 0.76rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.6rem; }
   .it-quiz-nights-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 0.4rem; }
-  .it-quiz-nights-value { font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--accent); min-width: 2.5rem; text-align: center; }
-  .it-quiz-generate-btn { display: block; width: 100%; margin-top: 1rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.8rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 999px; padding: 0.75rem; cursor: pointer; }
-  .it-quiz-back-btn { display: block; width: 100%; margin-top: 0.6rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: transparent; color: var(--muted); border: 1px dashed var(--border); border-radius: 999px; padding: 0.5rem; cursor: pointer; }
+  .it-quiz-nights-value { font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--ink); min-width: 2.5rem; text-align: center; }
   .it-quiz-error { font-size: 0.75rem; color: #e08c5a; margin-top: 0.4rem; text-align: center; }
   .it-quiz-dates-row { display: flex; align-items: center; gap: 8px; margin-bottom: 0.3rem; }
   .it-quiz-dates-row input[type="date"] { flex: 1; }
-  .it-quiz-dates-sep { font-size: 0.75rem; color: var(--muted); }
   .it-quiz-dates-note { font-size: 0.75rem; color: var(--accent); margin-bottom: 0.6rem; min-height: 1em; }
   .it-quiz-datemode-row { display: flex; gap: 8px; margin-bottom: 0.6rem; }
   .it-quiz-datemode-row .it-chip { flex: 1; text-align: center; }
   .it-quiz-ai-parse-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.4; }
-  .it-mode-btn { display: block; width: 100%; text-align: right; margin-bottom: 0.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.9rem 1rem; cursor: pointer; }
-  .it-mode-btn:hover { border-color: var(--accent); }
-  .it-mode-btn-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--ink); margin-bottom: 0.3rem; }
-  .it-mode-btn-sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
-  .it-resume-box { background: rgba(110,231,168,0.07); border: 1px solid var(--green); border-radius: 18px; padding: 1rem; margin-bottom: 1rem; }
-  .it-resume-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--green); margin-bottom: 0.5rem; }
-  .it-resume-detail { font-size: 0.76rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.8rem; }
   .it-template-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.8rem 0.9rem; margin-bottom: 0.8rem; }
   .it-template-title { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.85rem; color: var(--accent); margin-bottom: 0.3rem; }
   .it-template-sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.5rem; }
-  .it-template-route { font-size: 0.75rem; color: var(--ink); background: rgba(0,0,0,0.15); border-radius: 6px; padding: 0.4rem 0.5rem; margin-bottom: 0.4rem; }
+  .it-template-route { font-size: 0.75rem; color: var(--ink); background: var(--paper); border-radius: 6px; padding: 0.4rem 0.5rem; margin-bottom: 0.4rem; }
   .it-template-meta { font-size: 0.75rem; color: var(--green); margin-bottom: 0.6rem; }
-  .it-template-use-btn { display: block; width: 100%; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: var(--green); color: #12261c; border: none; border-radius: 999px; padding: 0.55rem; cursor: pointer; }
+  .it-template-use-btn { display: block; width: 100%; min-height: 44px; background: none; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 150ms ease; }
+  .it-template-use-btn:active { transform: scale(.97); }
   .it-quiz-visited-chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem; }
   .it-quiz-visited-chip { font-size: 0.75rem; background: rgba(224,140,90,0.15); border: 1px solid #e08c5a; color: #f0b993; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; }
   .it-quiz-visited-result-btn { display: block; width: 100%; text-align: right; font-size: 0.75rem; background: var(--surface); border: 1px solid var(--border); color: var(--ink); border-radius: 6px; padding: 0.4rem 0.6rem; margin-top: 0.3rem; cursor: pointer; }
   .it-ai-input { width: 100%; box-sizing: border-box; font-family: 'Heebo', sans-serif; font-size: 0.78rem; padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); min-height: 3.2rem; resize: vertical; }
-  .it-ai-ask-btn { margin-top: 0.4rem; font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: var(--accent); color: #2a1d0f; border: none; border-radius: 999px; padding: 0.5rem 0.9rem; cursor: pointer; }
+  .it-ai-ask-btn { margin-top: 0.4rem; min-height: 44px; font-family: inherit; font-size: 0.9rem; background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 0 1.1rem; cursor: pointer; transition: transform 150ms ease; }
   .it-ai-response { margin-top: 0.5rem; font-size: 0.76rem; line-height: 1.6; background: rgba(255,255,255,0.04); border-radius: 8px; padding: 0.6rem 0.7rem; }
   .it-ai-loading { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
   .it-ai-error { font-size: 0.75rem; color: #e08c5a; margin-top: 0.4rem; }
-  .it-optimize-apply { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; background: var(--green); color: #12261c; border: none; border-radius: 999px; padding: 0.4rem 0.7rem; cursor: pointer; }
+  .it-optimize-apply { min-height: 44px; font-family: inherit; font-size: 0.9rem; background: var(--green); color: #12261c; border: none; border-radius: 999px; padding: 0 1rem; cursor: pointer; }
   .it-warning-label { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; font-weight: 600; color: #e08c5a; margin-bottom: 0.3rem; }
   .it-ok-box { background: rgba(110,231,168,0.1); border-right: 3px solid var(--green); border-radius: 8px; padding: 0.6rem 0.7rem; margin: 0.8rem 0; font-size: 0.75rem; color: var(--green); line-height: 1.5; }
 
   .it-export-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0.5rem; }
-  .it-export-btn { font-family: var(--pixel), 'Heebo', sans-serif; font-size: 0.75rem; padding: 0.6rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; text-align: center; }
-  .it-export-btn:active { transform: translate(1px,1px); }
+  .it-export-btn { font-family: inherit; font-size: 0.9rem; min-height: 44px; padding: 0 1rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; transition: transform 150ms ease; }
+  .it-export-btn:hover { border-color: var(--accent); }
   .it-export-note { font-size: 0.75rem; color: var(--muted); margin: 0.3rem 0 0.8rem; line-height: 1.5; }
   .it-export-note a { color: var(--accent); }
   .it-export-note.it-export-ok { color: var(--green); }
@@ -1403,174 +1443,170 @@ if (/[?&]debug\b/.test(location.search)) {
 <div class="itinerary-page" id="itineraryPage">
   <button type="button" class="nav-pill shopping-back-btn" onclick="goBack()">→ חזרה לרשימה</button>
   <div class="hero-sky">
-    <span class="hero-star s1">✦</span><span class="hero-star s2">✦</span><span class="hero-star s3">✧</span>
-    <div class="kicker">✦ פרוטוטייפ ✦</div>
     <h1>🧭 בניית מסלול</h1>
   </div>
-  <div class="sub">בחרו איך לבנות את המסלול</div>
 
-  <div id="itinResumeScreen" style="display:none;">
-    <div class="it-resume-box">
-      <div class="it-resume-title">📦 נמצא מסלול שמור</div>
-      <div class="it-resume-detail" id="itinResumeDetail"></div>
-      <button type="button" class="it-mode-btn" onclick="itinResumeSavedRoute()">
-        <div class="it-mode-btn-title">✓ המשיכו את המסלול הזה</div>
-      </button>
-      <button type="button" class="it-quiz-back-btn" onclick="itinDiscardSavedRoute()">↺ התחילו מסלול חדש (מוחק את השמור)</button>
+  <div id="itinStartScreen">
+    <button type="button" class="it-resume-row" id="itinResumeRow" hidden onclick="itinResumeSavedRoute()">
+      <span class="it-choice-title" id="itinResumeTitle"></span>
+      <span class="it-choice-sub" id="itinResumeSub"></span>
+    </button>
+    <h2 class="it-screen-title" tabindex="-1">איך נבנה את המסלול?</h2>
+    <button type="button" class="it-choice" onclick="itinChooseMode('quiz')">
+      <span class="it-choice-title">תכננו לי</span>
+      <span class="it-choice-sub">עונים על כמה שאלות ומקבלים מסלול מוכן לעריכה</span>
+    </button>
+    <button type="button" class="it-choice" onclick="itinChooseMode('manual')">
+      <span class="it-choice-title">אבנה בעצמי</span>
+      <span class="it-choice-sub">בוחרים עיר התחלה ומוסיפים יעד אחרי יעד</span>
+    </button>
+  </div>
+
+  <div id="itinManualScreen" style="display:none;">
+    <button type="button" class="it-link-btn" onclick="itinGoStart()">חזרה</button>
+    <h2 class="it-screen-title" tabindex="-1">מתי מגיעים?</h2>
+    <div class="it-dates-row">
+      <label>תאריך הגעה <input type="date" id="itinManualDate" onchange="itinSetManualDate(this.value)"></label>
+      <button type="button" class="it-link-btn" onclick="itinSetManualDate('')">עוד לא יודעים</button>
     </div>
-  </div>
-
-  <div id="itinModeChoiceScreen">
-    <button type="button" class="it-mode-btn" onclick="itinChooseMode('manual')">
-      <div class="it-mode-btn-title">🧭 בונה לבד, יעד אחר יעד</div>
-      <div class="it-mode-btn-sub">בוחרים מאיפה מתחילים וממשיכים צעד-צעד עם המלצות בדרך</div>
-    </button>
-    <button type="button" class="it-mode-btn" onclick="itinChooseMode('quiz')">
-      <div class="it-mode-btn-title">📝 שאלון קצר, ואנחנו בונים טיוטה</div>
-      <div class="it-mode-btn-sub">עונים על כמה שאלות, ומקבלים מסלול מלא שאפשר לערוך אחר כך</div>
-    </button>
-    <button type="button" class="it-mode-btn" onclick="itinChooseMode('templates')">
-      <div class="it-mode-btn-title">✨ מסלול מוכן כנקודת התחלה</div>
-      <div class="it-mode-btn-sub">כמה תבניות שמישהו כבר תכנן, לוקחים אחת ומעדכנים אותה לפי הטעם שלכם</div>
-    </button>
-  </div>
-
-  <div id="itinTemplatesScreen" style="display:none;">
-    <div class="it-section-label">✨ בחרו מסלול כנקודת התחלה</div>
-    <div class="it-quiz-sub">כל תבנית היא מסלול אמיתי ומקושר, אבל היא רק התחלה, אפשר לשנות, להוסיף ולהוריד תחנות אחר כך בדיוק כמו בבנייה ידנית.</div>
-    <div id="itinTemplatesList"></div>
-    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
-  </div>
-
-  <div id="itinStartScreen" style="display:none;">
-    <div class="it-section-label">מאיפה מתחילים? (שער כניסה בינלאומי)</div>
-    <div id="itinStartCards"></div>
-    <div class="it-section-label">יעד לילות כולל (לא חובה, למד התקדמות חי)</div>
-    <div class="it-quiz-nights-row">
-      <button type="button" class="it-night-btn" aria-label="להפחית לילה" onclick="itinManualTargetAdjust(-1)">−</button>
-      <span class="it-quiz-nights-value" id="itinManualTargetValue">-</span>
-      <button type="button" class="it-night-btn" aria-label="להוסיף לילה" onclick="itinManualTargetAdjust(1)">+</button>
-      <button type="button" class="it-quiz-back-btn" style="width:auto; margin:0; padding:0.4rem 0.7rem;" onclick="itinManualTargetClear()">נקו</button>
-    </div>
-    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
+    <h2 class="it-screen-title">מאיפה מתחילים?</h2>
+    <div id="itinManualCities"></div>
   </div>
 
   <div id="itinQuizScreen" style="display:none;">
-    <div class="it-section-label">📝 בואו נבנה לכם מסלול</div>
-    <div class="it-quiz-sub">עונים על כמה שאלות קצרות, ואנחנו בונים טיוטת מסלול שלמה שאפשר לערוך ולכוון אחר כך.</div>
-
-    <div class="it-section-label">כמה זמן הטיול?</div>
-    <div class="it-quiz-datemode-row">
-      <button type="button" class="it-chip" id="itinQuizModeNightsBtn" onclick="itinQuizSetDateMode('nights')">🔢 לפי מספר לילות</button>
-      <button type="button" class="it-chip" id="itinQuizModeDatesBtn" onclick="itinQuizSetDateMode('dates')">📅 לפי תאריכים</button>
+    <div class="it-wiz-top">
+      <div class="it-dots" id="itinWizDots"></div>
+      <div class="it-wiz-count" id="itinWizCount"></div>
     </div>
 
-    <div id="itinQuizNightsMode">
-      <div class="it-quiz-nights-row">
-        <button type="button" class="it-night-btn" aria-label="להפחית לילה" onclick="itinQuizAdjustNights(-1)">−</button>
-        <span class="it-quiz-nights-value" id="itinQuizNightsValue">10</span>
-        <button type="button" class="it-night-btn" aria-label="להוסיף לילה" onclick="itinQuizAdjustNights(1)">+</button>
+    <div class="it-wiz-step">
+      <h2 class="it-screen-title" tabindex="-1">כמה זמן הטיול?</h2>
+      <div class="it-quiz-datemode-row">
+        <button type="button" class="it-chip" id="itinQuizModeNightsBtn" onclick="itinQuizSetDateMode('nights')">עוד לא יודעים תאריכים</button>
+        <button type="button" class="it-chip" id="itinQuizModeDatesBtn" onclick="itinQuizSetDateMode('dates')">יש לי תאריכים</button>
+      </div>
+      <div id="itinQuizNightsMode">
+        <div class="it-quiz-nights-row">
+          <button type="button" class="it-step-btn" aria-label="להפחית לילה" onclick="itinQuizAdjustNights(-1)">−</button>
+          <span class="it-quiz-nights-value" id="itinQuizNightsValue">10</span>
+          <button type="button" class="it-step-btn" aria-label="להוסיף לילה" onclick="itinQuizAdjustNights(1)">+</button>
+        </div>
+        <div class="it-wiz-note" style="text-align:center;">לילות</div>
+      </div>
+      <div id="itinQuizDatesMode" style="display:none;">
+        <div class="it-quiz-dates-row">
+          <label>הגעה <input type="date" id="itinQuizStartDate" class="it-search-input" oninput="itinQuizDatesChanged()"></label>
+          <label>יציאה <input type="date" id="itinQuizEndDate" class="it-search-input" oninput="itinQuizDatesChanged()"></label>
+        </div>
+        <div id="itinQuizDatesNote" class="it-quiz-dates-note"></div>
       </div>
     </div>
 
-    <div id="itinQuizDatesMode" style="display:none;">
-      <div class="it-quiz-sub">גם ככה נדע את מספר הלילות, ונוכל להתאים אירועים בתאריכים שלכם</div>
-      <div class="it-quiz-dates-row">
-        <input type="date" id="itinQuizStartDate" class="it-search-input" oninput="itinQuizDatesChanged()">
-        <span class="it-quiz-dates-sep">עד</span>
-        <input type="date" id="itinQuizEndDate" class="it-search-input" oninput="itinQuizDatesChanged()">
-      </div>
-      <div id="itinQuizDatesNote" class="it-quiz-dates-note"></div>
+    <div class="it-wiz-step" style="display:none;">
+      <h2 class="it-screen-title" tabindex="-1">טסים ונוחתים ב...</h2>
+      <div class="it-chips" id="itinQuizStartChips"></div>
     </div>
 
-    <div class="it-section-label">טסים ונוחתים ב...</div>
-    <div class="it-chips" id="itinQuizStartChips"></div>
+    <div class="it-wiz-step" style="display:none;">
+      <h2 class="it-screen-title" tabindex="-1">מי נוסע איתכם?</h2>
+      <div class="it-chips" id="itinQuizWhoChips"></div>
+    </div>
 
-    <div class="it-section-label">טסים הביתה מ...</div>
-    <div class="it-chips" id="itinQuizEndChips"></div>
+    <div class="it-wiz-step" style="display:none;">
+      <h2 class="it-screen-title" tabindex="-1">מה מעניין אתכם?</h2>
+      <div class="it-wiz-note">אפשר לבחור כמה</div>
+      <div class="it-chips" id="itinQuizWhatChips"></div>
+    </div>
 
-    <div class="it-section-label">כמה פעמים ביקרתם ביפן?</div>
-    <div class="it-chips" id="itinQuizVisitChips"></div>
+    <div class="it-wiz-step" style="display:none;">
+      <h2 class="it-screen-title" tabindex="-1">עוד אפשרויות</h2>
+      <div class="it-wiz-note">לא חובה, אפשר לדלג</div>
+      <div class="it-field-label">קצב</div>
+      <div class="it-chips" id="itinQuizPaceChips"></div>
+      <div class="it-field-label">עונה</div>
+      <div class="it-chips" id="itinQuizSeasonChips"></div>
+      <div class="it-field-label">אזורים שמעניינים אתכם</div>
+      <div class="it-chips" id="itinQuizRegionChips"></div>
+      <div class="it-field-label">כמה פעמים ביקרתם ביפן?</div>
+      <div class="it-chips" id="itinQuizVisitChips"></div>
+      <div class="it-field-label">טסים הביתה מ...</div>
+      <div class="it-chips" id="itinQuizEndChips"></div>
+      <label class="it-field-label" for="itinQuizVisitedSearch">איפה כבר הייתם? נדלג עליהם</label>
+      <div class="it-quiz-visited-chosen" id="itinQuizVisitedChosen"></div>
+      <input type="text" id="itinQuizVisitedSearch" class="it-search-input" placeholder="חפשו יעד" oninput="itinRenderQuizVisitedResults()">
+      <div id="itinQuizVisitedResults"></div>
+    </div>
 
-    <div class="it-section-label">מי נוסע איתכם</div>
-    <div class="it-chips" id="itinQuizWhoChips"></div>
+    <div class="it-wiz-step" style="display:none;">
+      <h2 class="it-screen-title" tabindex="-1">הכל מוכן</h2>
+      <div class="it-wiz-note">לחצו "בנו לי מסלול", או התחילו מדוגמה מוכנה ועדכנו אותה אחר כך.</div>
+      <div id="itinTemplatesList"></div>
+      <div id="itinQuizError" aria-live="polite"></div>
+    </div>
 
-    <div class="it-section-label">מה מעניין אתכם</div>
-    <div class="it-chips" id="itinQuizWhatChips"></div>
-
-    <div class="it-section-label">קצב מועדף</div>
-    <div class="it-chips" id="itinQuizPaceChips"></div>
-
-    <div class="it-section-label">עונה (לא חובה)</div>
-    <div class="it-chips" id="itinQuizSeasonChips"></div>
-
-    <div class="it-section-label">אזורים שממש מעניינים אתכם (לא חובה, אפשר לדלג)</div>
-    <div class="it-chips" id="itinQuizRegionChips"></div>
-
-    <div class="it-section-label">איפה כבר הייתם? (לא חובה, נדלג עליהם)</div>
-    <div class="it-quiz-visited-chosen" id="itinQuizVisitedChosen"></div>
-    <input type="text" id="itinQuizVisitedSearch" class="it-search-input" placeholder="חפשו יעד כדי לסמן שכבר הייתם שם..." oninput="itinRenderQuizVisitedResults()">
-    <div id="itinQuizVisitedResults"></div>
-
-    <button type="button" class="it-quiz-generate-btn" onclick="itinGenerateQuizRoute()">✨ בנו לי מסלול</button>
-    <div id="itinQuizError"></div>
-    <button type="button" class="it-quiz-back-btn" onclick="itinBackToModeChoice()">↩ חזרה לבחירת דרך הבנייה</button>
+    <p class="it-wiz-hint" id="itinWizHint" hidden></p>
+    <div class="it-bar it-wiz-nav">
+      <button type="button" class="it-link-btn" onclick="itinWizBack()">הקודם</button>
+      <button type="button" class="it-bar-finish" id="itinWizNext" onclick="itinWizNext()">הבא</button>
+    </div>
   </div>
 
   <div id="itinMainScreen" style="display:none;">
-    <div class="it-top-actions">
-      <button type="button" class="it-top-btn it-reset-top" onclick="itinResetRoute()">↺ התחלה חדשה</button>
-      <button type="button" class="it-top-btn it-finish-top" onclick="itinShowSummary()">✓ סיום וניתוח מסלול</button>
+    <div class="it-route-head">
+      <h2 class="it-route-title" tabindex="-1">המסלול שלי</h2>
+      <div class="it-menu-wrap" id="itinTopMenuWrap"></div>
     </div>
-    <div id="itinUndoBtnWrap"></div>
+    <div class="it-dates-row" id="itinDatesRow"></div>
 
-    <div class="it-filters-head">
-      <div class="it-section-label" style="margin:0.6rem 0 0.2rem;">מי נוסע איתכם</div>
-    </div>
-    <div class="it-chips" id="itinWhoChips"></div>
-
-    <div class="it-section-label">מה מעניין אתכם</div>
-    <div class="it-chips" id="itinWhatChips"></div>
-
-    <div class="it-section-label">אזור ביפן</div>
-    <div class="it-chips" id="itinRegionChips"></div>
-
-    <div class="it-section-label">עונה (להצעות עונתיות)</div>
-    <div class="it-chips" id="itinSeasonChips"></div>
-    <button type="button" class="it-reset-filters-btn" onclick="itinResetFilters()">🔄 איפוס</button>
-
-    <div class="it-flow-hint">👇 בחרו את התחנה הבאה מהרשימה למטה ("להמשיך אל..."), או חפשו יעד ספציפי. המפה היא רק סקירה, לא חובה להשתמש בה.</div>
-
-    <div class="it-search-wrap">
-      <input type="text" class="it-search-input" id="itinSearchInput" placeholder="🔍 חיפוש יעד (כל יעד, לא רק המשכים אפשריים)..." oninput="itinOnSearchInput()">
-      <div class="it-search-results" id="itinSearchResults"></div>
+    <div class="it-mini-map-wrap" id="itinMapStrip">
+      <div id="itinMiniMap"></div>
+      <button type="button" class="it-map-toggle" id="itinMapToggle" aria-expanded="false" onclick="itinToggleMapStrip()">הגדלת המפה</button>
     </div>
 
-    <div class="it-section-label">המסלול שלכם</div>
     <div class="it-route-strip" id="itinRouteStrip"></div>
-    <div class="it-mini-map-wrap"><div id="itinMiniMap"></div></div>
-    <div class="it-route-summary" id="itinRouteSummary"></div>
-    <div id="itinLiveProgressBar"></div>
-    <div id="itinLiveCharacter"></div>
-    <div id="itinStopEditorBox"></div>
-    <div id="itinOptimizationBox"></div>
+    <button type="button" class="it-add-row" id="itinAddRow" onclick="itinOpenAddSheet()"></button>
 
-    <div id="itinCurrentCardWrap"></div>
-
-    <div class="it-section-label" id="itinNextLabel">להמשיך אל...</div>
-    <div id="itinDestList"></div>
-
-    <details class="it-map-details" ontoggle="itinOnMapDetailsToggle(this)">
-      <summary>🗺️ הצגת מפה (סקירה כללית, אפשר גם ללחוץ על יעד במפה כדי להוסיף אותו)</summary>
-      <div class="it-map-wrap"><div id="itinMap"></div></div>
+    <details class="it-analysis" id="itinAnalysis">
+      <summary>ניתוח המסלול</summary>
+      <div id="itinLiveCharacter"></div>
+      <div id="itinOptimizationBox"></div>
     </details>
+
+    <div class="it-bar" id="itinBar">
+      <span class="it-bar-count" id="itinBarCount" aria-live="polite"></span>
+      <button type="button" class="it-bar-finish" aria-label="סיום וניתוח המסלול" onclick="itinShowSummary()">סיום</button>
+    </div>
+
+    <div class="it-sheet-overlay" id="itinSheetOverlay" onclick="itinCloseAddSheet()"></div>
+    <div class="it-sheet" id="itinAddSheet" role="dialog" aria-modal="true" aria-labelledby="itinSheetTitle" tabindex="-1">
+      <div class="it-sheet-head">
+        <h3 id="itinSheetTitle"></h3>
+        <button type="button" class="it-icon-btn" aria-label="סגירה" onclick="itinCloseAddSheet()">✕</button>
+      </div>
+      <label class="it-field-label" for="itinSearchInput">חיפוש יעד</label>
+      <input type="text" class="it-search-input" id="itinSearchInput" placeholder="למשל Kyoto" oninput="itinOnSearchInput()">
+      <button type="button" class="it-filter-toggle" id="itinFilterToggle" aria-expanded="false" aria-controls="itinFilters" onclick="itinToggleFilters()">סינון</button>
+      <div id="itinFilters" hidden>
+        <div class="it-section-label">מי נוסע איתכם</div>
+        <div class="it-chips" id="itinWhoChips"></div>
+        <div class="it-section-label">מה מעניין אתכם</div>
+        <div class="it-chips" id="itinWhatChips"></div>
+        <div class="it-section-label">אזור ביפן</div>
+        <div class="it-chips" id="itinRegionChips"></div>
+        <div class="it-section-label">עונה</div>
+        <div class="it-chips" id="itinSeasonChips"></div>
+        <button type="button" class="it-link-btn" onclick="itinResetFilters()">איפוס סינון</button>
+      </div>
+      <div class="it-sheet-map"><div id="itinSheetMap"></div></div>
+      <div id="itinSheetList"></div>
+    </div>
   </div>
 
   <div id="itinSummaryScreen" style="display:none;">
-    <div class="it-section-label">📋 סיכום המסלול</div>
+    <h2 class="it-screen-title" tabindex="-1">סיכום המסלול</h2>
     <div class="it-map-wrap"><div id="itinSummaryMap"></div></div>
     <div id="itinSummaryList"></div>
-    <div class="it-summary-total" id="itinSummaryTotal"></div>
+    <div class="it-summary-total" id="itinSummaryTotal" aria-live="polite"></div>
     <div id="itinCharacterSummary"></div>
     <div id="itinSummaryWarnings"></div>
 
@@ -1578,13 +1614,13 @@ if (/[?&]debug\b/.test(location.search)) {
       <summary>🤖 שאלו על המסלול</summary>
       <div class="it-ai-box">
         <div class="it-ai-note">כותבים שאלה, לוחצים, ומקבלים תשובה חיה כאן, ישר בעמוד.</div>
-        <textarea id="itinAiQuestion" class="it-ai-input" placeholder="למשל: האם זה מסלול טוב למשפחה עם ילדים קטנים? יש לי עוד יומיים פנויים, מה כדאי להוסיף?"></textarea>
+        <textarea id="itinAiQuestion" class="it-ai-input" aria-label="שאלה על המסלול" placeholder="למשל: האם זה מסלול טוב למשפחה עם ילדים קטנים? יש לי עוד יומיים פנויים, מה כדאי להוסיף?"></textarea>
         <button type="button" class="it-ai-ask-btn" onclick="itinAskAI()">✨ הכינו שאלה עם המסלול</button>
         <div id="itinAiResponse"></div>
       </div>
     </details>
 
-    <div class="it-section-label">📤 ייצוא</div>
+    <h2 class="it-screen-title">ייצוא</h2>
     <div class="it-export-row">
       <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
       <button type="button" class="it-export-btn" onclick="itinExportText()">📋 העתקת המסלול כטקסט</button>
@@ -3781,7 +3817,6 @@ let itinLastTemplateTitle = null;
 let itinRoute = [];
 let itinLockedStops = new Set(); // stop names the auto-optimizer must never reposition
 let itinUndoStack = []; // snapshots taken before each mutating action, for the undo button
-let itinManualTargetNights = null; // optional total-nights goal for manual building, for the live progress bar
 let itinUsedNames = new Set();
 let itinNightOverrides = {}; // name -> extra days added/removed by the user beyond the default estimate
 let itinSearchQuery = '';
@@ -3840,7 +3875,6 @@ function itinSaveState() {
       route: itinRoute,
       nightOverrides: itinNightOverrides,
       lockedStops: [...itinLockedStops],
-      manualTargetNights: itinManualTargetNights,
       startDate: itinStartDate,
       savedAt: Date.now(),
     };
@@ -3879,31 +3913,34 @@ function itinFormatSavedAt(timestamp) {
   return 'לפני כ-' + diffDays + (diffDays === 1 ? ' יום' : ' ימים');
 }
 
+const ITIN_SCREENS = ['itinStartScreen', 'itinManualScreen', 'itinQuizScreen', 'itinMainScreen', 'itinSummaryScreen'];
+function itinShowScreen(id) {
+  ITIN_SCREENS.forEach(s => { document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
+  const heading = document.querySelector('#' + id + ' h2');
+  if (heading && document.getElementById('itineraryPage').offsetParent) heading.focus({ preventScroll: true });
+}
+
+function itinGoStart() {
+  itinShowScreen('itinStartScreen');
+  const saved = itinLoadSavedState();
+  document.getElementById('itinResumeRow').hidden = !saved;
+  if (saved) {
+    document.getElementById('itinResumeTitle').textContent = 'המשיכו מסלול של ' + saved.route.length + (saved.route.length === 1 ? ' תחנה' : ' תחנות');
+    document.getElementById('itinResumeSub').textContent = 'נשמר ' + itinFormatSavedAt(saved.savedAt);
+  }
+}
+
 function itinResumeSavedRoute() {
   const saved = itinLoadSavedState();
-  if (!saved) { itinDiscardSavedRoute(); return; }
+  if (!saved) { itinGoStart(); return; }
   itinRoute = saved.route;
   itinNightOverrides = saved.nightOverrides || {};
   itinLockedStops = new Set(saved.lockedStops || []);
-  itinManualTargetNights = saved.manualTargetNights || null;
   itinStartDate = saved.startDate || null;
   itinUsedNames = new Set(itinRoute);
   itinUndoStack = [];
-  document.getElementById('itinResumeScreen').style.display = 'none';
-  document.getElementById('itinModeChoiceScreen').style.display = 'none';
-  document.getElementById('itinMainScreen').style.display = 'block';
-  if (!itinMapInitialized) {
-    itinInitMap();
-    itinMapInitialized = true;
-  }
+  itinShowScreen('itinMainScreen');
   itinRender();
-  if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
-}
-
-function itinDiscardSavedRoute() {
-  itinClearSavedState();
-  document.getElementById('itinResumeScreen').style.display = 'none';
-  document.getElementById('itinModeChoiceScreen').style.display = 'block';
 }
 
 function itinHaversineKm(lat1, lng1, lat2, lng2) {
@@ -4059,7 +4096,6 @@ function itinSnapshotForUndo() {
     lockedStops: new Set(itinLockedStops),
   });
   if (itinUndoStack.length > 20) itinUndoStack.shift(); // cap history so it can't grow unbounded
-  itinRenderUndoButton();
 }
 
 function itinUndo() {
@@ -4075,15 +4111,6 @@ function itinUndo() {
   } else {
     itinRender();
   }
-  itinRenderUndoButton();
-}
-
-function itinRenderUndoButton() {
-  const el = document.getElementById('itinUndoBtnWrap');
-  if (!el) return;
-  el.innerHTML = itinUndoStack.length > 0
-    ? '<button type="button" class="it-undo-btn" onclick="itinUndo()">↩ בטלו פעולה אחרונה</button>'
-    : '';
 }
 
 function itinAdjustNights(name, delta) {
@@ -4094,38 +4121,11 @@ function itinAdjustNights(name, delta) {
   if (base + next < 0) return;
   if (itinRoute.length > 0) itinSnapshotForUndo();
   itinNightOverrides[name] = next;
-  if (itinRoute.length === 0) {
-    itinRenderStartCards();
-  } else {
-    itinRender();
-  }
+  itinRender();
 }
 
-let itinLeafletMap, itinMarkerLayer, itinLineLayer, itinRegionLayer, itinMapInitialized = false;
 let itinSummaryLeafletMap, itinSummaryMapInitialized = false;
 let itinMiniLeafletMap, itinMiniMapInitialized = false;
-function itinOnMapDetailsToggle(detailsEl) {
-  // The map lives inside a collapsed <details> now, so its container has
-  // zero size while closed. Leaflet needs an explicit invalidateSize once
-  // the container actually has real dimensions, or the tiles render torn
-  // and half-positioned.
-  if (detailsEl.open && itinLeafletMap) {
-    setTimeout(() => itinLeafletMap.invalidateSize(), 50);
-  }
-}
-
-function itinInitMap() {
-  if (typeof L === 'undefined') {
-    document.getElementById('itinMap').outerHTML = '<div style="padding:1.2rem; text-align:center; color:var(--muted); font-size:0.78rem;">🗺️ המפה לא נטענה (בעיית רשת או חסימה של ספריית Leaflet החיצונית).<br>הרשימה למטה עדיין עובדת רגיל.</div>';
-    return;
-  }
-  itinLeafletMap = L.map('itinMap', { zoomControl: true, attributionControl: false }).setView([37.5, 138.5], 5);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinLeafletMap);
-  itinRegionLayer = L.layerGroup().addTo(itinLeafletMap);
-  itinMarkerLayer = L.layerGroup().addTo(itinLeafletMap);
-  itinLineLayer = L.layerGroup().addTo(itinLeafletMap);
-}
-
 function itinGetCandidates() {
   const currentStop = itinRoute[itinRoute.length - 1];
   return ITIN_DESTINATIONS.filter(d => d.name !== currentStop && !itinUsedNames.has(d.name));
@@ -4233,58 +4233,6 @@ const ITIN_CROWD_BADGES = {
   'overrated': { emoji: '⚠️', label: 'אוברהייפד', color: '#e08c5a' },
 };
 
-function itinRenderMap() {
-  if (typeof L === 'undefined' || !itinLeafletMap) return;
-  itinMarkerLayer.clearLayers();
-  itinLineLayer.clearLayers();
-  itinRegionLayer.clearLayers();
-
-  if (itinActiveRegion && ITIN_REGION_BOUNDS[itinActiveRegion]) {
-    const bounds = ITIN_REGION_BOUNDS[itinActiveRegion];
-    L.rectangle(bounds, { color: '#ffd166', weight: 2, fillColor: '#ffd166', fillOpacity: 0.08, dashArray: '5 5' }).addTo(itinRegionLayer);
-    itinLeafletMap.fitBounds(bounds, { padding: [20, 20] });
-  } else {
-    itinLeafletMap.setView([37.5, 138.5], 5);
-  }
-
-  const candidates = itinGetCandidates();
-  const matches = (d) => (!itinActiveWho || d.who.includes(itinActiveWho)) && (itinActiveWhat.size === 0 || [...itinActiveWhat].some(w => d.what.includes(w)));
-
-  ITIN_DESTINATIONS.forEach(d => {
-    const inRoute = itinUsedNames.has(d.name);
-    const isStart = itinRoute[0] === d.name;
-    const isCandidate = candidates.includes(d);
-    const dim = !inRoute && (!isCandidate || !matches(d));
-    const color = isStart ? '#6ee7a8' : (inRoute ? '#6ee7a8' : (dim ? '#4a3f6b' : '#ffd166'));
-    const size = inRoute ? 30 : 26;
-    const emoji = ITIN_DESTINATION_EMOJI[d.name] || ITIN_REGION_EMOJI[d.region] || '📍';
-    const icon = L.divIcon({
-      className: '',
-      html: '<div style="background:' + color + ';width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:2px solid rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:' + Math.round(size * 0.6) + 'px;line-height:1;">' + emoji + '</div>',
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-      popupAnchor: [0, -size / 2],
-    });
-    const marker = L.marker([d.lat, d.lng], { icon, opacity: dim ? 0.4 : 1 }).addTo(itinMarkerLayer);
-    const isCurrent = itinRoute[itinRoute.length - 1] === d.name;
-    marker.bindPopup('<b>' + d.name + '</b>' + (isStart ? ' (התחלה)' : '') + (isCurrent ? ' (כרגע כאן)' : '') + '<br>' + d.anchor);
-    if (!inRoute && isCandidate) {
-      marker.on('click', () => { if (matches(d)) itinAddStop(d.name); });
-    } else if (inRoute && !isCurrent) {
-      marker.on('click', () => { itinAddStop(d.name); });
-    }
-  });
-
-  // Draw the itinRoute line in order
-  const routeLatLngs = itinRoute.map(name => {
-    const d = ITIN_DESTINATIONS.find(x => x.name === name);
-    return d ? [d.lat, d.lng] : null;
-  }).filter(Boolean);
-  if (routeLatLngs.length > 1) {
-    L.polyline(routeLatLngs, { color: '#6ee7a8', weight: 2, dashArray: '4 4' }).addTo(itinLineLayer);
-  }
-}
-
 function itinRenderChips() {
   const whoEl = document.getElementById('itinWhoChips');
   whoEl.innerHTML = '';
@@ -4329,84 +4277,142 @@ function itinParseNightsNum(d) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
+let itinOpenMenu = null; // null | 'top' | index of the route row whose menu is open
+
+let itinFocusKey = null; // data-f of the control to refocus after the route is rebuilt
+
 function itinRenderRoute() {
+  const focusKey = itinFocusKey || (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f);
+  itinFocusKey = null;
   const strip = document.getElementById('itinRouteStrip');
   strip.innerHTML = '';
   const routeDates = itinRouteDates();
   itinRoute.forEach((stop, i) => {
-    if (i > 0) {
-      const prevName = itinRoute[i - 1];
-      const prevDest = ITIN_DESTINATIONS.find(x => x.name === prevName);
-      const curDest = ITIN_DESTINATIONS.find(x => x.name === stop);
-      const connector = document.createElement('div');
-      connector.className = 'it-route-connector';
-      if (prevDest && curDest) {
-        const km = itinHaversineKm(prevDest.lat, prevDest.lng, curDest.lat, curDest.lng);
-        const mode = itinTransportMode(prevName, stop, km);
-        connector.innerHTML = mode.emoji + ' ' + itinFormatDuration(km, prevName, stop) + (mode.label ? ' · ' + mode.label : '');
-      } else {
-        connector.innerHTML = '↓';
+    const d = ITIN_DESTINATIONS.find(x => x.name === stop);
+    const q = stop.replace(/'/g, "\\'");
+    const locked = itinLockedStops.has(stop);
+    const open = itinEditingStopIndex === i;
+    const emoji = ITIN_DESTINATION_EMOJI[stop] || (d ? ITIN_REGION_EMOJI[d.region] : '') || '📍';
+    const nights = d ? itinGetNights(d) : 0;
+    const minNights = d && itinParseNightsNum(d.nights) >= 1 ? 1 : 0; // a stop never drops below 1 night, only day trips sit at 0
+    const stopDates = routeDates ? routeDates.stops[i] : null;
+    const datesHtml = stopDates ? '<div class="it-route-stop-dates">' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
+    const eventNote = d ? itinStopEventNote(d, stopDates) : '';
+    const menuItems =
+      (i > 1 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', -1)">הזיזו למעלה</button>' : '') +
+      (i > 0 && i < itinRoute.length - 1 ? '<button type="button" onclick="itinOpenMenu=null;itinMoveStop(' + i + ', 1)">הזיזו למטה</button>' : '') +
+      '<button type="button" onclick="itinOpenMenu=null;itinToggleLockStop(\'' + q + '\')">' + (locked ? 'שחררו נעילת מיקום' : 'נעלו מיקום (האופטימיזציה לא תזיז)') + '</button>' +
+      (i > 0 ? '<button type="button" onclick="itinOpenMenu=null;itinRemoveStop(' + i + ')">הסירו מהמסלול</button>' : '');
+    let moreHtml = '';
+    if (open && d) {
+      const prev = i > 0 ? ITIN_DESTINATIONS.find(x => x.name === itinRoute[i - 1]) : null;
+      let transport = '';
+      if (prev) {
+        const km = itinHaversineKm(prev.lat, prev.lng, d.lat, d.lng);
+        const mode = itinTransportMode(prev.name, stop, km);
+        transport = '<div class="it-more-line"><div class="it-more-label">מ-' + prev.name + '</div>' + mode.emoji + ' ' + itinFormatDuration(km, prev.name, stop) + (mode.label ? ' · ' + mode.label : '') + '</div>';
       }
-      strip.appendChild(connector);
+      moreHtml = '<div class="it-route-more">' +
+        '<div class="it-more-line">' + itinTruncBlock(d.anchor, 'rowanchor_' + i) + '</div>' +
+        (d.vibe ? '<div class="it-more-line"><div class="it-more-label">מה אנשים אומרים</div>' + itinTruncBlock(d.vibe.text, 'rowvibe_' + i) + '</div>' : '') +
+        transport + '</div>';
     }
     const el = document.createElement('div');
-    el.className = 'it-route-stop' + (itinEditingStopIndex === i ? ' it-route-stop-editing' : '') + (itinLockedStops.has(stop) ? ' it-route-stop-locked' : '');
-    const removable = i > 0;
-    const lockIcon = itinLockedStops.has(stop) ? '🔒' : '🔓';
-    const canMoveEarlier = i > 1;
-    const canMoveLater = i > 0 && i < itinRoute.length - 1;
-    const d = ITIN_DESTINATIONS.find(x => x.name === stop);
-    const emoji = ITIN_DESTINATION_EMOJI[stop] || (d ? ITIN_REGION_EMOJI[d.region] : '') || '📍';
-    const nightsLabel = d ? itinNightsLabel(d) : '';
-    const stopDates = routeDates ? routeDates.stops[i] : null;
-    const datesHtml = stopDates ? '<div class="it-route-stop-dates">📅 ' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
-    const eventNote = d ? itinStopEventNote(d, stopDates) : '';
-    const moveHtml =
-      (canMoveEarlier ? '<button type="button" class="it-move" onclick="itinMoveStop(' + i + ', -1)" title="הזיזו מוקדם יותר" aria-label="הזיזו מוקדם יותר">▲</button>' : '') +
-      (canMoveLater ? '<button type="button" class="it-move" onclick="itinMoveStop(' + i + ', 1)" title="הזיזו מאוחר יותר" aria-label="הזיזו מאוחר יותר">▼</button>' : '');
+    el.className = 'it-route-stop' + (locked ? ' it-route-stop-locked' : '') + (itinNewRowIndex === i ? ' it-route-stop-new' : '');
     el.innerHTML =
-      '<div class="it-route-num">' + (i + 1) + '</div>' +
-      '<div class="it-route-body" onclick="itinToggleStopEditor(' + i + ')">' +
-        '<span class="it-route-stop-name">' + emoji + ' ' + stop + ' ✎</span>' +
-        '<div class="it-route-stop-nights">' + nightsLabel + '</div>' + datesHtml +
-        (eventNote ? '<div class="it-route-stop-event">' + eventNote + '</div>' : '') +
-      '</div>' +
-      '<div class="it-route-actions">' +
-        '<button type="button" class="it-lock" onclick="itinToggleLockStop(\'' + stop.replace(/'/g, "\\'") + '\')" title="נעילת מיקום, האופטימיזציה לא תזיז את זה" aria-label="נעילת מיקום" aria-pressed="' + itinLockedStops.has(stop) + '">' + lockIcon + '</button>' +
-        moveHtml +
-        (removable ? '<button type="button" class="it-x" onclick="itinRemoveStop(' + i + ')" aria-label="הסרת תחנה">✕</button>' : '') +
-      '</div>';
+      '<div class="it-route-main">' +
+        '<div class="it-route-num">' + (i + 1) + '</div>' +
+        '<div class="it-route-body" data-f="row' + i + '" tabindex="0" role="button" aria-expanded="' + open + '" onclick="itinToggleStopEditor(' + i + ')">' +
+          '<span class="it-route-stop-name">' + emoji + ' ' + stop + '</span>' + datesHtml +
+          (eventNote ? '<div class="it-route-stop-event">' + eventNote + '</div>' : '') +
+          (locked ? '<div class="it-route-stop-lock">מיקום נעול</div>' : '') +
+        '</div>' +
+        '<div class="it-stepper" role="group" aria-label="' + nights + ' לילות ב' + stop + '">' +
+          '<button type="button" class="it-step-btn" data-f="m' + i + '" aria-label="להפחית לילה" onclick="itinAdjustNightsAt(' + i + ', -1)"' + (nights <= minNights ? ' disabled' : '') + '>−</button>' +
+          '<span class="it-step-value">' + nights + '</span>' +
+          '<button type="button" class="it-step-btn" data-f="p' + i + '" aria-label="להוסיף לילה" onclick="itinAdjustNightsAt(' + i + ', 1)">+</button>' +
+        '</div>' +
+        '<div class="it-menu-wrap">' +
+          '<button type="button" class="it-icon-btn" data-f="menu' + i + '" aria-label="עוד פעולות ל' + stop + '" aria-expanded="' + (itinOpenMenu === i) + '" onclick="event.stopPropagation();itinToggleMenu(' + i + ')">⋯</button>' +
+          (itinOpenMenu === i ? '<div class="it-menu">' + menuItems + '</div>' : '') +
+        '</div>' +
+      '</div>' + moreHtml;
     strip.appendChild(el);
   });
+
+  document.getElementById('itinTopMenuWrap').innerHTML =
+    '<button type="button" class="it-icon-btn" data-f="menutop" aria-label="עוד פעולות" aria-expanded="' + (itinOpenMenu === 'top') + '" onclick="event.stopPropagation();itinToggleMenu(\'top\')">⋯</button>' +
+    (itinOpenMenu === 'top'
+      ? '<div class="it-menu">' +
+          '<button type="button"' + (itinUndoStack.length ? '' : ' disabled') + ' onclick="itinOpenMenu=null;itinUndo()">בטלו פעולה אחרונה</button>' +
+          '<button type="button" onclick="itinOpenMenu=null;itinResetRoute()">התחלה חדשה</button>' +
+        '</div>'
+      : '');
+
+  const datesRow = document.getElementById('itinDatesRow');
+  datesRow.innerHTML = itinStartDate
+    ? '<label>הגעה <input type="date" value="' + itinStartDate + '" onchange="itinSetArrivalDate(this.value)"></label>'
+    : '<button type="button" class="it-link-btn" onclick="itinShowArrivalInput()">הוסיפו תאריכים</button>';
+
+  const firstItem = document.querySelector('#itinMainScreen .it-menu button');
+  if (firstItem) firstItem.dataset.f = 'mi';
+  const lastStop = itinRoute[itinRoute.length - 1];
+  document.getElementById('itinAddRow').textContent = '+ הוסיפו יעד אחרי ' + lastStop;
 
   const totalDaysGuess = itinRoute.reduce((sum, name) => {
     const d = ITIN_DESTINATIONS.find(x => x.name === name);
     return sum + (d ? itinGetNights(d) : 0);
   }, 0);
-  document.getElementById('itinRouteSummary').innerHTML = itinRoute.length > 1
-    ? 'מסלול של ' + itinRoute.length + ' תחנות · בערך <b>' + totalDaysGuess + ' לילות</b>'
-    : 'התחלתם מ-' + itinRoute[0] + ', עכשיו תבחרו לאן ממשיכים';
-
-  const progressEl = document.getElementById('itinLiveProgressBar');
-  if (itinManualTargetNights) {
-    const pct = Math.min(100, Math.round(totalDaysGuess / itinManualTargetNights * 100));
-    const over = totalDaysGuess > itinManualTargetNights;
-    progressEl.innerHTML =
-      '<div class="it-progress-label">' + totalDaysGuess + ' מתוך ' + itinManualTargetNights + ' לילות' + (over ? ' (חרגתם מהיעד)' : '') + '</div>' +
-      '<div class="it-progress-track"><div class="it-progress-fill' + (over ? ' it-progress-over' : '') + '" style="width:' + pct + '%;"></div></div>';
-  } else {
-    progressEl.innerHTML = '';
-  }
+  document.getElementById('itinBarCount').textContent =
+    (itinRoute.length === 1 ? 'תחנה אחת' : itinRoute.length + ' תחנות') + ' · ' + (totalDaysGuess === 1 ? 'לילה אחד' : totalDaysGuess + ' לילות');
 
   const characterEl = document.getElementById('itinLiveCharacter');
   if (itinRoute.length > 1) {
     const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
-    characterEl.innerHTML = '<div class="it-character-box it-character-live"><div class="it-character-label">✦ אופי המסלול עד כה</div>' + itinBuildCharacterSummary(stops) + '</div>';
+    characterEl.innerHTML = '<div class="it-character-box it-character-live"><div class="it-character-label">אופי המסלול</div>' + itinBuildCharacterSummary(stops) + '</div>';
   } else {
     characterEl.innerHTML = '';
   }
+  document.getElementById('itinAnalysis').hidden = itinRoute.length < 2;
+  const refocus = focusKey && document.querySelector('#itinMainScreen [data-f="' + focusKey + '"]');
+  if (refocus && !refocus.disabled) refocus.focus();
+}
 
-  itinRenderStopEditor();
+function itinToggleMenu(which) {
+  itinOpenMenu = (itinOpenMenu === which) ? null : which;
+  itinFocusKey = itinOpenMenu === null ? (which === 'top' ? 'menutop' : 'menu' + which) : 'mi';
+  itinRenderRoute();
+}
+
+document.addEventListener('click', (e) => {
+  if (itinOpenMenu === null || e.target.closest('.it-menu-wrap')) return;
+  itinOpenMenu = null;
+  itinRenderRoute();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || itinOpenMenu === null) return;
+  itinFocusKey = itinOpenMenu === 'top' ? 'menutop' : 'menu' + itinOpenMenu;
+  itinOpenMenu = null;
+  itinRenderRoute();
+});
+
+function itinShowArrivalInput() {
+  document.getElementById('itinDatesRow').innerHTML = '<label>הגעה <input type="date" id="itinArrivalInput" onchange="itinSetArrivalDate(this.value)"></label>';
+  document.getElementById('itinArrivalInput').focus();
+}
+
+function itinSetArrivalDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+  itinStartDate = value;
+  itinRender();
+}
+
+function itinToggleMapStrip() {
+  const wrap = document.getElementById('itinMapStrip');
+  const expanded = wrap.classList.toggle('expanded');
+  document.getElementById('itinMapToggle').setAttribute('aria-expanded', expanded);
+  document.getElementById('itinMapToggle').textContent = expanded ? 'הקטנת המפה' : 'הגדלת המפה';
+  setTimeout(itinRenderMiniMap, 220); // after the height transition, so the map refits its real size
 }
 
 function itinMoveStop(index, direction) {
@@ -4430,58 +4436,17 @@ function itinToggleLockStop(name) {
 
 function itinToggleStopEditor(index) {
   itinEditingStopIndex = (itinEditingStopIndex === index) ? null : index;
+  itinOpenMenu = null;
   itinRenderRoute();
-}
-
-function itinRenderStopEditor() {
-  const box = document.getElementById('itinStopEditorBox');
-  if (!box) return;
-  if (itinEditingStopIndex == null || itinEditingStopIndex >= itinRoute.length) {
-    box.innerHTML = '';
-    return;
-  }
-  const name = itinRoute[itinEditingStopIndex];
-  const d = ITIN_DESTINATIONS.find(x => x.name === name);
-  if (!d) { box.innerHTML = ''; return; }
-  box.innerHTML =
-    '<div class="it-stop-editor">' +
-      '<div class="it-stop-editor-title">✎ ' + name + '</div>' +
-      '<div class="it-night-stepper">' +
-        '<button type="button" class="it-night-btn" onclick="itinAdjustNightsAt(' + itinEditingStopIndex + ', -1)">−</button>' +
-        '<span class="it-night-value">' + itinNightsLabel(d) + '</span>' +
-        '<button type="button" class="it-night-btn" onclick="itinAdjustNightsAt(' + itinEditingStopIndex + ', 1)">+</button>' +
-      '</div>' +
-      '<button type="button" class="it-stop-editor-lock" onclick="itinToggleLockStop(\'' + name.replace(/'/g, "\\'") + '\')">' +
-        (itinLockedStops.has(name) ? '🔒 נעול, האופטימיזציה לא תזיז את זה' : '🔓 נעלו את המיקום הזה') +
-      '</button>' +
-      '<div class="it-stop-editor-info">' + itinDestCardHtml(d, { expanded: true }) + '</div>' +
-      '<button type="button" class="it-stop-editor-close" onclick="itinToggleStopEditor(' + itinEditingStopIndex + ')">✓ סגור</button>' +
-    '</div>';
 }
 
 function itinAdjustNightsAt(index, delta) {
   const name = itinRoute[index];
   if (!name) return;
   itinAdjustNights(name, delta);
-  itinRenderStopEditor();
 }
 
-function itinRenderCurrent() {
-  const last = itinRoute[itinRoute.length - 1];
-  const d = ITIN_DESTINATIONS.find(x => x.name === last);
-  const stepperHtml = d ? (
-    '<div class="it-night-stepper">' +
-      '<button type="button" class="it-night-btn" onclick="itinAdjustNights(\'' + last.replace(/'/g, "\\'") + '\', -1)">−</button>' +
-      '<span class="it-night-value">' + itinNightsLabel(d) + '</span>' +
-      '<button type="button" class="it-night-btn" onclick="itinAdjustNights(\'' + last.replace(/'/g, "\\'") + '\', 1)">+</button>' +
-    '</div>'
-  ) : '';
-  document.getElementById('itinCurrentCardWrap').innerHTML =
-    '<div class="it-current-card"><div class="kicker">✦ נמצאים כרגע ב ✦</div><h2>' + last + '</h2>' + stepperHtml + '</div>';
-  document.getElementById('itinNextLabel').textContent = 'להמשיך מ-' + last + ' אל...';
-}
-
-function itinBuildMatchLine(d) {
+function itinMatchHits(d) {
   const hits = [];
   if (itinActiveWho && d.who.includes(itinActiveWho)) hits.push(itinActiveWho);
   if (itinActiveRegion && d.region === itinActiveRegion) hits.push(itinActiveRegion);
@@ -4489,6 +4454,11 @@ function itinBuildMatchLine(d) {
   if (itinActiveWhat.size > 0) {
     [...itinActiveWhat].forEach(w => { if (d.what.includes(w)) hits.push(w); });
   }
+  return hits;
+}
+
+function itinBuildMatchLine(d) {
+  const hits = itinMatchHits(d);
   if (hits.length === 0) return '';
   return '<div class="it-match-line">🎯 מתאים כי בחרתם: ' + hits.join(' + ') + '</div>';
 }
@@ -4590,40 +4560,43 @@ function itinDestCardHtml(d, opts) {
   );
 }
 
+let itinSheetItems = []; // candidates currently listed in the add sheet, with their distance from the last stop
+let itinExpandedCand = null;
+let itinSheetOpener = null;
+let itinNewRowIndex = null;
+
 function itinRenderDestinations() {
-  const listEl = document.getElementById('itinDestList');
-  listEl.innerHTML = '';
-  const candidates = itinGetCandidates();
-  const returnOptions = itinGetReturnOptions();
+  const listEl = document.getElementById('itinSheetList');
   const currentName = itinRoute[itinRoute.length - 1];
   const currentDest = ITIN_DESTINATIONS.find(x => x.name === currentName);
-  const fromOpts = currentDest ? { fromLat: currentDest.lat, fromLng: currentDest.lng, fromName: currentDest.name } : {};
-  const hopsMap = itinComputeHops(currentName);
+  listEl.innerHTML = '';
+  const activeFilterCount = (itinActiveWho ? 1 : 0) + (itinActiveRegion ? 1 : 0) + (itinActiveSeason ? 1 : 0) + itinActiveWhat.size;
+  document.getElementById('itinFilterToggle').textContent = 'סינון' + (activeFilterCount ? ' (' + activeFilterCount + ')' : '');
 
-  if (returnOptions.length > 0) {
-    const returnWrap = document.createElement('div');
-    returnWrap.className = 'it-return-section';
-    returnWrap.innerHTML = '<div class="it-section-label" style="margin-top:0;">↩ אפשר גם לחזור אל...</div>';
-    const chipsRow = document.createElement('div');
-    chipsRow.className = 'it-chips';
-    returnOptions.forEach(d => {
-      const b = document.createElement('button');
-      b.className = 'it-chip it-return-chip';
-      b.textContent = '↩ ' + d.name;
-      b.onclick = () => itinAddStop(d.name);
-      chipsRow.appendChild(b);
-    });
-    returnWrap.appendChild(chipsRow);
-    listEl.appendChild(returnWrap);
+  if (!itinSearchQuery) {
+    const returnOptions = itinGetReturnOptions();
+    if (returnOptions.length > 0) {
+      const returnWrap = document.createElement('div');
+      returnWrap.className = 'it-return-section';
+      returnWrap.innerHTML = '<div class="it-section-label" style="margin-top:0;">חזרה אל מקום שכבר במסלול</div>';
+      const chipsRow = document.createElement('div');
+      chipsRow.className = 'it-chips';
+      returnOptions.forEach(d => {
+        const b = document.createElement('button');
+        b.className = 'it-chip it-return-chip';
+        b.textContent = d.name;
+        b.onclick = () => itinAddFromSheet(d.name);
+        chipsRow.appendChild(b);
+      });
+      returnWrap.appendChild(chipsRow);
+      listEl.appendChild(returnWrap);
+    }
   }
 
-  if (candidates.length === 0) {
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'it-empty-state';
-    emptyDiv.textContent = '🎉 ביקרתם בכל היעדים שקיימים כרגע במסלולים.';
-    listEl.appendChild(emptyDiv);
-    return;
-  }
+  // With a search, every destination except the last stop is a match candidate, including ones already on the route (a return).
+  const pool = itinSearchQuery
+    ? ITIN_DESTINATIONS.filter(d => d.name !== currentName && d.name.toLowerCase().includes(itinSearchQuery))
+    : itinGetCandidates();
 
   function matchScore(d) {
     let score = 0;
@@ -4634,64 +4607,131 @@ function itinRenderDestinations() {
     }
     return score;
   }
-  const activeFilterCount = (itinActiveWho ? 1 : 0) + (itinActiveRegion ? 1 : 0) + (itinActiveSeason ? 1 : 0) + itinActiveWhat.size;
 
-  const noteDiv = document.createElement('div');
-  noteDiv.className = 'it-fallback-note';
-  noteDiv.textContent = activeFilterCount > 0
-    ? '📶 כל היעדים מוצגים תמיד. אם בחרתם אזור, כל היעדים בו מופיעים ראשונים, ורק בתוכם ממוינים לפי מספר עצירות ואז שאר ההתאמות ומרחק.'
-    : '📶 כל היעדים מוצגים תמיד, ממוינים לפי מספר עצירות עד אליהם ואז לפי מרחק.';
-  listEl.appendChild(noteDiv);
+  itinSheetItems = pool.map(d => ({
+    d,
+    km: itinHaversineKm(currentDest.lat, currentDest.lng, d.lat, d.lng),
+    score: matchScore(d),
+    regionMatch: itinActiveRegion && d.region === itinActiveRegion ? 1 : 0,
+  }));
+  itinSheetItems.sort((a, b) => (b.regionMatch - a.regionMatch) || (b.score - a.score) || (a.km - b.km));
 
-  const enriched = candidates.map(d => {
-    const km = itinHaversineKm(currentDest.lat, currentDest.lng, d.lat, d.lng);
-    const hops = hopsMap.has(d.name) ? hopsMap.get(d.name) : null;
-    const hopsSortValue = hops == null ? 999 : hops;
-    const regionMatch = itinActiveRegion && d.region === itinActiveRegion ? 1 : 0;
-    return { d, km, hops, score: matchScore(d), regionMatch, hopsSortValue };
-  });
+  if (itinSheetItems.length === 0) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'it-search-empty';
+    emptyDiv.textContent = itinSearchQuery ? 'אין יעד תואם.' : 'ביקרתם בכל היעדים שקיימים כרגע במסלולים.';
+    listEl.appendChild(emptyDiv);
+    return;
+  }
 
-  enriched.sort((a, b) => {
-    if (a.regionMatch !== b.regionMatch) return b.regionMatch - a.regionMatch;
-    if (a.hopsSortValue !== b.hopsSortValue) return a.hopsSortValue - b.hopsSortValue;
-    if (a.score !== b.score) return b.score - a.score;
-    return a.km - b.km;
-  });
-
-  enriched.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'it-dest-card';
-    const opts = Object.assign({ showMatch: activeFilterCount > 0, hops: item.hops, km: item.km }, fromOpts);
-    card.innerHTML = itinDestCardHtml(item.d, opts);
-    listEl.appendChild(card);
-  });
-}
-
-function itinStartCardHtml(d) {
-  const vibeHtml = d.vibe
-    ? '<div class="it-vibe-box"><div class="it-vibe-label">💬 מה אנשים אומרים</div>' + d.vibe.text + '<div class="it-vibe-source">מקור: ' + d.vibe.source + '</div></div>'
-    : '<div class="it-vibe-missing">💬 עדיין אין כאן ציטוט ממקור אמיתי, בתהליך מחקר</div>';
-  const peopleHtml = d.peopleVibe
-    ? '<div class="it-people-box"><div class="it-vibe-label">🗣️ איך האנשים שם</div>' + d.peopleVibe + '</div>'
-    : '';
-  return (
-    '<div class="it-dest-card">' +
-      '<div class="it-dest-top">' +
-        '<div><div class="it-dest-title">' + (ITIN_DESTINATION_EMOJI[d.name] || ITIN_REGION_EMOJI[d.region] || "") + ' ' + d.name + '</div>' +
-        '<div class="it-night-stepper">' +
-          '<button type="button" class="it-night-btn" onclick="itinAdjustNights(\'' + d.name.replace(/'/g, "\\'") + '\', -1)">−</button>' +
-          '<span class="it-night-value">' + itinNightsLabel(d) + '</span>' +
-          '<button type="button" class="it-night-btn" onclick="itinAdjustNights(\'' + d.name.replace(/'/g, "\\'") + '\', 1)">+</button>' +
-        '</div></div>' +
-        '<button class="it-add-btn" aria-label="בחירה כנקודת התחלה" onclick="itinChooseStart(\'' + d.name.replace(/'/g, "\\'") + '\')">▶</button>' +
+  itinSheetItems.forEach(item => {
+    const d = item.d;
+    const q = d.name.replace(/'/g, "\\'");
+    const mode = itinTransportMode(currentName, d.name, item.km);
+    const hits = itinMatchHits(d);
+    const reason = hits.length ? 'מתאים: ' + hits.join(' + ') : d.anchor;
+    const open = itinExpandedCand === d.name;
+    const emoji = ITIN_DESTINATION_EMOJI[d.name] || ITIN_REGION_EMOJI[d.region] || '';
+    const already = itinUsedNames.has(d.name);
+    const row = document.createElement('div');
+    row.className = 'it-cand';
+    row.dataset.cand = d.name;
+    row.innerHTML =
+      '<div class="it-cand-main">' +
+        '<div class="it-cand-body" tabindex="0" role="button" aria-expanded="' + open + '" onclick="itinToggleCand(\'' + q + '\')">' +
+          '<div class="it-cand-name">' + emoji + ' ' + d.name + '</div>' +
+          '<div class="it-cand-meta">' + mode.emoji + ' ' + itinFormatDuration(item.km, currentName, d.name) + (mode.label ? ' · ' + mode.label : '') + (already ? ' · כבר במסלול, זו תהיה חזרה' : '') + '</div>' +
+          '<div class="it-cand-reason">' + reason + '</div>' +
+        '</div>' +
+        '<button type="button" class="it-cand-add" aria-label="הוסיפו ' + d.name + '" onclick="itinAddFromSheet(\'' + q + '\')">הוסיפו</button>' +
       '</div>' +
-      '<div class="it-why-label">🎯 למה כדאי לבקר</div>' +
-      '<div class="it-anchor">' + d.anchor + '</div>' +
-      vibeHtml +
-      peopleHtml +
-    '</div>'
-  );
+      (open
+        ? '<div class="it-cand-more"><div class="it-more-line">' + d.anchor + '</div>' +
+          (d.vibe ? '<div class="it-more-line"><div class="it-more-label">מה אנשים אומרים</div>' + itinTruncBlock(d.vibe.text, 'candvibe_' + d.name) + '</div>' : '') + '</div>'
+        : '');
+    listEl.appendChild(row);
+  });
 }
+
+function itinToggleCand(name) {
+  itinExpandedCand = (itinExpandedCand === name) ? null : name;
+  itinRenderDestinations();
+}
+
+function itinToggleFilters() {
+  const box = document.getElementById('itinFilters');
+  box.hidden = !box.hidden;
+  document.getElementById('itinFilterToggle').setAttribute('aria-expanded', !box.hidden);
+}
+
+let itinSheetLeafletMap = null, itinSheetLayer = null;
+function itinRenderSheetMap() {
+  if (typeof L === 'undefined') return;
+  if (!itinSheetLeafletMap) {
+    itinSheetLeafletMap = L.map('itinSheetMap', { zoomControl: false, attributionControl: false });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinSheetLeafletMap);
+    itinSheetLayer = L.layerGroup().addTo(itinSheetLeafletMap);
+  }
+  itinSheetLayer.clearLayers();
+  const cur = ITIN_DESTINATIONS.find(x => x.name === itinRoute[itinRoute.length - 1]);
+  L.circleMarker([cur.lat, cur.lng], { radius: 9, color: '#1f9d63', fillColor: '#6ee7a8', fillOpacity: 1, weight: 2 }).bindTooltip(cur.name).addTo(itinSheetLayer);
+  itinSheetItems.forEach(item => {
+    L.circleMarker([item.d.lat, item.d.lng], { radius: 6, color: '#4338ca', fillColor: '#9b9cff', fillOpacity: 0.9, weight: 1 })
+      .bindTooltip(item.d.name).on('click', () => itinFocusCand(item.d.name)).addTo(itinSheetLayer);
+  });
+  const near = itinSheetItems.slice(0, 8).map(i => [i.d.lat, i.d.lng]);
+  if (itinActiveRegion && ITIN_REGION_BOUNDS[itinActiveRegion]) itinSheetLeafletMap.fitBounds(ITIN_REGION_BOUNDS[itinActiveRegion], { padding: [10, 10] });
+  else itinSheetLeafletMap.fitBounds(L.latLngBounds([[cur.lat, cur.lng]].concat(near)), { padding: [20, 20], maxZoom: 9 });
+}
+
+function itinFocusCand(name) {
+  itinExpandedCand = name;
+  itinRenderDestinations();
+  const row = [...document.querySelectorAll('#itinSheetList .it-cand')].find(r => r.dataset.cand === name);
+  if (row) row.scrollIntoView({ block: 'nearest' });
+}
+
+function itinOpenAddSheet() {
+  itinSheetOpener = document.activeElement;
+  itinExpandedCand = null;
+  document.getElementById('itinSheetTitle').textContent = 'הוסיפו אחרי ' + itinRoute[itinRoute.length - 1];
+  document.getElementById('itinSheetOverlay').classList.add('open');
+  const sheet = document.getElementById('itinAddSheet');
+  sheet.classList.add('open');
+  sheet.scrollTop = 0;
+  sheet.focus();
+  itinRenderDestinations();
+  itinRenderSheetMap();
+  setTimeout(() => {
+    if (!itinSheetLeafletMap || !itinRoute.length || !document.getElementById('itinAddSheet').classList.contains('open')) return;
+    itinSheetLeafletMap.invalidateSize();
+    itinRenderSheetMap();
+  }, 250);
+}
+
+function itinCloseAddSheet() {
+  document.getElementById('itinSheetOverlay').classList.remove('open');
+  document.getElementById('itinAddSheet').classList.remove('open');
+  itinClearSearch();
+  if (itinSheetOpener && itinSheetOpener.focus) itinSheetOpener.focus();
+  itinSheetOpener = null;
+}
+
+function itinAddFromSheet(name) {
+  itinNewRowIndex = itinRoute.length;
+  itinCloseAddSheet();
+  itinAddStop(name);
+  const row = document.querySelector('#itinRouteStrip .it-route-stop-new');
+  if (row) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  setTimeout(() => {
+    itinNewRowIndex = null;
+    if (row) row.classList.remove('it-route-stop-new');
+  }, 1500);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('itinAddSheet').classList.contains('open')) itinCloseAddSheet();
+});
 
 // Each template is a real, graph-connected sequence (verified against
 // itinHasDirectEdge for every leg before being added here), so choosing one
@@ -4740,7 +4780,7 @@ function itinRenderTemplates() {
       '<div class="it-template-sub">' + tpl.sub + '</div>' +
       '<div class="it-template-route">' + tpl.route.map(n => (ITIN_DESTINATION_EMOJI[n] || '') + ' ' + n).join(' ← ') + '</div>' +
       '<div class="it-template-meta">' + tpl.route.length + ' תחנות · כ-' + totalNights + ' לילות</div>' +
-      '<button type="button" class="it-template-use-btn" onclick="itinUseTemplate(' + i + ')">✓ השתמשו בזה כנקודת התחלה</button>';
+      '<button type="button" class="it-template-use-btn" onclick="itinUseTemplate(' + i + ')">בחרו מסלול זה</button>';
     el.appendChild(card);
   });
 }
@@ -4759,26 +4799,83 @@ function itinUseTemplate(index) {
 }
 
 function itinChooseMode(mode) {
-  document.getElementById('itinModeChoiceScreen').style.display = 'none';
-  document.getElementById('itinStartScreen').style.display = 'none';
-  document.getElementById('itinQuizScreen').style.display = 'none';
-  document.getElementById('itinTemplatesScreen').style.display = 'none';
   if (mode === 'manual') {
-    document.getElementById('itinStartScreen').style.display = 'block';
-  } else if (mode === 'templates') {
-    document.getElementById('itinTemplatesScreen').style.display = 'block';
-    itinRenderTemplates();
+    itinStartDate = null;
+    document.getElementById('itinManualDate').value = '';
+    const cities = document.getElementById('itinManualCities');
+    cities.innerHTML = '';
+    ITIN_START_OPTIONS.forEach(name => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'it-choice it-city';
+      b.innerHTML = '<span class="it-choice-title">' + (ITIN_DESTINATION_EMOJI[name] || '') + ' ' + name + '</span>';
+      b.onclick = () => itinChooseStart(name);
+      cities.appendChild(b);
+    });
+    itinShowScreen('itinManualScreen');
   } else {
-    document.getElementById('itinQuizScreen').style.display = 'block';
+    itinShowScreen('itinQuizScreen');
     itinRenderQuizChips();
+    itinRenderTemplates();
+    itinWizShow(0);
   }
 }
 
-function itinBackToModeChoice() {
-  document.getElementById('itinStartScreen').style.display = 'none';
-  document.getElementById('itinQuizScreen').style.display = 'none';
-  document.getElementById('itinTemplatesScreen').style.display = 'none';
-  document.getElementById('itinModeChoiceScreen').style.display = 'block';
+function itinSetManualDate(value) {
+  itinStartDate = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+  document.getElementById('itinManualDate').value = itinStartDate || '';
+}
+
+// --- Quiz wizard: one question per step ---
+const ITIN_WIZ_HINTS = ['הזינו תאריכי הגעה ויציאה תקינים', 'בחרו עיר נחיתה', 'בחרו עם מי נוסעים', 'בחרו לפחות תחום אחד'];
+let itinWizStep = 0;
+
+function itinWizSteps() {
+  return [...document.querySelectorAll('#itinQuizScreen .it-wiz-step')];
+}
+
+function itinWizValid(step) {
+  if (step === 0) return itinQuizDateMode === 'nights' || !!(itinQuiz.startDate && itinQuiz.endDate && itinQuiz.nights > 0 && itinStartDate);
+  if (step === 1) return !!itinQuiz.start;
+  if (step === 2) return !!itinQuiz.who;
+  if (step === 3) return itinQuiz.what.size > 0;
+  return true;
+}
+
+function itinWizUpdate() {
+  const steps = itinWizSteps();
+  const last = itinWizStep === steps.length - 1;
+  const ok = itinWizValid(itinWizStep);
+  const next = document.getElementById('itinWizNext');
+  next.disabled = !ok;
+  next.textContent = last ? 'בנו לי מסלול' : 'הבא';
+  const hint = document.getElementById('itinWizHint');
+  hint.hidden = ok;
+  hint.textContent = ITIN_WIZ_HINTS[itinWizStep] || '';
+}
+
+function itinWizShow(step) {
+  const steps = itinWizSteps();
+  itinWizStep = Math.max(0, Math.min(steps.length - 1, step));
+  steps.forEach((el, i) => { el.style.display = i === itinWizStep ? 'block' : 'none'; });
+  document.getElementById('itinWizDots').innerHTML = steps.map((_, i) => '<span class="it-dot' + (i <= itinWizStep ? ' done' : '') + '"></span>').join('');
+  document.getElementById('itinWizCount').textContent = 'שלב ' + (itinWizStep + 1) + ' מתוך ' + steps.length;
+  itinWizUpdate();
+  window.scrollTo(0, 0);
+  steps[itinWizStep].querySelector('h2').focus();
+}
+
+let itinWizBusy = false;
+async function itinWizNext() {
+  if (itinWizBusy || !itinWizValid(itinWizStep)) return;
+  if (itinWizStep < itinWizSteps().length - 1) { itinWizShow(itinWizStep + 1); return; }
+  itinWizBusy = true;
+  try { await itinGenerateQuizRoute(); } finally { itinWizBusy = false; }
+}
+
+function itinWizBack() {
+  if (itinWizStep === 0) itinGoStart();
+  else itinWizShow(itinWizStep - 1);
 }
 
 // Which broad season each month falls in (rough, Northern Hemisphere Japan).
@@ -4802,19 +4899,24 @@ const ITIN_MONTH_TO_SEASON = {
 // rather than silently failing.
 let itinQuizDateMode = 'nights'; // 'nights' | 'dates' — mutually exclusive, never both at once
 
-function itinQuizSetDateMode(mode) {
+function itinQuizSetDateMode(mode, keepDates) {
   itinQuizDateMode = mode;
   document.getElementById('itinQuizNightsMode').style.display = mode === 'nights' ? 'block' : 'none';
   document.getElementById('itinQuizDatesMode').style.display = mode === 'dates' ? 'block' : 'none';
   document.getElementById('itinQuizModeNightsBtn').classList.toggle('active', mode === 'nights');
   document.getElementById('itinQuizModeDatesBtn').classList.toggle('active', mode === 'dates');
-  if (mode === 'nights') {
+  if (mode === 'nights' && !keepDates) {
     // Switching back to manual nights clears any date-derived state, so a
     // stale date range never silently keeps affecting things behind the
     // scenes once it's no longer the active choice.
     itinQuiz.startDate = null;
     itinQuiz.endDate = null;
+    itinStartDate = null;
+    document.getElementById('itinQuizStartDate').value = '';
+    document.getElementById('itinQuizEndDate').value = '';
+    document.getElementById('itinQuizDatesNote').textContent = '';
   }
+  itinWizUpdate();
 }
 
 function itinQuizDatesChanged() {
@@ -4823,14 +4925,17 @@ function itinQuizDatesChanged() {
   const noteEl = document.getElementById('itinQuizDatesNote');
   itinQuiz.startDate = startVal || null;
   itinQuiz.endDate = endVal || null;
-  if (!startVal || !endVal) { noteEl.textContent = ''; return; }
+  itinStartDate = null;
+  if (!startVal || !endVal) { noteEl.textContent = ''; itinWizUpdate(); return; }
   const start = new Date(startVal);
   const end = new Date(endVal);
   const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
   if (diffDays <= 0) {
-    noteEl.textContent = 'תאריך הסיום צריך להיות אחרי תאריך ההתחלה.';
+    noteEl.textContent = 'תאריך היציאה צריך להיות אחרי תאריך ההגעה.';
+    itinWizUpdate();
     return;
   }
+  itinStartDate = startVal;
   itinQuiz.nights = diffDays;
   document.getElementById('itinQuizNightsValue').textContent = itinQuiz.nights;
   const startMonth = start.getMonth() + 1;
@@ -4847,7 +4952,7 @@ function itinQuizAdjustNights(delta) {
 
 function itinRenderQuizChips() {
   document.getElementById('itinQuizNightsValue').textContent = itinQuiz.nights;
-  itinQuizSetDateMode(itinQuizDateMode);
+  itinQuizSetDateMode(itinQuizDateMode, true);
 
   const startEl = document.getElementById('itinQuizStartChips');
   startEl.innerHTML = '';
@@ -4937,6 +5042,7 @@ function itinRenderQuizChips() {
 
   itinRenderQuizVisitedChosen();
   itinRenderQuizVisitedResults();
+  itinWizUpdate();
 }
 
 function itinRenderQuizVisitedChosen() {
@@ -5257,78 +5363,38 @@ function itinLaunchGeneratedRoute(route, nightOverrides, extraNote) {
   itinRoute = route.slice();
   itinUsedNames = new Set(route);
   itinNightOverrides = nightOverrides || {};
-  itinStartDate = itinQuiz.startDate || null;
   itinUndoStack = [];
-  document.getElementById('itinModeChoiceScreen').style.display = 'none';
-  document.getElementById('itinStartScreen').style.display = 'none';
-  document.getElementById('itinQuizScreen').style.display = 'none';
-  document.getElementById('itinTemplatesScreen').style.display = 'none';
-  document.getElementById('itinMainScreen').style.display = 'block';
-  if (!itinMapInitialized) {
-    itinInitMap();
-    itinMapInitialized = true;
-  }
+  itinShowScreen('itinMainScreen');
   itinRender();
   itinShowSummary();
   if (extraNote) {
     const warnEl = document.getElementById('itinSummaryWarnings');
     warnEl.innerHTML = '<div class="it-warning-box"><div class="it-warning-label">💡 הערה על הטיוטה</div>המסלול הזה נוצר אוטומטית לפי השאלון.' + extraNote + '</div>' + warnEl.innerHTML;
   }
-  if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
-}
-
-function itinManualTargetAdjust(delta) {
-  const current = itinManualTargetNights || 0;
-  itinManualTargetNights = Math.max(1, current + delta);
-  document.getElementById('itinManualTargetValue').textContent = itinManualTargetNights;
-}
-
-function itinManualTargetClear() {
-  itinManualTargetNights = null;
-  document.getElementById('itinManualTargetValue').textContent = '-';
-}
-
-function itinRenderStartCards() {
-  const targetEl = document.getElementById('itinManualTargetValue');
-  if (targetEl) targetEl.textContent = itinManualTargetNights || '-';
-  const el = document.getElementById('itinStartCards');
-  el.innerHTML = '';
-  ITIN_START_OPTIONS.forEach(name => {
-    const d = ITIN_DESTINATIONS.find(x => x.name === name);
-    if (!d) return;
-    const wrap = document.createElement('div');
-    wrap.innerHTML = itinStartCardHtml(d);
-    el.appendChild(wrap.firstElementChild);
-  });
 }
 
 function itinChooseStart(name) {
   itinBuildMethod = 'manual';
+  itinNightOverrides = {};
+  itinLockedStops = new Set();
   itinRoute = [name];
   itinUsedNames = new Set([name]);
   itinUndoStack = [];
-  document.getElementById('itinStartScreen').style.display = 'none';
-  document.getElementById('itinMainScreen').style.display = 'block';
-  document.getElementById('itinSummaryScreen').style.display = 'none';
-  if (!itinMapInitialized) {
-    itinInitMap();
-    itinMapInitialized = true;
-  }
+  itinShowScreen('itinMainScreen');
   itinRender();
-  // Leaflet needs a re-check of container size once it becomes visible
-  if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
 }
 
 function itinClearSearch() {
   itinSearchQuery = '';
   const input = document.getElementById('itinSearchInput');
   if (input) input.value = '';
-  const results = document.getElementById('itinSearchResults');
-  if (results) results.innerHTML = '';
 }
 
 function itinAddStop(name) {
   itinSnapshotForUndo();
+  // A stop added by hand starts at 2 nights. A return to a stop already on the route and a day trip keep their nights.
+  const d = ITIN_DESTINATIONS.find(x => x.name === name);
+  if (d && !itinRoute.includes(name) && itinParseNightsNum(d.nights) >= 1) itinNightOverrides[name] = 2 - itinParseNightsNum(d.nights);
   itinRoute.push(name);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
@@ -5355,10 +5421,10 @@ function itinResetFilters() {
   itinRender();
 }
 function itinResetRoute() {
+  itinCloseAddSheet();
   itinRoute = [];
   itinUsedNames = new Set();
   itinLockedStops = new Set();
-  itinManualTargetNights = null;
   itinUndoStack = [];
   itinActiveWho = null;
   itinActiveWhat = new Set();
@@ -5377,41 +5443,14 @@ function itinResetRoute() {
   itinAiDestinationScores = null;
   itinClearSearch();
   itinClearSavedState();
-  document.getElementById('itinMainScreen').style.display = 'none';
-  document.getElementById('itinSummaryScreen').style.display = 'none';
-  document.getElementById('itinStartScreen').style.display = 'none';
-  document.getElementById('itinQuizScreen').style.display = 'none';
-  document.getElementById('itinTemplatesScreen').style.display = 'none';
-  document.getElementById('itinResumeScreen').style.display = 'none';
-  document.getElementById('itinModeChoiceScreen').style.display = 'block';
-  itinRenderStartCards();
+  itinGoStart();
 }
 
 function itinOnSearchInput() {
   const input = document.getElementById('itinSearchInput');
   itinSearchQuery = (input.value || '').trim().toLowerCase();
-  itinRenderSearchResults();
-}
-
-function itinRenderSearchResults() {
-  const el = document.getElementById('itinSearchResults');
-  if (!itinSearchQuery) { el.innerHTML = ''; return; }
-  const currentName = itinRoute[itinRoute.length - 1];
-  const currentDest = ITIN_DESTINATIONS.find(x => x.name === currentName);
-  const fromOpts = currentDest ? { fromLat: currentDest.lat, fromLng: currentDest.lng, fromName: currentDest.name } : {};
-  const matches = ITIN_DESTINATIONS.filter(d =>
-    d.name !== currentName && d.name.toLowerCase().includes(itinSearchQuery)
-  ).slice(0, 8);
-  if (matches.length === 0) {
-    el.innerHTML = '<div class="it-search-empty">אין יעד תואם.</div>';
-    return;
-  }
-  el.innerHTML = '<div class="it-fallback-note" style="margin-bottom:0.3rem;">תוצאות חיפוש (כל יעד ביפן זמין כאן, כולל יעדים שכבר במסלול):</div>' +
-    matches.map(d => {
-      const already = itinUsedNames.has(d.name);
-      const badge = already ? '<div class="it-already-badge">↩ כבר במסלול שלכם, זו תהיה חזרה נוספת אליו, לא הוספה חדשה</div>' : '';
-      return '<div class="it-dest-card">' + badge + itinDestCardHtml(d, Object.assign({ isReturn: already }, fromOpts)) + '</div>';
-    }).join('');
+  itinRenderDestinations();
+  itinRenderSheetMap();
 }
 
 function itinRender() {
@@ -5420,27 +5459,14 @@ function itinRender() {
   itinRenderRoute();
   itinRenderMiniMap();
   itinRenderOptimizationSuggestion();
-  itinRenderCurrent();
-  itinRenderDestinations();
-  itinRenderSearchResults();
-  itinRenderMap();
-  itinRenderUndoButton();
+  if (document.getElementById('itinAddSheet').classList.contains('open')) {
+    itinRenderDestinations();
+    itinRenderSheetMap();
+  }
   itinSaveState();
 }
-itinRenderStartCards();
-
-// On page load, if a route was saved from an earlier visit (or an
-// accidental refresh/tab close), offer to resume it instead of silently
-// dropping the person back at the mode-choice screen with no trace of
-// their work.
-(function itinCheckForSavedRoute() {
-  const saved = itinLoadSavedState();
-  if (!saved) return;
-  document.getElementById('itinModeChoiceScreen').style.display = 'none';
-  document.getElementById('itinResumeScreen').style.display = 'block';
-  document.getElementById('itinResumeDetail').textContent =
-    saved.route.length + ' תחנות, נשמר ' + itinFormatSavedAt(saved.savedAt) + '. אפשר להמשיך בדיוק מאיפה שעצרתם, או למחוק ולהתחיל מסלול חדש.';
-})();
+// On page load, offer to resume a route saved by an earlier visit (or an accidental refresh or tab close).
+itinGoStart();
 
 function itinOpenInMainSite(el) {
   const cityKey = el.dataset.city;
@@ -5749,9 +5775,12 @@ function itinRenderSummaryList() {
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
   const listEl = document.getElementById('itinSummaryList');
   let totalDays = 0;
+  const routeDates = itinRouteDates();
   listEl.innerHTML = stops.map((d, i) => {
     const days = itinGetNights(d);
     totalDays += days;
+    const stopDates = routeDates ? routeDates.stops[i] : null;
+    const datesHtml = stopDates ? '<div class="it-summary-dates">' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
     let connector = '';
     if (i > 0) {
       const prev = stops[i - 1];
@@ -5767,7 +5796,7 @@ function itinRenderSummaryList() {
       : '';
     return connector + '<div class="it-summary-row">' +
       '<div class="it-summary-num">' + (i + 1) + '.</div>' +
-      '<div class="it-summary-name" onclick="itinToggleSummaryDetail(\'' + d.name.replace(/'/g, "\\'") + '\')">' + d.name + (isExpanded ? ' ▾' : ' ▸') + '</div>' +
+      '<div class="it-summary-name" aria-expanded="' + isExpanded + '" onclick="itinToggleSummaryDetail(\'' + d.name.replace(/'/g, "\\'") + '\')">' + d.name + (isExpanded ? ' ▾' : ' ▸') + datesHtml + '</div>' +
       '<div class="it-summary-nights">' + itinNightsLabel(d) + '</div></div>' +
       detailHtml;
   }).join('');
@@ -5823,6 +5852,7 @@ function itinBuildCriteriaText() {
 }
 
 function itinShowSummary() {
+  itinCloseAddSheet();
   itinSummaryGeneration++;
   const myGeneration = itinSummaryGeneration;
   document.getElementById('itinExportNote').innerHTML = '';
@@ -5831,11 +5861,12 @@ function itinShowSummary() {
     ' תעברו עליו: יש משהו הגיוני יותר לשנות, יעד שכדאי להוסיף או להוריד, או סדר שהייתי צריך לשקול מחדש?';
   itinSummaryExpandedStop = null;
   const { stops, totalDays } = itinRenderSummaryList();
+  const routeDates = itinRouteDates();
 
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
   document.getElementById('itinSummaryTotal').innerHTML =
-    stops.length + ' תחנות · בערך <b>' + totalDays + ' לילות</b> · סה"כ נסיעה <b>' + itinFormatHoursValue(totalHours) + '</b> (כ-' + analysis.totalKm + ' ק"מ קו אווירי)';
+    (routeDates ? itinShortDate(itinStartDate) + ' עד ' + itinShortDate(routeDates.end) + ' · ' : '') + stops.length + ' תחנות · בערך <b>' + totalDays + ' לילות</b> · סה"כ נסיעה <b>' + itinFormatHoursValue(totalHours) + '</b> (כ-' + analysis.totalKm + ' ק"מ קו אווירי)';
 
   // Show the deterministic character summary immediately (instant, always
   // available), then quietly swap in an AI-written version if one arrives —
@@ -5845,10 +5876,10 @@ function itinShowSummary() {
   // came back to the summary before this resolves, a stale answer about
   // a route that no longer exists must never overwrite the current one.
   const characterEl = document.getElementById('itinCharacterSummary');
-  characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">✦ אופי הטיול</div>' + itinBuildCharacterSummary(stops) + '</div>';
+  characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">אופי הטיול</div>' + itinBuildCharacterSummary(stops) + '</div>';
   itinFetchAiRouteSummary(stops).then(aiText => {
     if (aiText && myGeneration === itinSummaryGeneration) {
-      characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">✦ אופי הטיול</div>' + aiText + '</div>';
+      characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">אופי הטיול</div>' + aiText + '</div>';
     }
   });
 
@@ -5876,23 +5907,21 @@ function itinShowSummary() {
   }
   warnEl.innerHTML = warnHtml;
 
-  document.getElementById('itinMainScreen').style.display = 'none';
-  document.getElementById('itinSummaryScreen').style.display = 'block';
+  itinShowScreen('itinSummaryScreen');
   itinRenderSummaryMap();
 }
 
 function itinBackToEditing() {
-  document.getElementById('itinSummaryScreen').style.display = 'none';
-  document.getElementById('itinMainScreen').style.display = 'block';
-  if (itinLeafletMap) setTimeout(() => itinLeafletMap.invalidateSize(), 50);
+  itinShowScreen('itinMainScreen');
+  setTimeout(itinRenderMiniMap, 50);
 }
 
 function itinBackToQuiz() {
-  document.getElementById('itinSummaryScreen').style.display = 'none';
-  document.getElementById('itinMainScreen').style.display = 'none';
-  document.getElementById('itinModeChoiceScreen').style.display = 'none';
-  document.getElementById('itinQuizScreen').style.display = 'block';
+  itinCloseAddSheet();
+  itinShowScreen('itinQuizScreen');
   itinRenderQuizChips();
+  itinRenderTemplates();
+  itinWizShow(0);
 }
 
 // --- Export: Google Maps + plain text ---
@@ -5982,6 +6011,7 @@ function itinBuildExportText() {
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
   const lines = ['המסלול שלי ליפן:'];
   let totalDays = 0;
+  const routeDates = itinRouteDates();
   stops.forEach((d, i) => {
     const days = itinGetNights(d);
     totalDays += days;
@@ -5992,7 +6022,8 @@ function itinBuildExportText() {
       const direct = itinHasDirectEdge(prev.name, d.name);
       lines.push('   \u2193 ' + mode.emoji + ' ' + mode.label + ', \u05db-' + itinFormatDuration(km, prev.name, d.name) + (direct ? '' : ' (\u05dc\u05d0 \u05e7\u05e9\u05e8 \u05d9\u05e9\u05d9\u05e8 \u05d1\u05d2\u05e8\u05e3)'));
     }
-    lines.push((i + 1) + '. ' + d.name + ' \u2014 ' + itinNightsLabel(d));
+    const stopDates = routeDates ? routeDates.stops[i] : null;
+    lines.push((i + 1) + '. ' + d.name + (stopDates ? ' (' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + ')' : '') + ' \u2014 ' + itinNightsLabel(d));
   });
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
@@ -6580,6 +6611,6 @@ function itinExportText() {
 }
 
 </script>
-<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "57ed878b71b6407bb875aa050f035c1f"}'></script><!-- End Cloudflare Web Analytics -->
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a58084935c264dc694f7c9924f183cd1"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
