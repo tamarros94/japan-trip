@@ -186,8 +186,7 @@ if (/[?&]debug\b/.test(location.search)) {
   h1 { font-size: 1.3rem; margin: 0; color: #fff; text-shadow: 2px 2px 0 #1a1330, -1px -1px 0 #1a1330, 1px -1px 0 #1a1330, -1px 1px 0 #1a1330; font-weight: 800; }
   .sub { color: var(--muted); font-size: 0.8rem; margin-bottom: 1.5rem; }
   #search { width: 100%; padding: 0.65rem 0.9rem; font-size: 0.95rem; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; font-family: inherit; background: var(--surface); color: var(--ink); box-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
-  #catFilters { display: flex; gap: 8px; overflow-x: auto; margin: 0 -1rem 0.75rem; padding: 2px 1rem 6px; scrollbar-width: none; }
-  #catFilters::-webkit-scrollbar { display: none; }
+  #catFilters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 0.75rem; padding: 2px 0 6px; }
   #subcatFilters { display: flex; flex-wrap: wrap; gap: 8px; }
   #catFilters .catbtn, .cat-sheet-grid .catbtn { flex-shrink: 0; }
   .catbtn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; font-family: inherit; font-weight: 500; font-size: 0.9rem; line-height: 1.2; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); cursor: pointer; color: var(--ink); white-space: nowrap; }
@@ -833,13 +832,11 @@ if (/[?&]debug\b/.test(location.search)) {
   <div class="shop-tier-label">💄 טיפוח</div>
   <div class="shop-item is-personal">
     <div class="shop-item-name"><span class="shop-icon">🧼</span>Biore 隠れ角栓 自己崩壊 (Kakusen Houkai)</div>
-    <span class="badge badge-personal">⭐ המלצה אישית שלי</span>
     <div class="shop-item-desc">מ-tokyo.zebra: ה"BEST" מבין 3 אופציות לנקבוביות/פקקי חלב. סבון פנים דיפ-קליי של Kao שמפרק פקקי חלב נסתרים בעדינות</div>
     <a class="shop-item-link" href="https://www.google.com/search?tbm=isch&q=Biore+隠れ角栓+自己崩壊+ディープクレイ洗顔" target="_blank">📷 תמונה</a>
   </div>
   <div class="shop-item is-personal">
     <div class="shop-item-name"><span class="shop-icon">✨</span>YA-MAN (מכשיר EMS/RF לפנים)</div>
-    <span class="badge badge-personal">⭐ המלצה אישית שלי</span>
     <div class="shop-item-desc">מ-tokyo.zebra: ה"BEST" מבין 3 אופציות לצניחה/רפיון בעור הפנים. מכשיר EMS+RF ביתי לחיטוב ומיצוק</div>
     <a class="shop-item-link" href="https://www.google.com/search?tbm=isch&q=YA-MAN+EMS+RF+face+device" target="_blank">📷 תמונה</a>
   </div>
@@ -3277,7 +3274,7 @@ function lodgingRenderMap(nbs) {
   container.classList.add('lodging-map-sticky');
   if (!lodgingMapInitialized) {
     lodgingLeafletMap = L.map('lodgingMap', { zoomControl: false, attributionControl: false, dragging: true, scrollWheelZoom: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 16 }).addTo(lodgingLeafletMap);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16, attribution: '© OpenStreetMap' }).addTo(lodgingLeafletMap);
     lodgingMapInitialized = true;
   }
   lodgingLeafletMap.eachLayer(layer => { if (!layer._url) lodgingLeafletMap.removeLayer(layer); });
@@ -4076,7 +4073,7 @@ function itinInitMap() {
     return;
   }
   itinLeafletMap = L.map('itinMap', { zoomControl: true, attributionControl: false }).setView([37.5, 138.5], 5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 12 }).addTo(itinLeafletMap);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinLeafletMap);
   itinRegionLayer = L.layerGroup().addTo(itinLeafletMap);
   itinMarkerLayer = L.layerGroup().addTo(itinLeafletMap);
   itinLineLayer = L.layerGroup().addTo(itinLeafletMap);
@@ -5617,7 +5614,7 @@ function itinRenderMiniMap() {
     const container = document.getElementById('itinMiniMap');
     if (!container) return;
     itinMiniLeafletMap = L.map('itinMiniMap', { zoomControl: false, attributionControl: false, dragging: true, scrollWheelZoom: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 12 }).addTo(itinMiniLeafletMap);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinMiniLeafletMap);
     itinMiniMapInitialized = true;
   }
   itinMiniLeafletMap.eachLayer(layer => { if (!layer._url) itinMiniLeafletMap.removeLayer(layer); });
@@ -5655,7 +5652,7 @@ function itinRenderSummaryMap() {
     const container = document.getElementById('itinSummaryMap');
     if (!container) return;
     itinSummaryLeafletMap = L.map('itinSummaryMap', { zoomControl: true, attributionControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 12 }).addTo(itinSummaryLeafletMap);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinSummaryLeafletMap);
     itinSummaryMapInitialized = true;
   }
   itinSummaryLeafletMap.eachLayer(layer => { if (!layer._url) itinSummaryLeafletMap.removeLayer(layer); });
@@ -6468,7 +6465,7 @@ function itinExportHtml() {
       '<script>' +
         'const STOPS = ' + stopsJson + ';' +
         'const map = L.map("map");' +
-        'L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {maxZoom:16}).addTo(map);' +
+        'L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:16, attribution:"© OpenStreetMap"}).addTo(map);' +
         'const markers = [];' +
         'STOPS.forEach((s, i) => {' +
           'const icon = L.divIcon({className:"", html:"<div style=\\"background:' + pal.cardBg + ';width:28px;height:28px;border-radius:50%;border:2.5px solid ' + pal.numBg + ';display:flex;align-items:center;justify-content:center;font-weight:700;color:' + pal.connectorText + ';font-size:0.8rem;\\">" + (i+1) + "</div>", iconSize:[28,28], iconAnchor:[14,14]});' +
