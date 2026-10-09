@@ -566,6 +566,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-step-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
   .it-step-btn:active { transform: scale(.97); }
   .it-step-btn:disabled { color: var(--muted); opacity: .5; cursor: default; }
+  .it-step-daytrip { font-size: 0.75rem; white-space: nowrap; min-width: 3rem; }
   .it-step-value { min-width: 1.4rem; text-align: center; font-size: 1.1rem; font-weight: 700; color: var(--ink); }
   .it-route-stop-locked .it-drag { color: var(--accent); }
   .it-route-more { padding: 0.2rem 0 0.6rem; margin-inline-start: 36px; font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
@@ -5178,10 +5179,10 @@ function itinDragHandleHtml(i, stop) {
 function itinStepperHtml(i, stop) {
   const d = ITIN_DESTINATIONS.find(x => x.name === stop);
   const nights = d ? itinGetNights(d, i) : 0;
-  const minNights = d && itinParseNightsNum(d.nights) >= 1 ? 1 : 0; // a stop never drops below 1 night, only day trips sit at 0
+  const minNights = 0; // any stop can be a day trip (0 nights)
   return '<div class="it-stepper" role="group" aria-label="' + nights + ' לילות ב' + stop + '">' +
     '<button type="button" class="it-step-btn" data-f="m' + i + '" aria-label="להפחית לילה" onclick="itinAdjustNightsAt(' + i + ', -1)"' + (nights <= minNights ? ' disabled' : '') + '>−</button>' +
-    '<span class="it-step-value">' + nights + '</span>' +
+    '<span class="it-step-value' + (nights === 0 && d ? ' it-step-daytrip' : '') + '">' + (nights === 0 && d ? 'טיול יום' : nights) + '</span>' +
     '<button type="button" class="it-step-btn" data-f="p' + i + '" aria-label="להוסיף לילה" onclick="itinAdjustNightsAt(' + i + ', 1)">+</button>' +
   '</div>';
 }
