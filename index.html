@@ -4659,6 +4659,11 @@ let itinExtraNights = []; // parallel to itinRoute: extra nights added/removed b
 let itinPlan = []; // parallel to itinRoute: { hotel, days } per stop, see docs/superpowers/specs/2026-10-09-trip-plan-design.md
 
 const ITIN_PLAN_MAX_ITEMS = 120; // total items across all stops and days, keeps the cloud blob under the worker's 200 KB limit
+// True when nothing would be lost, or the visitor agrees to drop the plan (items or a hotel) along with the route.
+function itinConfirmDiscardPlan() {
+  const hasPlan = itinPlanItemCount() > 0 || itinPlan.some(p => p.hotel);
+  return !hasPlan || confirm('בתכנון יש פריטים ומלונות. להחליף את המסלול ולמחוק את התכנון?');
+}
 function itinPlanItemCount() { return itinPlan.reduce((n, p) => n + p.days.reduce((m, d) => m + d.length, 0), 0); }
 function itinNewStopPlan() { return { hotel: null, days: [[]] }; }
 
@@ -5402,13 +5407,13 @@ function itinAdjustNightsAt(index, delta) {
   const next = (itinExtraNights[index] || 0) + delta;
   if (itinParseNightsNum(d.nights) + next < 0) return;
   itinSnapshotForUndo();
-  const depth = itinUndoStack.length;
+  const snap = itinUndoStack[itinUndoStack.length - 1]; // identity, not length: the stack is capped, so its length stops changing once full
   itinExtraNights[index] = next;
   const before = itinPlan[index] ? itinPlan[index].days : [];
   const folds = before.slice(itinStopDayCount(index)).some(day => day.length > 0);
   itinFitPlanDays(index);
   itinRender();
-  if (folds) showUndoToast('הימים אוחדו, הפריטים עברו ליום האחרון', () => { if (itinUndoStack.length === depth) itinUndo(); });
+  if (folds) showUndoToast('הימים אוחדו, הפריטים עברו ליום האחרון', () => { if (itinUndoStack[itinUndoStack.length - 1] === snap) itinUndo(); });
 }
 
 function itinMatchHits(d) {
@@ -6438,6 +6443,7 @@ async function itinGenerateQuizRoute() {
 }
 
 function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
+  if (!itinConfirmDiscardPlan()) return;
   itinRoute = route.slice();
   itinUsedNames = new Set(route);
   itinExtraNights = route.map((_, i) => (extraNights && extraNights[i]) || 0);
@@ -6452,6 +6458,7 @@ function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
 }
 
 function itinChooseStart(name) {
+  if (!itinConfirmDiscardPlan()) return;
   itinBuildMethod = 'manual';
   itinDraftNote = '';
   itinExtraNights = [0];
@@ -6508,6 +6515,7 @@ function itinResetFilters() {
   itinRender();
 }
 function itinResetRoute() {
+  if (!itinConfirmDiscardPlan()) return;
   itinCloseAddSheet();
   itinPlanCloseSheet();
   itinRoute = [];
@@ -7045,10 +7053,10 @@ function itinPlanMove(i, di, k, action) {
 }
 function itinPlanRemove(i, di, k) {
   itinSnapshotForUndo();
-  const depth = itinUndoStack.length;
+  const snap = itinUndoStack[itinUndoStack.length - 1]; // identity, not length: the stack is capped, so its length stops changing once full
   itinPlan[i].days[di].splice(k, 1);
   itinRender();
-  showUndoToast('הפריט הוסר', () => { if (itinUndoStack.length === depth) itinUndo(); });
+  showUndoToast('הפריט הוסר', () => { if (itinUndoStack[itinUndoStack.length - 1] === snap) itinUndo(); });
 }
 document.getElementById('itinSummaryList').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-plan]');
