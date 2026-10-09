@@ -539,7 +539,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-ov-hotel a, .it-ov-hint { color: inherit; text-decoration: underline; }
   .it-ov-edit { width: 100%; margin: 0.6rem 0; }
   .it-ov-toolbar { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
-  .it-ov-hint { background: none; border: 0; padding: 0; font: inherit; min-height: 24px; cursor: pointer; }
+  .it-ov-hint { background: none; border: 0; padding: 0; font: inherit; min-height: 44px; margin: -12px 0; display: inline-flex; align-items: center; cursor: pointer; }
   .it-ov-day { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
   .it-ov-day-title { font-weight: 600; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
   .it-ov-items { margin: 0; padding-inline-start: 1.1rem; }
@@ -5364,7 +5364,7 @@ function itinToggleMapStrip() {
 
 function itinReorderStop(from, to) {
   if (from === to || from < 0 || to < 0 || from >= itinRoute.length || to >= itinRoute.length) return;
-  itinPlanOpen.clear();
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinSnapshotForUndo();
   itinRoute.splice(to, 0, itinRoute.splice(from, 1)[0]);
   itinExtraNights.splice(to, 0, itinExtraNights.splice(from, 1)[0]);
@@ -6492,7 +6492,7 @@ function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
   itinUsedNames = new Set(route);
   itinExtraNights = route.map((_, i) => (extraNights && extraNights[i]) || 0);
   itinPlan = itinNormalizePlan(null, route.length);
-  itinPlanOpen.clear();
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinFitAllPlanDays();
   itinUndoStack = [];
   itinDraftNote = extraNote || '';
@@ -6507,7 +6507,7 @@ function itinChooseStart(name) {
   itinDraftNote = '';
   itinExtraNights = [0];
   itinPlan = [itinNewStopPlan()];
-  itinPlanOpen.clear();
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinLockedStops = new Set();
   itinRoute = [name];
   itinFitPlanDays(0);
@@ -6541,7 +6541,7 @@ function itinRemoveStop(index) {
   // meant fixing one accidental extra stop (e.g. a duplicate visit added by
   // mistake) also wiped out every stop planned after it.
   if (index <= 0 || index >= itinRoute.length) return;
-  itinPlanOpen.clear();
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinSnapshotForUndo();
   itinRoute.splice(index, 1);
   itinExtraNights.splice(index, 1);
@@ -6579,7 +6579,7 @@ function itinResetRoute() {
   itinActiveSeason = null;
   itinExtraNights = [];
   itinPlan = [];
-  itinPlanOpen.clear();
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinDraftNote = '';
   itinStartDate = null;
   itinEditingStopIndex = null;
@@ -6612,6 +6612,7 @@ function itinRender() {
   }
   itinSaveState();
   if (summaryOpen) itinRefreshSummary(summaryFocusKey);
+  if (document.getElementById('itinOverviewScreen').style.display === 'block') itinRenderOverview();
 }
 // On page load, offer to resume a route saved by an earlier visit (or an accidental refresh or tab close).
 itinGoStart();
@@ -7363,7 +7364,7 @@ function itinOverviewItemHtml(item) {
 function itinOverviewDayHtml(i, di) {
   const stopDates = (itinRouteDates() || { stops: [] }).stops[i];
   const title = stopDates ? 'יום ' + (di + 1) + ' · ' + itinShortDate(itinAddDaysISO(stopDates.checkIn, di)) : 'יום ' + (di + 1);
-  const items = itinPlan[i].days[di];
+  const items = (itinPlan[i] || { days: [[]] }).days[di] || [];
   return '<div class="it-ov-day"><div class="it-ov-day-title">' + title + '</div>' +
     (items.length ? '<ul class="it-ov-items">' + items.map(itinOverviewItemHtml).join('') + '</ul>' : '<div class="it-ov-empty">אין פריטים ליום הזה</div>') + '</div>';
 }
