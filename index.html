@@ -1485,16 +1485,8 @@ if (/[?&]debug\b/.test(location.search)) {
   </div>
 
   <div class="myarea-section" id="myAreaSubmit" hidden>
-    <div class="myarea-section-title">➕ הציעו מקום</div>
-    <div class="submit-form">
-      <label>שם המקום <input type="text" id="submitTitle" class="myarea-note-input" maxlength="80"></label>
-      <label>קטגוריה <select id="submitCategory" class="myarea-note-input"></select></label>
-      <label>עיר <select id="submitCity" class="myarea-note-input"></select></label>
-      <label>משפט אחד, למה כדאי <input type="text" id="submitNote" class="myarea-note-input" maxlength="300"></label>
-      <label>קישור (לא חובה) <input type="url" id="submitUrl" class="myarea-note-input" maxlength="300" dir="ltr"></label>
-      <button type="button" id="submitPlaceBtn" class="myarea-add-btn">שליחה לבדיקה</button>
-      <div id="submitPlaceStatus" class="myarea-item-meta" role="status"></div>
-    </div>
+    <div class="myarea-section-title">➕ הצעות המקומות שלי</div>
+    <button type="button" class="myarea-add-btn" onclick="showPage('suggest')">➕ הציעו מקום</button>
     <div id="mySubmissionsList"></div>
   </div>
 
@@ -1525,6 +1517,28 @@ if (/[?&]debug\b/.test(location.search)) {
   <div class="myarea-section" id="myAreaOverview" hidden>
     <div class="myarea-section-title">📊 פעילות</div>
     <div id="adminOverview"></div>
+  </div>
+</div>
+<div class="myarea-page" id="suggestPage">
+  <button type="button" class="nav-pill shopping-back-btn" onclick="goBack()">→ חזרה</button>
+  <div class="hero-sky">
+    <div class="kicker">✦ מכירים מקום טוב? ✦</div>
+    <h1>➕ הציעו מקום</h1>
+  </div>
+  <div id="suggestSignedOut" class="myarea-empty" hidden>כדי להציע מקום צריך להתחבר עם גוגל.</div>
+  <div class="submit-form" id="suggestForm">
+    <label>קישור ל-Google Maps (חובה)
+      <input type="url" id="submitUrl" class="myarea-note-input" maxlength="600" dir="ltr" placeholder="https://maps.app.goo.gl/..." autocomplete="off">
+    </label>
+    <div id="submitUrlStatus" class="myarea-item-meta" role="status"></div>
+    <label>שם המקום (נלקח מהקישור, אפשר לתקן)
+      <input type="text" id="submitTitle" class="myarea-note-input" maxlength="80">
+    </label>
+    <label>קטגוריה <select id="submitCategory" class="myarea-note-input"></select></label>
+    <label>עיר <select id="submitCity" class="myarea-note-input"></select></label>
+    <label>משפט אחד, למה כדאי <input type="text" id="submitNote" class="myarea-note-input" maxlength="300"></label>
+    <button type="button" id="submitPlaceBtn" class="myarea-add-btn">שליחה לבדיקה</button>
+    <div id="submitPlaceStatus" class="myarea-item-meta" role="status"></div>
   </div>
 </div>
 <div class="itinerary-page" id="itineraryPage">
@@ -2475,8 +2489,20 @@ function showSignedInUI(profile, statusText) {
   setSyncStatus(statusText);
 }
 
+// Name and picture from the Google token, for display only (the worker verifies the token itself).
+function profileFromCredential(credential) {
+  try {
+    const b64 = credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const claims = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0))));
+    return { name: claims.name, email: claims.email, picture: claims.picture };
+  } catch (e) { return null; }
+}
+
 function handleGoogleCredential(response) {
   currentIdToken = response.credential;
+  // Show the signed in look right away. Before, the Google button stayed on screen until the cloud load answered, and for good if it failed.
+  const profile = profileFromCredential(response.credential);
+  if (profile) { showSignedInUI(profile, 'טוען...'); cacheAuthProfile(profile); }
   cloudLoadAndApply();
 }
 
@@ -2711,20 +2737,73 @@ document.getElementById('submitPlaceBtn').addEventListener('click', async () => 
     note: document.getElementById('submitNote').value.trim(),
     url: document.getElementById('submitUrl').value.trim(),
   };
+  if (!mapsLinkLooksValid(payload.url)) { status.textContent = 'צריך קישור ל-Google Maps של המקום.'; return; }
   if (payload.title.length < 2 || !payload.note) { status.textContent = 'צריך שם מקום ומשפט אחד למה כדאי.'; return; }
-  if (payload.url && !/^https?:\/\/\S+$/i.test(payload.url)) { status.textContent = 'הקישור צריך להתחיל ב-http או https.'; return; }
   const btn = document.getElementById('submitPlaceBtn');
   btn.disabled = true;
   const res = await socialCall('submit_place', payload);
   btn.disabled = false;
   if (res && res.ok) {
     ['submitTitle', 'submitNote', 'submitUrl'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('submitUrlStatus').textContent = '';
+    delete document.getElementById('submitTitle').dataset.edited;
     status.textContent = 'נשלח לבדיקה ✓ נעדכן כאן כשייבדק.';
     loadMySubmissions();
   } else if (res) {
-    status.textContent = socialUnsupported(res) ? 'ההצעות עדיין לא זמינות.' : (res.data.error === 'invalid_submission' ? 'בדקו את השדות (שם עד 80 תווים, משפט עד 300).' : socialErrorText(res));
+    status.textContent = socialUnsupported(res) ? 'ההצעות עדיין לא זמינות.' : (res.data.error === 'invalid_submission' ? 'בדקו את הקישור (Google Maps בלבד) ואת השדות (שם עד 80 תווים, משפט עד 300).' : socialErrorText(res));
   }
 });
+
+// Google Maps links: the place name comes from the link, which is more reliable than typing it.
+const MAPS_LINK_HOSTS = /^(((www|maps)\.)?google\.[a-z.]{2,6}|maps\.app\.goo\.gl|goo\.gl)$/i;
+function parseMapsLink(raw) {
+  try {
+    const u = new URL(raw.trim());
+    return u.protocol === 'https:' && MAPS_LINK_HOSTS.test(u.hostname) ? u : null;
+  } catch (e) { return null; }
+}
+const mapsLinkLooksValid = (raw) => !!parseMapsLink(raw);
+function placeNameFromMapsLink(u) {
+  const m = u.pathname.match(/\/maps\/place\/([^/]+)/);
+  const raw = m ? m[1] : (u.searchParams.get('q') || '');
+  try {
+    const name = decodeURIComponent(raw.replace(/\+/g, ' ')).trim();
+    return name && !/^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(name) ? name : '';
+  } catch (e) { return ''; }
+}
+
+let suggestResolveSeq = 0;
+async function onSuggestLinkChange() {
+  const input = document.getElementById('submitUrl'), status = document.getElementById('submitUrlStatus'), title = document.getElementById('submitTitle');
+  const raw = input.value.trim();
+  const seq = ++suggestResolveSeq;
+  if (!raw) { status.textContent = ''; return; }
+  const u = parseMapsLink(raw);
+  if (!u) { status.textContent = 'זה לא קישור של Google Maps.'; return; }
+  let name = placeNameFromMapsLink(u);
+  if (!name) {
+    // A short link carries no name; the worker follows it to the full link.
+    status.textContent = 'קוראים את הקישור...';
+    const res = await socialCall('resolve_maps_link', { url: raw });
+    if (seq !== suggestResolveSeq) return; // the link changed meanwhile
+    if (res && res.ok) { name = res.data.name || ''; if (res.data.url) input.value = res.data.url; }
+  }
+  if (name) {
+    if (!title.dataset.edited || !title.value.trim()) { title.value = name; delete title.dataset.edited; }
+    status.textContent = 'השם נלקח מהקישור, אפשר לתקן.';
+  } else {
+    status.textContent = 'לא הצלחנו לקרוא שם מהקישור, אפשר להקליד אותו.';
+  }
+}
+document.getElementById('submitUrl').addEventListener('change', onSuggestLinkChange);
+document.getElementById('submitUrl').addEventListener('paste', () => setTimeout(onSuggestLinkChange, 0));
+document.getElementById('submitTitle').addEventListener('input', (e) => { e.target.dataset.edited = '1'; });
+
+function initSuggestPage() {
+  fillSubmitOptions();
+  document.getElementById('suggestForm').hidden = !socialMe;
+  document.getElementById('suggestSignedOut').hidden = !!socialMe;
+}
 
 const SUBMISSION_STATUS_TEXT = { pending: 'ממתין לבדיקה', approved: 'אושר ✓', rejected: 'לא אושר' };
 async function loadMySubmissions() {
@@ -3093,8 +3172,8 @@ document.getElementById('vegOnly').addEventListener('change', e => { vegOnly = e
 // --- Page navigation and overlays ---
 // One place opens and closes the full pages, so the browser back button,
 // Escape and scroll position behave the same everywhere. null is the home list.
-const PAGE_IDS = { shopping: 'shoppingPage', lodging: 'lodgingPage', itinerary: 'itineraryPage', myarea: 'myAreaPage' };
-const PAGE_INIT = { lodging: () => lodgingInit(), myarea: () => renderMyArea() };
+const PAGE_IDS = { shopping: 'shoppingPage', lodging: 'lodgingPage', itinerary: 'itineraryPage', myarea: 'myAreaPage', suggest: 'suggestPage' };
+const PAGE_INIT = { lodging: () => lodgingInit(), myarea: () => renderMyArea(), suggest: () => initSuggestPage() };
 let currentPage = null;
 let homeScrollY = 0;
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
