@@ -455,8 +455,8 @@ if (/[?&]debug\b/.test(location.search)) {
   /* The avatar + name open "האזור שלי"; the separate tab is hidden while signed in. */
   .auth-profile-btn { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px; padding: 0 0.3rem; background: none; border: 0; border-radius: 10px; color: inherit; font: inherit; cursor: pointer; }
   .auth-profile-btn[aria-current="page"] .auth-name { box-shadow: inset 0 -3px 0 var(--accent); }
-  body.signed-in .tab[data-page="myarea"], body.signed-in .desk-link[data-page="myarea"] { display: none; }
-  body.signed-in .tabbar { grid-template-columns: repeat(5, 1fr); }
+  /* The bottom tab stays on phones: the header chip scrolls out of view, so the tab is the only way to reach it from other pages. */
+  body.signed-in .desk-link[data-page="myarea"] { display: none; }
   /* On phones the signed-in chip is wide; put it under the title instead of squeezing the title. */
   @media (max-width: 600px) {
     body.signed-in .site-header-row { flex-wrap: wrap; }
@@ -535,7 +535,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-menu-wrap { position: relative; }
   .it-icon-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: transform 150ms ease; }
   .it-icon-btn:active { transform: scale(.97); }
-  .it-menu { position: absolute; inset-inline-start: 0; top: 100%; z-index: 20; min-width: 190px; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .it-menu { position: absolute; inset-inline-end: 0; top: 100%; z-index: 20; min-width: 190px; max-width: calc(100vw - 16px); padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
   .it-menu button { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 12px; background: none; border: 0; border-radius: 12px; color: var(--ink); font-family: inherit; font-size: 0.9rem; text-align: start; cursor: pointer; }
   .it-menu button:hover { background: var(--paper); }
   .it-menu button:disabled { color: var(--muted); cursor: default; }
@@ -814,6 +814,15 @@ if (/[?&]debug\b/.test(location.search)) {
   .adm-title { font-weight: 700; font-size: 0.82rem; }
   .adm-reasons { margin: 0.3rem 0; padding-inline-start: 1.1rem; font-size: 0.75rem; color: var(--muted); }
   .adm-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; }
+  /* Forum: public comments board */
+  .forum-compose { margin-bottom: 1rem; }
+  .forum-row .rv-name { overflow-wrap: anywhere; min-width: 0; }
+  .forum-report { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.3rem; }
+  .forum-report[hidden] { display: none; }
+  .forum-report input { flex: 1; min-width: 0; }
+  .forum-more { display: block; width: 100%; margin-top: 0.8rem; }
+  .forum-more[hidden] { display: none; }
+  .adm-sub { font-weight: 700; font-size: 0.8rem; margin: 0.8rem 0 0.4rem; }
   .ov-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.4rem; margin-bottom: 0.5rem; }
   .ov-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: var(--muted); }
   .ov-stat b { display: block; font-size: 1.05rem; color: var(--ink); }
@@ -840,6 +849,7 @@ if (/[?&]debug\b/.test(location.search)) {
   <button type="button" onclick="closeOverlays(); openOverlay('.about-modal')">ℹ️ מי אני</button>
   <button type="button" onclick="closeOverlays(); openOverlay('.roadmap-modal')">🛠️ תכנון</button>
   <button type="button" onclick="closeOverlays(); openOverlay('.feedback-modal')">💬 פידבק</button>
+  <button type="button" onclick="closeOverlays(); showPage('forum')">💬 פורום</button>
   <button type="button" data-theme-toggle data-label onclick="toggleTheme()">🌙</button>
 </div>
 <div class="info-modal about-modal" role="dialog" aria-modal="true" aria-label="מי אני">
@@ -1479,6 +1489,11 @@ if (/[?&]debug\b/.test(location.search)) {
     <div id="myAreaLodging"></div>
   </div>
 
+  <div class="myarea-section">
+    <div class="myarea-section-title">💬 פורום</div>
+    <button type="button" class="myarea-add-btn" onclick="showPage('forum')">💬 לפורום</button>
+  </div>
+
   <div class="myarea-section" id="myAreaNotifications" hidden>
     <div class="myarea-section-title">🔔 התראות</div>
     <div id="notificationsList"></div>
@@ -1512,6 +1527,10 @@ if (/[?&]debug\b/.test(location.search)) {
   <div class="myarea-section" id="myAreaAdmin" hidden>
     <div class="myarea-section-title">🛡️ דיווחים <span id="adminCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
     <div id="adminReports"></div>
+    <div id="adminCommentReportsWrap" hidden>
+      <div class="adm-sub">💬 דיווחים על תגובות בפורום</div>
+      <div id="adminCommentReports"></div>
+    </div>
   </div>
 
   <div class="myarea-section" id="myAreaOverview" hidden>
@@ -1540,6 +1559,22 @@ if (/[?&]debug\b/.test(location.search)) {
     <button type="button" id="submitPlaceBtn" class="myarea-add-btn">שליחה לבדיקה</button>
     <div id="submitPlaceStatus" class="myarea-item-meta" role="status"></div>
   </div>
+</div>
+<div class="myarea-page" id="forumPage">
+  <button type="button" class="nav-pill shopping-back-btn" onclick="goBack()">→ חזרה</button>
+  <div class="hero-sky">
+    <div class="kicker">✦ מדברים על יפן ✦</div>
+    <h1>💬 פורום</h1>
+  </div>
+  <div id="forumSignedOut" class="myarea-empty" hidden>כדי לכתוב בפורום צריך להתחבר עם גוגל. אפשר לקרוא גם בלי להתחבר.</div>
+  <div class="rv-compose forum-compose" id="forumCompose" hidden>
+    <textarea class="rv-text" id="forumText" maxlength="500" placeholder="מה בא לכם לשתף?" aria-label="תגובה חדשה בפורום"></textarea>
+    <div class="rv-counter"><span id="forumCount">0</span>/500</div>
+    <button type="button" class="rv-submit" id="forumPostBtn">פרסום</button>
+    <div id="forumStatus" class="rv-error" role="alert"></div>
+  </div>
+  <div id="forumList" aria-live="polite"></div>
+  <button type="button" class="myarea-add-btn forum-more" id="forumMore" hidden>טעינת עוד</button>
 </div>
 <div class="itinerary-page" id="itineraryPage">
   <button type="button" class="nav-pill shopping-back-btn" onclick="goBack()">→ חזרה לרשימה</button>
@@ -1771,6 +1806,7 @@ if (/[?&]debug\b/.test(location.search)) {
       <button type="button" class="desk-link" onclick="openOverlay('.about-modal')">ℹ️ מי אני</button>
       <button type="button" class="desk-link" onclick="openOverlay('.roadmap-modal')">🛠️ תכנון</button>
       <button type="button" class="desk-link" onclick="openOverlay('.feedback-modal')">💬 פידבק</button>
+      <button type="button" class="desk-link" data-page="forum" onclick="showPage('forum')">💬 פורום</button>
       <button type="button" class="desk-link" data-theme-toggle onclick="toggleTheme()" aria-label="החלפת מצב תצוגה">🌙</button>
     </nav>
   </header>
@@ -2672,6 +2708,7 @@ function socialErrorText(res) {
   if (res.status === 403 && res.data.error === 'review_removed_by_admin') return 'הביקורת שלך על המקום הזה הוסרה, ולא ניתן לכתוב עליו שוב.';
   if (res.status === 400 && res.data.error === 'invalid_route') return 'המסלול לא תקין לפרסום. בדקו שיש לפחות שתי תחנות מוכרות.';
   if (res.status === 429) return 'הגעת למגבלה היומית. אפשר לנסות שוב מחר.';
+  if (res.status === 409 && res.data.error === 'place_already_suggested') return 'המקום הזה כבר הוצע.';
   if (res.status === 409 && res.data.error === 'already_pending') return 'כבר קיימת הצעה ממתינה עם אותו שם.';
   if (res.status === 409) return 'כבר דיווחת על הביקורת הזו.';
   return 'משהו השתבש, נסי שוב.';
@@ -2700,6 +2737,7 @@ function socialReset() {
 
 // My Area: display name for reviews, plus the report queue for admins.
 function renderSocialMyArea() {
+  if (currentPage === 'forum') initForumPage(); // sign in or out while the forum is open
   document.getElementById('myAreaRatings').hidden = !socialMe;
   document.getElementById('myAreaProfile').hidden = !socialMe;
   document.getElementById('myAreaAdmin').hidden = !(socialMe && socialMe.isAdmin);
@@ -2713,7 +2751,7 @@ function renderSocialMyArea() {
   loadMyRatings();
   loadMySubmissions();
   loadNotifications(currentPage === 'myarea');
-  if (socialMe.isAdmin) { loadAdminReports(); loadAdminQueues(); loadAdminOverview(); }
+  if (socialMe.isAdmin) { loadAdminReports(); loadAdminCommentReports(); loadAdminQueues(); loadAdminOverview(); }
 }
 
 // --- Community: place suggestions, in app notifications and the owner's approval queues (worker migration 0002) ---
@@ -2738,6 +2776,7 @@ document.getElementById('submitPlaceBtn').addEventListener('click', async () => 
     url: document.getElementById('submitUrl').value.trim(),
   };
   if (!mapsLinkLooksValid(payload.url)) { status.textContent = 'צריך קישור ל-Google Maps של המקום.'; return; }
+  if (suggestBlocked) { status.textContent = 'המקום הזה כבר באתר.'; return; }
   if (payload.title.length < 2 || !payload.note) { status.textContent = 'צריך שם מקום ומשפט אחד למה כדאי.'; return; }
   const btn = document.getElementById('submitPlaceBtn');
   btn.disabled = true;
@@ -2746,6 +2785,8 @@ document.getElementById('submitPlaceBtn').addEventListener('click', async () => 
   if (res && res.ok) {
     ['submitTitle', 'submitNote', 'submitUrl'].forEach(id => { document.getElementById(id).value = ''; });
     document.getElementById('submitUrlStatus').textContent = '';
+    suggestCategorizedFor = '';
+    ['submitCategory', 'submitCity'].forEach(id => delete document.getElementById(id).dataset.edited);
     delete document.getElementById('submitTitle').dataset.edited;
     status.textContent = 'נשלח לבדיקה ✓ נעדכן כאן כשייבדק.';
     loadMySubmissions();
@@ -2772,11 +2813,57 @@ function placeNameFromMapsLink(u) {
   } catch (e) { return ''; }
 }
 
+// Is this place already on the site? A place id in the link is exact; a similar name only warns.
+let sitePlaceIndex = null;
+function mapsPlaceId(u) {
+  const m = decodeURIComponent(u.pathname + u.search).match(/!1s(0x[0-9a-f]+:0x[0-9a-f]+)/i);
+  return m ? m[1].toLowerCase() : null;
+}
+function findSitePlace(u) {
+  if (!sitePlaceIndex) {
+    sitePlaceIndex = { ids: new Map(), names: new Map() };
+    DATA.forEach(d => {
+      const link = d.url && parseMapsLink(d.url);
+      const id = link && mapsPlaceId(link);
+      if (id) sitePlaceIndex.ids.set(id, d.title);
+      [d.title, link && placeNameFromMapsLink(link)].filter(Boolean).forEach(n => sitePlaceIndex.names.set(n.toLowerCase(), d.title));
+    });
+  }
+  const id = mapsPlaceId(u);
+  if (id && sitePlaceIndex.ids.has(id)) return { title: sitePlaceIndex.ids.get(id), exact: true };
+  const name = placeNameFromMapsLink(u).toLowerCase();
+  return name && sitePlaceIndex.names.has(name) ? { title: sitePlaceIndex.names.get(name), exact: false } : null;
+}
+
+// Category and city are suggested by the AI from the site's own lists; the visitor can change them.
+let suggestCategorizedFor = '';
+async function suggestCategoryAndCity(name, url) {
+  if (suggestCategorizedFor === url + '|' + name) return '';
+  suggestCategorizedFor = url + '|' + name;
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'categorize_place', name, url: url.slice(0, 300), categories: allCats, cities: [...document.getElementById('submitCity').options].map(o => o.value), sessionId: getAiSessionId() }),
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.result) return '';
+    let filled = false;
+    [['submitCategory', data.result.category], ['submitCity', data.result.city]].forEach(([id, value]) => {
+      const sel = document.getElementById(id);
+      if (value && !sel.dataset.edited) { sel.value = value; filled = true; }
+    });
+    return filled ? ' הקטגוריה והעיר הוצעו אוטומטית, אפשר לשנות.' : '';
+  } catch (e) { return ''; }
+}
+
 let suggestResolveSeq = 0;
+let suggestBlocked = false; // the place is already on the site
 async function onSuggestLinkChange() {
   const input = document.getElementById('submitUrl'), status = document.getElementById('submitUrlStatus'), title = document.getElementById('submitTitle');
   const raw = input.value.trim();
   const seq = ++suggestResolveSeq;
+  suggestBlocked = false;
   if (!raw) { status.textContent = ''; return; }
   const u = parseMapsLink(raw);
   if (!u) { status.textContent = 'זה לא קישור של Google Maps.'; return; }
@@ -2788,13 +2875,20 @@ async function onSuggestLinkChange() {
     if (seq !== suggestResolveSeq) return; // the link changed meanwhile
     if (res && res.ok) { name = res.data.name || ''; if (res.data.url) input.value = res.data.url; }
   }
+  const finalLink = parseMapsLink(input.value) || u;
+  const existing = findSitePlace(finalLink);
+  suggestBlocked = !!(existing && existing.exact);
+  if (suggestBlocked) { status.textContent = 'המקום הזה כבר באתר: ' + existing.title + '.'; return; }
   if (name) {
     if (!title.dataset.edited || !title.value.trim()) { title.value = name; delete title.dataset.edited; }
-    status.textContent = 'השם נלקח מהקישור, אפשר לתקן.';
+    status.textContent = 'השם נלקח מהקישור, אפשר לתקן.' + (existing ? ' יש כבר באתר מקום בשם דומה: ' + existing.title + ', בדקו שזה לא אותו מקום.' : '');
+    const aiNote = await suggestCategoryAndCity(name, input.value.trim());
+    if (seq === suggestResolveSeq && aiNote) status.textContent += aiNote;
   } else {
     status.textContent = 'לא הצלחנו לקרוא שם מהקישור, אפשר להקליד אותו.';
   }
 }
+['submitCategory', 'submitCity'].forEach(id => document.getElementById(id).addEventListener('change', (e) => { e.target.dataset.edited = '1'; }));
 document.getElementById('submitUrl').addEventListener('change', onSuggestLinkChange);
 document.getElementById('submitUrl').addEventListener('paste', () => setTimeout(onSuggestLinkChange, 0));
 document.getElementById('submitTitle').addEventListener('input', (e) => { e.target.dataset.edited = '1'; });
@@ -2888,6 +2982,34 @@ async function loadAdminOverview() {
       (u.lastReviewAt ? ' · אחרונה ' + esc(overviewDate(u.lastReviewAt)) : '') + '</div>').join('') + '</details>';
   section.hidden = false;
 }
+
+async function loadAdminCommentReports() {
+  const wrap = document.getElementById('adminCommentReportsWrap'), el = document.getElementById('adminCommentReports');
+  const res = await socialCall('admin_list_comment_reports');
+  if (!res || socialUnsupported(res)) { wrap.hidden = true; return; }
+  wrap.hidden = false;
+  if (!res.ok) { el.innerHTML = '<div class="myarea-empty">' + esc(socialErrorText(res)) + '</div>'; return; }
+  const reports = res.data.reports || [];
+  el.innerHTML = reports.length ? reports.map(r =>
+    '<div class="adm-item">' +
+      '<div class="adm-title">' + esc(r.authorName) + (r.hidden ? ' · מוסתר' : '') + '</div>' +
+      '<p class="rv-text-out">' + esc(r.text) + '</p>' +
+      '<ul class="adm-reasons">' + r.reports.map(x => '<li>' + (x.reason ? esc(x.reason) : 'ללא סיבה') + '</li>').join('') + '</ul>' +
+      '<div class="adm-actions">' +
+        '<button type="button" class="rv-action" data-cresolution="deleted" data-id="' + Number(r.commentId) + '">🗑️ מחיקה</button>' +
+        '<button type="button" class="rv-action" data-cresolution="dismissed" data-id="' + Number(r.commentId) + '">✓ דחיית הדיווחים</button>' +
+      '</div>' +
+    '</div>').join('') : '<div class="myarea-empty">אין דיווחים על תגובות ✓</div>';
+}
+
+document.getElementById('adminCommentReports').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-cresolution]');
+  if (!btn) return;
+  if (btn.dataset.cresolution === 'deleted' && !confirm('למחוק את התגובה?')) return;
+  const res = await socialCall('admin_resolve_comment_report', { commentId: Number(btn.dataset.id), resolution: btn.dataset.cresolution });
+  if (res && res.ok) { loadAdminCommentReports(); if (currentPage === 'forum') loadForum(false); }
+  else if (res) document.getElementById('adminCommentReports').insertAdjacentHTML('afterbegin', '<div class="rv-error" role="alert">' + esc(socialErrorText(res)) + '</div>');
+});
 
 function adminQueueItemHtml(kind, id, title, bodyHtml) {
   const attrs = ' data-kind="' + kind + '" data-id="' + id + '"';
@@ -2983,6 +3105,145 @@ document.getElementById('profileNameSave').addEventListener('click', async () =>
   const res = await socialCall('update_profile', { displayName: name });
   if (res && res.ok) { socialMe.displayName = res.data.displayName; status.textContent = 'נשמר ✓'; }
   else if (res) status.textContent = socialErrorText(res);
+});
+
+// --- Forum: public comments board. Reading works signed out; the token is sent only when there is one. ---
+const FORUM_TEXT_MAX = 500;
+let forumState = { comments: [], hasMore: false, unsupported: false, error: '', loading: false };
+let forumSeq = 0;
+
+async function forumList(before) {
+  const payload = { action: 'list_comments' };
+  if (before) payload.before = before;
+  if (currentIdToken) payload.idToken = currentIdToken;
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    return { ok: resp.ok, status: resp.status, data: await resp.json().catch(() => ({})) };
+  } catch (e) {
+    return { ok: false, status: 0, data: {} };
+  }
+}
+
+function forumErrorText(res) {
+  if (res.status === 400 && res.data.error === 'invalid_comment') return 'התגובה צריכה להכיל טקסט, עד ' + FORUM_TEXT_MAX + ' תווים.';
+  if (res.status === 409 && res.data.error === 'already_reported') return 'כבר דיווחת על התגובה הזו.';
+  if (res.status === 403 && res.data.error === 'cannot_report_own_comment') return 'אי אפשר לדווח על תגובה שלך.';
+  if (res.status === 429) return 'יותר מדי פעולות בזמן קצר. נסו שוב בעוד כמה דקות.';
+  return socialErrorText(res);
+}
+
+function forumAgo(sec) {
+  const s = Math.max(0, Math.floor(Date.now() / 1000 - sec));
+  const unit = (n, one, two, many) => 'לפני ' + (n === 1 ? one : n === 2 ? two : n + ' ' + many);
+  if (s < 60) return 'הרגע';
+  if (s < 3600) return unit(Math.floor(s / 60), 'דקה', 'שתי דקות', 'דקות');
+  if (s < 86400) return unit(Math.floor(s / 3600), 'שעה', 'שעתיים', 'שעות');
+  if (s < 7 * 86400) return unit(Math.floor(s / 86400), 'יום', 'יומיים', 'ימים');
+  return reviewDate(sec);
+}
+
+function forumRowHtml(c) {
+  const canDelete = c.mine || (socialMe && socialMe.isAdmin);
+  const id = Number(c.id);
+  const report = (!socialMe || c.mine) ? '' :
+    '<button type="button" class="rv-action" data-fact="report-open" data-id="' + id + '">🚩 דיווח</button>';
+  const del = canDelete ? '<button type="button" class="rv-action" data-fact="delete" data-id="' + id + '">🗑️ מחיקה</button>' : '';
+  return '<div class="rv-row forum-row" data-id="' + id + '">' +
+    '<div class="rv-row-head"><span class="rv-name">' + esc(c.authorName) + '</span><span class="rv-date">' + esc(forumAgo(c.createdAt)) + '</span></div>' +
+    '<p class="rv-text-out">' + esc(c.text) + '</p>' +
+    (c.hidden ? '<div class="rv-pending">ממתין לבדיקה</div>' : '') +
+    '<div class="rv-actions">' + report + del + '</div>' +
+    (report ? '<div class="forum-report" hidden><input type="text" class="myarea-note-input" maxlength="300" placeholder="סיבת הדיווח (לא חובה)" aria-label="סיבת הדיווח">' +
+      '<button type="button" class="rv-action" data-fact="report-send" data-id="' + id + '">שליחת דיווח</button></div>' : '') +
+    '<div class="rv-error forum-row-error" role="alert"></div>' +
+  '</div>';
+}
+
+function renderForum() {
+  const st = forumState;
+  const list = document.getElementById('forumList');
+  document.getElementById('forumMore').hidden = !st.hasMore || st.unsupported;
+  if (st.unsupported) { list.innerHTML = '<div class="myarea-empty">הפורום עדיין לא זמין</div>'; return; }
+  const shown = st.comments.filter(c => !c.hidden || c.mine || (socialMe && socialMe.isAdmin));
+  list.innerHTML = (st.error ? '<div class="rv-error" role="alert">' + esc(st.error) + '</div>' : '') +
+    (shown.length ? shown.map(forumRowHtml).join('') : (st.loading || st.error ? '' : '<div class="rv-empty">עדיין אין תגובות, אפשר להיות הראשונים</div>'));
+}
+
+async function loadForum(more) {
+  const st = forumState;
+  const seq = ++forumSeq;
+  const before = more && st.comments.length ? st.comments[st.comments.length - 1].id : null;
+  const res = await forumList(before);
+  if (seq !== forumSeq) return; // a newer load started meanwhile
+  st.error = '';
+  if (socialUnsupported(res)) { st.unsupported = true; st.comments = []; st.hasMore = false; }
+  else if (!res.ok) { st.unsupported = false; st.error = socialErrorText(res); }
+  else {
+    st.unsupported = false;
+    st.comments = (more ? st.comments : []).concat(res.data.comments || []);
+    st.hasMore = !!res.data.hasMore;
+  }
+  renderForum();
+  document.getElementById('forumCompose').hidden = !socialMe || st.unsupported;
+}
+
+function initForumPage() {
+  document.getElementById('forumCompose').hidden = !socialMe || forumState.unsupported;
+  document.getElementById('forumSignedOut').hidden = !!socialMe;
+  loadForum(false);
+}
+
+document.getElementById('forumText').addEventListener('input', (e) => {
+  document.getElementById('forumCount').textContent = e.target.value.length;
+  document.getElementById('forumStatus').textContent = '';
+});
+
+document.getElementById('forumPostBtn').addEventListener('click', async () => {
+  const input = document.getElementById('forumText'), status = document.getElementById('forumStatus');
+  const text = input.value.trim();
+  if (!text) { status.textContent = 'כתבו משהו לפני הפרסום.'; return; }
+  if (text.length > FORUM_TEXT_MAX) { status.textContent = 'התגובה ארוכה מדי, עד ' + FORUM_TEXT_MAX + ' תווים.'; return; }
+  const btn = document.getElementById('forumPostBtn');
+  btn.disabled = true;
+  const res = await socialCall('post_comment', { text });
+  btn.disabled = false;
+  if (res && res.ok) {
+    input.value = '';
+    document.getElementById('forumCount').textContent = '0';
+    status.textContent = '';
+    loadForum(false);
+  } else if (res) {
+    status.textContent = socialUnsupported(res) ? 'הפורום עדיין לא זמין' : forumErrorText(res);
+  }
+});
+
+document.getElementById('forumMore').addEventListener('click', () => loadForum(true));
+
+document.getElementById('forumList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-fact]');
+  if (!btn) return;
+  const row = btn.closest('.forum-row');
+  const id = Number(btn.dataset.id), err = row.querySelector('.forum-row-error');
+  const act = btn.dataset.fact;
+  err.textContent = '';
+  if (act === 'report-open') {
+    row.querySelector('.forum-report').hidden = false;
+    row.querySelector('.forum-report input').focus();
+    return;
+  }
+  if (act === 'delete' && !confirm('למחוק את התגובה?')) return;
+  const res = act === 'delete'
+    ? await socialCall('delete_comment', { commentId: id })
+    : await socialCall('report_comment', { commentId: id, reason: row.querySelector('.forum-report input').value.trim() });
+  if (!res) return;
+  if (!res.ok) { err.textContent = socialUnsupported(res) ? 'הפורום עדיין לא זמין' : forumErrorText(res); return; }
+  if (act === 'delete') {
+    forumState.comments = forumState.comments.filter(c => Number(c.id) !== id);
+    renderForum();
+  } else {
+    row.querySelector('.forum-report').hidden = true;
+    row.querySelector('.rv-actions').innerHTML = '<span class="rv-action" aria-disabled="true">🚩 דווח, תודה</span>';
+  }
 });
 
 function starsText(n) {
@@ -3172,8 +3433,8 @@ document.getElementById('vegOnly').addEventListener('change', e => { vegOnly = e
 // --- Page navigation and overlays ---
 // One place opens and closes the full pages, so the browser back button,
 // Escape and scroll position behave the same everywhere. null is the home list.
-const PAGE_IDS = { shopping: 'shoppingPage', lodging: 'lodgingPage', itinerary: 'itineraryPage', myarea: 'myAreaPage', suggest: 'suggestPage' };
-const PAGE_INIT = { lodging: () => lodgingInit(), myarea: () => renderMyArea(), suggest: () => initSuggestPage() };
+const PAGE_IDS = { shopping: 'shoppingPage', lodging: 'lodgingPage', itinerary: 'itineraryPage', myarea: 'myAreaPage', suggest: 'suggestPage', forum: 'forumPage' };
+const PAGE_INIT = { lodging: () => lodgingInit(), myarea: () => renderMyArea(), suggest: () => initSuggestPage(), forum: () => initForumPage() };
 let currentPage = null;
 let homeScrollY = 0;
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -4914,6 +5175,16 @@ function itinRenderRoute() {
   document.getElementById('itinAnalysis').hidden = itinRoute.length < 2;
   const refocus = focusKey && document.querySelector('#itinMainScreen [data-f="' + focusKey + '"]');
   if (refocus && !refocus.disabled) refocus.focus();
+  itinKeepMenuOnScreen();
+}
+
+// The row menu opens from a button at the screen edge; shift it back inside the viewport when it would be cut off.
+function itinKeepMenuOnScreen() {
+  const menu = document.querySelector('#itinMainScreen .it-menu');
+  if (!menu) return;
+  const r = menu.getBoundingClientRect(), vw = document.documentElement.clientWidth, pad = 8;
+  if (r.left < pad) menu.style.transform = 'translateX(' + (pad - r.left) + 'px)';
+  else if (r.right > vw - pad) menu.style.transform = 'translateX(' + (vw - pad - r.right) + 'px)';
 }
 
 function itinToggleMenu(which) {
