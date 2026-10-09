@@ -517,7 +517,7 @@ if (/[?&]debug\b/.test(location.search)) {
   }
   .stamp-caption { font-family: var(--pixel), 'Heebo', sans-serif; font-weight: 600; font-size: 0.75rem; line-height: 1.6; color: var(--muted); text-align: center; margin-top: 0.3rem; max-width: 80px; }
   /* === מסלולים (itinerary builder) === */
-  .it-map-wrap { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 0.6rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .it-map-wrap { position: relative; isolation: isolate; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 0.6rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
   #itinSummaryMap { height: 260px; background: var(--paper); }
   .leaflet-popup-content-wrapper { background: var(--surface); color: var(--ink); border-radius: 8px; }
   .leaflet-popup-content { font-family: 'Heebo', sans-serif; font-size: 0.78rem; direction: rtl; }
@@ -691,6 +691,18 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-summary-name:hover { color: var(--accent); }
   .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.6rem 0.8rem; margin: 0.2rem 0 0.6rem; }
   .it-summary-nights { font-size: 0.9rem; color: var(--muted); }
+  .it-plan-pick { display:flex; flex-direction:column; align-items:flex-start; width:100%; min-height:44px; padding:0.4rem 0.6rem; background:none; border:0; border-bottom:1px solid var(--border); color:var(--ink); font-family:inherit; text-align:start; cursor:pointer; }
+  .it-plan { margin: 0.3rem 0 0.6rem; padding: 0.3rem 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+  .it-plan > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
+  .it-plan-day { padding: 0.4rem 0; border-top: 1px solid var(--border); }
+  .it-plan-day-title { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+  .it-plan a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+  #itinPlanSheet input { font-size: 16px; }
+  .it-plan-item { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; padding: 0.2rem 0; }
+  .it-plan-item-main { flex: 1 1 8rem; min-width: 0; overflow-wrap: anywhere; }
+  .it-plan-item-name { font-size: 0.9rem; font-weight: 600; }
+  .it-plan-item-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; margin-inline-start: auto; }
+  .it-plan-hotel { display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0; font-size: 0.9rem; overflow-wrap: anywhere; }
   .it-summary-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 4px; padding: 0 0 0.3rem; border-bottom: 1px solid var(--border); }
   .it-summary-stop .it-summary-row { border-bottom: 0; padding-bottom: 0; }
   .it-summary-remove { color: #e08c5a; }
@@ -1494,6 +1506,10 @@ if (/[?&]debug\b/.test(location.search)) {
     <button type="button" class="myarea-add-btn" onclick="showPage('forum')">💬 לפורום</button>
   </div>
 
+  <div class="myarea-section" id="myAreaSignIn" hidden>
+    <div class="myarea-empty">התחברו כדי לראות כאן התראות, הצעות מקומות, דירוגים ופרופיל, ולשמור את הכל בין מכשירים.<div id="myAreaSignInBtn" style="margin-top:0.6rem; display:flex; justify-content:center;"></div></div>
+  </div>
+
   <div class="myarea-section" id="myAreaNotifications" hidden>
     <div class="myarea-section-title">🔔 התראות</div>
     <div id="notificationsList"></div>
@@ -1776,6 +1792,25 @@ if (/[?&]debug\b/.test(location.search)) {
     <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
     <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
   </div>
+    <div class="it-sheet-overlay" id="itinPlanOverlay" onclick="itinPlanCloseSheet()"></div>
+    <div class="it-sheet" id="itinPlanSheet" role="dialog" aria-modal="true" aria-labelledby="itinPlanSheetTitle" tabindex="-1">
+      <div class="it-sheet-head">
+        <h3 id="itinPlanSheetTitle"></h3>
+        <button type="button" class="it-icon-btn" aria-label="סגירה" onclick="itinPlanCloseSheet()">✕</button>
+      </div>
+      <div id="itinPlanItemTools">
+        <div id="itinPlanLimit" class="myarea-item-meta" role="status"></div>
+        <label class="it-field-label" for="itinPlanSearch">חיפוש מקום באתר</label>
+        <input type="text" class="it-search-input" id="itinPlanSearch" oninput="itinPlanRenderList()">
+        <div id="itinPlanList"></div>
+        <div class="it-section-label">מקום משלי מגוגל מפות</div>
+        <div id="itinPlanCustom"></div>
+        <div class="it-section-label">הערה חופשית</div>
+        <input type="text" class="it-search-input" id="itinPlanNote" maxlength="300" aria-label="הערה חופשית">
+        <button type="button" class="myarea-add-btn" id="itinPlanNoteAdd" onclick="itinPlanAddNote()">הוסיפו הערה</button>
+      </div>
+      <div id="itinPlanHotelTools" hidden></div>
+    </div>
 </div>
 <div class="page">
   <header class="site-header">
@@ -2573,11 +2608,14 @@ function initGoogleSignIn(attempt = 0) {
     // Already showing the cached identity — a failed/suppressed silent
     // prompt should just leave that in place, not fall back to a visible
     // sign-in button the person didn't ask for.
+    // The cached name only shows what the last visit looked like. Without a token nothing social works (ratings,
+    // suggestions, notifications, sync), which is what phones hit when the browser suppresses the silent reconnect.
+    // So when it does not come back, show the sign in button instead of a signed in look that does nothing.
+    const giveUp = () => { if (!currentIdToken) showSignedOutUI(); };
     google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        setSyncStatus(''); // nothing to press here, so show no status instead of a prompt that does nothing
-      }
+      if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) giveUp();
     });
+    setTimeout(giveUp, 8000); // some browsers never call back
   } else {
     google.accounts.id.prompt();
   }
@@ -2669,14 +2707,18 @@ function cloudSyncDebounced() {
   cloudSyncTimer = setTimeout(cloudSaveNow, 1500);
 }
 
-document.getElementById('authSignOutBtn').addEventListener('click', () => {
+function showSignedOutUI() {
   currentIdToken = null;
-  try { localStorage.removeItem(AUTH_PROFILE_CACHE_KEY); } catch (e) {}
-  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
   document.getElementById('googleSignInBtn').style.display = '';
   document.getElementById('authSignedIn').style.display = 'none';
   document.body.classList.remove('signed-in');
   socialReset();
+}
+
+document.getElementById('authSignOutBtn').addEventListener('click', () => {
+  try { localStorage.removeItem(AUTH_PROFILE_CACHE_KEY); } catch (e) {}
+  if (typeof google !== 'undefined' && google.accounts) google.accounts.id.disableAutoSelect();
+  showSignedOutUI();
 });
 
 // --- Social: reviews (docs/reviews.spec.md) ---
@@ -2741,6 +2783,10 @@ function renderSocialMyArea() {
   document.getElementById('myAreaRatings').hidden = !socialMe;
   document.getElementById('myAreaProfile').hidden = !socialMe;
   document.getElementById('myAreaAdmin').hidden = !(socialMe && socialMe.isAdmin);
+  document.getElementById('myAreaSignIn').hidden = !!socialMe;
+  if (!socialMe && typeof google !== 'undefined' && google.accounts && !document.getElementById('myAreaSignInBtn').firstChild) {
+    google.accounts.id.renderButton(document.getElementById('myAreaSignInBtn'), { theme: 'outline', size: 'medium', text: 'signin', shape: 'pill', locale: 'iw' });
+  }
   document.getElementById('myAreaSubmit').hidden = !socialMe;
   document.getElementById('myAreaNotifications').hidden = !socialMe;
   document.getElementById('myAreaAdminQueues').hidden = !(socialMe && socialMe.isAdmin);
@@ -2775,7 +2821,7 @@ document.getElementById('submitPlaceBtn').addEventListener('click', async () => 
     note: document.getElementById('submitNote').value.trim(),
     url: document.getElementById('submitUrl').value.trim(),
   };
-  if (!mapsLinkLooksValid(payload.url)) { status.textContent = 'צריך קישור ל-Google Maps של המקום.'; return; }
+  if (!mapsLinkLooksValid(payload.url)) { status.textContent = 'צריך קישור של Google Maps למקום.'; return; }
   if (suggestBlocked) { status.textContent = 'המקום הזה כבר באתר.'; return; }
   if (payload.title.length < 2 || !payload.note) { status.textContent = 'צריך שם מקום ומשפט אחד למה כדאי.'; return; }
   const btn = document.getElementById('submitPlaceBtn');
@@ -4610,6 +4656,44 @@ let itinLockedStops = new Set(); // stop names the auto-optimizer must never rep
 let itinUndoStack = []; // snapshots taken before each mutating action, for the undo button
 let itinUsedNames = new Set();
 let itinExtraNights = []; // parallel to itinRoute: extra nights added/removed by the user beyond the default estimate
+let itinPlan = []; // parallel to itinRoute: { hotel, days } per stop, see docs/superpowers/specs/2026-10-09-trip-plan-design.md
+
+const ITIN_PLAN_MAX_ITEMS = 120; // total items across all stops and days, keeps the cloud blob under the worker's 200 KB limit
+function itinPlanItemCount() { return itinPlan.reduce((n, p) => n + p.days.reduce((m, d) => m + d.length, 0), 0); }
+function itinNewStopPlan() { return { hotel: null, days: [[]] }; }
+
+const itinStr = (v, max) => (typeof v === 'string' ? v.slice(0, max) : '');
+// Items from storage or the cloud are untrusted: keep only known shapes and string fields.
+function itinCleanItem(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (raw.type === 'place' && itinStr(raw.ref, 120)) return { type: 'place', ref: itinStr(raw.ref, 120), note: itinStr(raw.note, 200) };
+  if (raw.type === 'custom' && itinStr(raw.name, 80)) return { type: 'custom', name: itinStr(raw.name, 80), url: itinStr(raw.url, 600), note: itinStr(raw.note, 200) };
+  if (raw.type === 'note' && itinStr(raw.text, 300)) return { type: 'note', text: itinStr(raw.text, 300) };
+  return null;
+}
+function itinNormalizePlan(plan, len) {
+  let room = ITIN_PLAN_MAX_ITEMS;
+  return Array.from({ length: len }, (_, i) => {
+    const p = Array.isArray(plan) ? plan[i] : null;
+    if (!p || typeof p !== 'object') return itinNewStopPlan();
+    const hotel = p.hotel && itinStr(p.hotel.name, 80) ? { name: itinStr(p.hotel.name, 80), url: itinStr(p.hotel.url, 600), note: itinStr(p.hotel.note, 200) } : null;
+    const days = (Array.isArray(p.days) ? p.days : []).slice(0, 30).map(day => { const kept = (Array.isArray(day) ? day : []).map(itinCleanItem).filter(Boolean).slice(0, room); room -= kept.length; return kept; });
+    return { hotel, days: days.length ? days : [[]] };
+  });
+}
+// A stop has one day per night, at least one, so a day trip is one day.
+function itinStopDayCount(i) {
+  const d = ITIN_DESTINATIONS.find(x => x.name === itinRoute[i]);
+  return Math.max(1, d ? itinGetNights(d, i) : 1);
+}
+// Grows or shrinks the days of stop i to match its nights. Items of removed days fold into the last day, nothing is lost.
+function itinFitPlanDays(i) {
+  const p = itinPlan[i] || (itinPlan[i] = itinNewStopPlan());
+  const n = itinStopDayCount(i);
+  while (p.days.length < n) p.days.push([]);
+  while (p.days.length > n) { const last = p.days.pop(); p.days[p.days.length - 1].push(...last); }
+}
+function itinFitAllPlanDays() { itinRoute.forEach((_, i) => itinFitPlanDays(i)); }
 let itinSearchQuery = '';
 
 const ITIN_SAVE_KEY = 'itinSavedRouteV1';
@@ -4665,6 +4749,7 @@ function itinSaveState() {
     const payload = {
       route: itinRoute,
       extraNights: itinExtraNights,
+      plan: itinPlan,
       lockedStops: [...itinLockedStops],
       startDate: itinStartDate,
       savedAt: Date.now(),
@@ -4734,6 +4819,8 @@ function itinResumeSavedRoute() {
   if (!saved) { itinGoStart(); return; }
   itinRoute = saved.route;
   itinExtraNights = itinSavedExtraNights(saved);
+  itinPlan = itinNormalizePlan(saved.plan, saved.route.length);
+  itinFitAllPlanDays();
   itinLockedStops = new Set(saved.lockedStops || []);
   itinStartDate = saved.startDate || null;
   itinUsedNames = new Set(itinRoute);
@@ -4892,6 +4979,7 @@ function itinSnapshotForUndo() {
   itinUndoStack.push({
     route: itinRoute.slice(),
     extraNights: itinExtraNights.slice(),
+    plan: JSON.parse(JSON.stringify(itinPlan)),
     lockedStops: new Set(itinLockedStops),
   });
   if (itinUndoStack.length > 20) itinUndoStack.shift(); // cap history so it can't grow unbounded
@@ -4902,6 +4990,7 @@ function itinUndo() {
   const snap = itinUndoStack.pop();
   itinRoute = snap.route;
   itinExtraNights = snap.extraNights;
+  itinPlan = snap.plan;
   itinLockedStops = snap.lockedStops;
   itinUsedNames = new Set(itinRoute);
   itinEditingStopIndex = null;
@@ -5226,9 +5315,11 @@ function itinToggleMapStrip() {
 
 function itinReorderStop(from, to) {
   if (from === to || from < 0 || to < 0 || from >= itinRoute.length || to >= itinRoute.length) return;
+  itinPlanOpen.clear();
   itinSnapshotForUndo();
   itinRoute.splice(to, 0, itinRoute.splice(from, 1)[0]);
   itinExtraNights.splice(to, 0, itinExtraNights.splice(from, 1)[0]);
+  itinPlan.splice(to, 0, itinPlan.splice(from, 1)[0]);
   itinEditingStopIndex = null;
   itinRender();
 }
@@ -5311,8 +5402,13 @@ function itinAdjustNightsAt(index, delta) {
   const next = (itinExtraNights[index] || 0) + delta;
   if (itinParseNightsNum(d.nights) + next < 0) return;
   itinSnapshotForUndo();
+  const depth = itinUndoStack.length;
   itinExtraNights[index] = next;
+  const before = itinPlan[index] ? itinPlan[index].days : [];
+  const folds = before.slice(itinStopDayCount(index)).some(day => day.length > 0);
+  itinFitPlanDays(index);
   itinRender();
+  if (folds) showUndoToast('הימים אוחדו, הפריטים עברו ליום האחרון', () => { if (itinUndoStack.length === depth) itinUndo(); });
 }
 
 function itinMatchHits(d) {
@@ -5600,6 +5696,7 @@ function itinAddFromSheet(name) {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('itinAddSheet').classList.contains('open')) itinCloseAddSheet();
+  if (e.key === 'Escape' && document.getElementById('itinPlanSheet').classList.contains('open')) itinPlanCloseSheet();
 });
 
 // Each template is a real, graph-connected sequence (verified against
@@ -6344,6 +6441,9 @@ function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
   itinRoute = route.slice();
   itinUsedNames = new Set(route);
   itinExtraNights = route.map((_, i) => (extraNights && extraNights[i]) || 0);
+  itinPlan = itinNormalizePlan(null, route.length);
+  itinPlanOpen.clear();
+  itinFitAllPlanDays();
   itinUndoStack = [];
   itinDraftNote = extraNote || '';
   itinShowScreen('itinMainScreen');
@@ -6355,8 +6455,11 @@ function itinChooseStart(name) {
   itinBuildMethod = 'manual';
   itinDraftNote = '';
   itinExtraNights = [0];
+  itinPlan = [itinNewStopPlan()];
+  itinPlanOpen.clear();
   itinLockedStops = new Set();
   itinRoute = [name];
+  itinFitPlanDays(0);
   itinUsedNames = new Set([name]);
   itinUndoStack = [];
   itinShowScreen('itinMainScreen');
@@ -6375,6 +6478,8 @@ function itinAddStop(name) {
   const d = ITIN_DESTINATIONS.find(x => x.name === name);
   itinExtraNights.push(d && itinParseNightsNum(d.nights) >= 1 ? 2 - itinParseNightsNum(d.nights) : 0);
   itinRoute.push(name);
+  itinPlan.push(itinNewStopPlan());
+  itinFitPlanDays(itinPlan.length - 1);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
   itinRender();
@@ -6385,9 +6490,11 @@ function itinRemoveStop(index) {
   // meant fixing one accidental extra stop (e.g. a duplicate visit added by
   // mistake) also wiped out every stop planned after it.
   if (index <= 0 || index >= itinRoute.length) return;
+  itinPlanOpen.clear();
   itinSnapshotForUndo();
   itinRoute.splice(index, 1);
   itinExtraNights.splice(index, 1);
+  itinPlan.splice(index, 1);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
   itinEditingStopIndex = null;
@@ -6402,6 +6509,7 @@ function itinResetFilters() {
 }
 function itinResetRoute() {
   itinCloseAddSheet();
+  itinPlanCloseSheet();
   itinRoute = [];
   itinUsedNames = new Set();
   itinLockedStops = new Set();
@@ -6418,6 +6526,8 @@ function itinResetRoute() {
   itinQuizDateMode = 'nights';
   itinActiveSeason = null;
   itinExtraNights = [];
+  itinPlan = [];
+  itinPlanOpen.clear();
   itinDraftNote = '';
   itinStartDate = null;
   itinEditingStopIndex = null;
@@ -6618,6 +6728,7 @@ function itinApplyOptimizedRoute() {
   if (!itinPendingOptimizedRoute) return;
   itinRoute = itinPendingOptimizedRoute.slice();
   itinExtraNights = itinPendingOptimizedOrder.map(i => itinExtraNights[i] || 0);
+  itinPlan = itinPendingOptimizedOrder.map(i => itinPlan[i]);
   itinPendingOptimizedRoute = null;
   itinPendingOptimizedOrder = null;
   itinEditingStopIndex = null;
@@ -6798,9 +6909,236 @@ function itinRenderSummaryList() {
         (i < stops.length - 1 ? '<button type="button" class="it-icon-btn" aria-label="הזיזו את ' + d.name + ' למטה" onclick="itinMoveStop(' + i + ', 1)">↓</button>' : '') +
         itinStepperHtml(i, d.name) +
         (i > 0 ? '<button type="button" class="it-icon-btn it-summary-remove" aria-label="הסירו את ' + d.name + ' מהמסלול" onclick="itinFocusKey=\'drag' + (i - 1) + '\';itinRemoveStop(' + i + ')">✕</button>' : '') +
-      '</div>' + detailHtml + '</div>';
+      '</div>' + itinPlanHtml(i) + detailHtml + '</div>';
   }).join('');
   return { stops, totalDays };
+}
+
+let itinPlanOpen = new Set(); // stop indexes whose plan block is open, so edits do not collapse it
+
+function itinAddDaysISO(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+function itinItemLabel(item) {
+  if (item.type === 'place') {
+    const d = DATA.find(x => x.title === item.ref);
+    return { name: item.ref, meta: d ? [d.category, d.city].filter(Boolean).join(' · ') : '' };
+  }
+  if (item.type === 'custom') return { name: item.name, meta: 'המקום שלי' };
+  return { name: item.text, meta: 'הערה' };
+}
+
+function itinPlanItemHtml(i, di, k, item, last) {
+  const { name, meta } = itinItemLabel(item);
+  const at = ' data-stop="' + i + '" data-day="' + di + '" data-k="' + k + '"';
+  const link = item.type === 'custom' && parseMapsLink(item.url)
+    ? ' <a href="' + escAttr(parseMapsLink(item.url).href) + '" target="_blank" rel="noopener noreferrer">במפה</a>' : '';
+  return '<div class="it-plan-item"><div class="it-plan-item-main"><div class="it-plan-item-name">' + esc(name) + link + '</div>' +
+    (meta ? '<div class="myarea-item-meta">' + esc(meta) + '</div>' : '') + '</div>' +
+    '<div class="it-plan-item-tools">' +
+      (k > 0 ? '<button type="button" class="it-icon-btn" data-plan="item-up" aria-label="הזיזו למעלה"' + at + '>↑</button>' : '') +
+      (!last ? '<button type="button" class="it-icon-btn" data-plan="item-down" aria-label="הזיזו למטה"' + at + '>↓</button>' : '') +
+      '<button type="button" class="it-icon-btn" data-plan="item-prev-day" aria-label="העבירו ליום הקודם"' + at + '>‹</button>' +
+      '<button type="button" class="it-icon-btn" data-plan="item-next-day" aria-label="העבירו ליום הבא"' + at + '>›</button>' +
+      '<button type="button" class="it-icon-btn" data-plan="item-remove" aria-label="הסרה"' + at + '>✕</button>' +
+    '</div></div>';
+}
+
+function itinPlanHtml(i) {
+  const p = itinPlan[i];
+  if (!p) return '';
+  const stopDates = (itinRouteDates() || { stops: [] }).stops[i];
+  const count = p.days.reduce((n, day) => n + day.length, 0);
+  const hotelHtml = p.hotel
+    ? '<div class="it-plan-hotel">🏨 ' + esc(p.hotel.name) + (parseMapsLink(p.hotel.url) ? ' <a href="' + escAttr(parseMapsLink(p.hotel.url).href) + '" target="_blank" rel="noopener noreferrer">במפה</a>' : '') +
+      ' <button type="button" class="it-icon-btn" data-plan="hotel-clear" data-stop="' + i + '" aria-label="הסרת המלון">✕</button></div>'
+    : '<button type="button" class="it-link-btn" data-plan="hotel-open" data-stop="' + i + '">+ הוסיפו מלון</button>';
+  const daysHtml = p.days.map((items, di) => {
+    const title = stopDates ? 'יום ' + (di + 1) + ' · ' + itinShortDate(itinAddDaysISO(stopDates.checkIn, di)) : 'יום ' + (di + 1);
+    return '<div class="it-plan-day"><div class="it-plan-day-title">' + title + '</div>' +
+      items.map((it, k) => itinPlanItemHtml(i, di, k, it, k === items.length - 1)).join('') +
+      '<button type="button" class="it-link-btn" data-plan="add-open" data-stop="' + i + '" data-day="' + di + '">+ הוסיפו ליום</button></div>';
+  }).join('');
+  return '<details class="it-plan" data-stop="' + i + '"' + (itinPlanOpen.has(i) ? ' open' : '') + '><summary>תכנון ימים' + (count ? ' (' + count + ')' : '') + '</summary>' + hotelHtml + daysHtml + '</details>';
+}
+
+document.getElementById('itinSummaryList').addEventListener('toggle', (e) => {
+  if (!e.target.matches || !e.target.matches('.it-plan')) return;
+  const i = Number(e.target.dataset.stop);
+  if (e.target.open) itinPlanOpen.add(i); else itinPlanOpen.delete(i);
+}, true);
+
+let itinPlanSheetTarget = null;
+let itinPlanSheetOpener = null;
+
+function itinPlanOpenSheet(stop, day, kind) {
+  itinPlanSheetTarget = { stop, day, kind };
+  itinPlanSheetOpener = document.activeElement;
+  document.getElementById('itinPlanSheetTitle').textContent = kind === 'hotel' ? 'מלון ב' + itinRoute[stop] : 'הוסיפו ליום ' + (day + 1) + ' ב' + itinRoute[stop];
+  document.getElementById('itinPlanItemTools').hidden = kind === 'hotel';
+  document.getElementById('itinPlanHotelTools').hidden = kind !== 'hotel';
+  document.getElementById('itinPlanOverlay').classList.add('open');
+  const sheet = document.getElementById('itinPlanSheet');
+  sheet.classList.add('open');
+  sheet.scrollTop = 0;
+  sheet.focus();
+  document.getElementById('itinPlanSearch').value = '';
+  document.getElementById('itinPlanLimit').textContent = '';
+  itinPlanRenderList();
+  if (kind === 'hotel') itinPlanRenderHotel();
+  else itinPlanRenderCustom();
+}
+function itinPlanCloseSheet() {
+  document.getElementById('itinPlanOverlay').classList.remove('open');
+  document.getElementById('itinPlanSheet').classList.remove('open');
+  itinPlanSheetTarget = null;
+  if (itinPlanSheetOpener && itinPlanSheetOpener.focus) itinPlanSheetOpener.focus();
+  itinPlanSheetOpener = null;
+}
+// Saved places first, then every place matching the search (title or city), at most 40 rows.
+function itinPlanRenderList() {
+  const q = document.getElementById('itinPlanSearch').value.trim().toLowerCase();
+  const saved = new Set(listLiveKeys(savedRecs));
+  const rows = DATA.filter(d => (!q && saved.has(d.title)) || (q && (d.title.toLowerCase().includes(q) || (d.city || '').toLowerCase().includes(q))))
+    .sort((a, b) => saved.has(b.title) - saved.has(a.title)).slice(0, 40);
+  document.getElementById('itinPlanList').innerHTML = rows.length
+    ? rows.map(d => '<button type="button" class="it-plan-pick" data-title="' + escAttr(d.title) + '"><b>' + (saved.has(d.title) ? '♥ ' : '') + esc(d.title) + '</b><span class="myarea-item-meta">' + esc([d.category, d.city].filter(Boolean).join(' · ')) + '</span></button>').join('')
+    : '<div class="myarea-empty">' + (q ? 'לא נמצאו מקומות.' : 'עוד לא שמרתם מקומות. אפשר לחפש.') + '</div>';
+}
+document.getElementById('itinPlanList').addEventListener('click', (e) => {
+  const btn = e.target.closest('.it-plan-pick');
+  if (btn) itinPlanAdd({ type: 'place', ref: btn.dataset.title, note: '' });
+});
+function itinPlanAddNote() {
+  const text = document.getElementById('itinPlanNote').value.trim();
+  if (!text) return;
+  if (itinPlanAdd({ type: 'note', text })) document.getElementById('itinPlanNote').value = '';
+}
+function itinPlanAdd(item) {
+  const t = itinPlanSheetTarget;
+  if (!t || !itinPlan[t.stop] || !itinPlan[t.stop].days[t.day]) return false;
+  if (itinPlanItemCount() >= ITIN_PLAN_MAX_ITEMS) {
+    document.getElementById('itinPlanLimit').textContent = 'הגעתם למגבלה של ' + ITIN_PLAN_MAX_ITEMS + ' פריטים בתכנון. אפשר להסיר פריט כדי להוסיף אחר.';
+    return false;
+  }
+  itinSnapshotForUndo();
+  itinPlan[t.stop].days[t.day].push(item);
+  itinPlanOpen.add(t.stop);
+  itinPlanCloseSheet();
+  itinRender();
+  return true;
+}
+// action: 'up' | 'down' | 'prev-day' | 'next-day'
+function itinPlanMove(i, di, k, action) {
+  const days = itinPlan[i] && itinPlan[i].days, day = days && days[di];
+  if (!day || !day[k]) return;
+  if (action === 'up' && k - 1 < 0) return;
+  if (action === 'down' && k + 1 >= day.length) return;
+  const target = action === 'up' ? [di, k - 1] : action === 'down' ? [di, k + 1] : [di + (action === 'next-day' ? 1 : -1), null];
+  if (!days[target[0]]) return;
+  itinSnapshotForUndo();
+  const [item] = day.splice(k, 1);
+  if (target[1] === null) days[target[0]].push(item); else day.splice(target[1], 0, item);
+  itinRender();
+}
+function itinPlanRemove(i, di, k) {
+  itinSnapshotForUndo();
+  const depth = itinUndoStack.length;
+  itinPlan[i].days[di].splice(k, 1);
+  itinRender();
+  showUndoToast('הפריט הוסר', () => { if (itinUndoStack.length === depth) itinUndo(); });
+}
+document.getElementById('itinSummaryList').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-plan]');
+  if (!btn) return;
+  const i = Number(btn.dataset.stop), di = Number(btn.dataset.day), k = Number(btn.dataset.k);
+  const action = btn.dataset.plan;
+  const needsDay = action === 'add-open' || action.startsWith('item-');
+  const needsK = action.startsWith('item-');
+  if (!Number.isInteger(i) || (needsDay && !Number.isInteger(di)) || (needsK && !Number.isInteger(k))) return;
+  if (action === 'add-open') itinPlanOpenSheet(i, di, 'item');
+  else if (action === 'hotel-open') itinPlanOpenSheet(i, 0, 'hotel');
+  else if (action === 'hotel-clear') itinPlanSetHotel(i, null);
+  else if (action === 'item-remove') itinPlanRemove(i, di, k);
+  else if (action.startsWith('item-')) itinPlanMove(i, di, k, action.slice(5));
+});
+// Temporary stubs, replaced in Tasks 4 and 5.
+function itinPlanRenderCustom() {
+  itinPlanCustomSeq++;
+  document.getElementById('itinPlanCustom').innerHTML =
+    '<input type="url" class="it-search-input" id="itinPlanCustomUrl" dir="ltr" maxlength="600" placeholder="https://maps.app.goo.gl/..." aria-label="קישור Google Maps" onchange="itinPlanCustomChange()">' +
+    '<div id="itinPlanCustomStatus" class="myarea-item-meta" role="status"></div>' +
+    '<input type="text" class="it-search-input" id="itinPlanCustomName" maxlength="80" aria-label="שם המקום">' +
+    '<div id="itinPlanUseSiteRow"></div>' +
+    '<button type="button" class="myarea-add-btn" id="itinPlanCustomAdd" onclick="itinPlanAddCustom()">הוסיפו מקום</button>';
+}
+let itinPlanCustomSeq = 0;
+async function itinPlanCustomChange() {
+  const urlEl = document.getElementById('itinPlanCustomUrl'), status = document.getElementById('itinPlanCustomStatus');
+  const nameEl = document.getElementById('itinPlanCustomName'), siteRow = document.getElementById('itinPlanUseSiteRow');
+  const seq = ++itinPlanCustomSeq;
+  siteRow.innerHTML = '';
+  const raw = urlEl.value.trim();
+  let u = parseMapsLink(raw);
+  if (!u) { status.textContent = raw ? 'זה לא קישור של Google Maps.' : ''; return; }
+  let name = placeNameFromMapsLink(u);
+  if (!name) {
+    status.textContent = 'קוראים את הקישור...';
+    const res = await socialCall('resolve_maps_link', { url: raw });
+    if (seq !== itinPlanCustomSeq) return;
+    if (res && res.ok) { name = res.data.name || ''; if (res.data.url) { urlEl.value = res.data.url; u = parseMapsLink(res.data.url) || u; } }
+    else if (!res) status.textContent = 'קישור קצר אפשר לקרוא רק כשמחוברים. אפשר להקליד את השם.';
+  }
+  if (name) nameEl.value = name;
+  const existing = findSitePlace(u);
+  if (existing && existing.exact) {
+    status.textContent = 'המקום הזה כבר באתר: ' + existing.title + '.';
+    siteRow.innerHTML = '<button type="button" class="it-link-btn" id="itinPlanUseSite" data-title="' + escAttr(existing.title) + '">להשתמש במקום מהאתר</button>';
+    siteRow.querySelector('#itinPlanUseSite').onclick = (e) => itinPlanAdd({ type: 'place', ref: e.currentTarget.dataset.title, note: '' });
+  } else if (name) status.textContent = 'השם נלקח מהקישור, אפשר לתקן.';
+  else if (!status.textContent || status.textContent === 'קוראים את הקישור...') status.textContent = 'לא הצלחנו לקרוא שם, אפשר להקליד אותו.';
+}
+function itinPlanAddCustom() {
+  const u = parseMapsLink(document.getElementById('itinPlanCustomUrl').value);
+  const name = document.getElementById('itinPlanCustomName').value.trim();
+  const status = document.getElementById('itinPlanCustomStatus');
+  if (!u) { status.textContent = 'צריך קישור של Google Maps למקום.'; return; }
+  if (!name) { status.textContent = 'צריך שם למקום.'; return; }
+  if (u.href.length > 600) { status.textContent = 'הקישור ארוך מדי'; return; }
+  itinPlanAdd({ type: 'custom', name: name.slice(0, 80), url: u.href, note: '' });
+}
+function itinPlanRenderHotel() {
+  const t = itinPlanSheetTarget, stopName = itinRoute[t.stop].toLowerCase();
+  const inCity = (city) => (city || '').toLowerCase().includes(stopName.replace(/\s*\(.*\)$/, ''));
+  const hotels = DATA.filter(d => d.category === 'Hotels & Ryokan' && inCity(d.city)).map(d => ({ name: d.title, url: d.url || '', meta: d.neighborhood || d.city || '' }));
+  const areas = LODGING_NEIGHBORHOODS.filter(n => inCity(n.city)).map(n => ({ name: n.nameEn || n.name, url: '', meta: 'אזור לינה' }));
+  const rows = [...hotels, ...areas].slice(0, 40);
+  document.getElementById('itinPlanHotelTools').innerHTML =
+    (rows.length ? rows.map(r => '<button type="button" class="it-plan-pick" data-name="' + escAttr(r.name) + '" data-url="' + escAttr(r.url) + '"><b>' + esc(r.name) + '</b><span class="myarea-item-meta">' + esc(r.meta) + '</span></button>').join('') : '<div class="myarea-empty">אין מלונות מוכנים לעיר הזו, אפשר להקליד.</div>') +
+    '<div class="it-section-label">מלון משלי</div>' +
+    '<input type="text" class="it-search-input" id="itinPlanHotelName" maxlength="80" aria-label="שם המלון">' +
+    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="קישור Google Maps (לא חובה)" aria-label="קישור למלון">' +
+    '<button type="button" class="myarea-add-btn" id="itinPlanHotelSave" onclick="itinPlanSaveTypedHotel()">שמירת המלון</button>';
+}
+document.getElementById('itinPlanHotelTools').addEventListener('click', (e) => {
+  const btn = e.target.closest('.it-plan-pick');
+  if (btn && itinPlanSheetTarget) itinPlanSetHotel(itinPlanSheetTarget.stop, { name: btn.dataset.name, url: btn.dataset.url, note: '' });
+});
+function itinPlanSaveTypedHotel() {
+  const name = document.getElementById('itinPlanHotelName').value.trim();
+  if (!name || !itinPlanSheetTarget) return;
+  const u = parseMapsLink(document.getElementById('itinPlanHotelUrl').value);
+  itinPlanSetHotel(itinPlanSheetTarget.stop, { name: name.slice(0, 80), url: u ? u.href.slice(0, 600) : '', note: '' });
+}
+function itinPlanSetHotel(i, hotel) {
+  if (!itinPlan[i]) return;
+  itinSnapshotForUndo();
+  itinPlan[i].hotel = hotel;
+  itinPlanOpen.add(i);
+  if (document.getElementById('itinPlanSheet').classList.contains('open')) itinPlanCloseSheet();
+  itinRender();
 }
 
 async function itinFetchAiRouteSummary(stops) {
@@ -6853,6 +7191,7 @@ function itinBuildCriteriaText() {
 
 function itinShowSummary() {
   itinCloseAddSheet();
+  itinPlanCloseSheet();
   document.getElementById('itinExportNote').innerHTML = '';
   document.getElementById('itinAiResponse').innerHTML = '';
   document.getElementById('itinAiQuestion').value = itinBuildCriteriaText() +
