@@ -155,6 +155,9 @@ if (/[?&]debug\b/.test(location.search)) {
   }
   * { box-sizing: border-box; }
   html, body { overflow-x: hidden; max-width: 100%; }
+  /* Google's screen reader message is parked 10000px to the left; in a right to left page that left overflow counts as page width (scrollWidth 11502 in ?debug). Keep it fixed and clipped instead. */
+  #g_a11y_announcement { position: fixed !important; left: auto !important; right: 0 !important; top: 0 !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip-path: inset(50%); }
+  #g_a11y_announcement * { left: auto !important; right: 0 !important; }
   /* Google's sign in script parks a 1px screen reader element at left:-10000px. In this RTL page that widens the scroll area by 10000px on phones and scrolls the page away after login. */
   body > div[style*="-10000px"] { left: 0 !important; pointer-events: none; }
   body { background: var(--paper); color: var(--ink); font-family: 'Heebo', sans-serif; margin: 0; padding: 1rem 1rem calc(76px + 1rem); }
@@ -2477,7 +2480,7 @@ function handleGoogleCredential(response) {
   cloudLoadAndApply();
 }
 
-function initGoogleSignIn() {
+function initGoogleSignIn(attempt = 0) {
   // Google's silent "One Tap" re-authentication (auto_select + prompt())
   // doesn't reliably fire on every page load — browsers can suppress it
   // after a dismissal, or block it via third-party cookie/FedCM
@@ -2492,7 +2495,9 @@ function initGoogleSignIn() {
   if (cached) showSignedInUI(cached, 'שמור במכשיר (מתחבר מחדש...)');
 
   if (typeof google === 'undefined' || !google.accounts || GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) {
-    return; // Google script not loaded yet, or the site owner hasn't configured a Client ID
+    // The Google script loads async and can arrive after this first try on a slow connection; without a retry the sign in button never appeared.
+    if (attempt < 40 && !GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID')) setTimeout(() => initGoogleSignIn(attempt + 1), 500);
+    return;
   }
   google.accounts.id.initialize({
     client_id: GOOGLE_CLIENT_ID,
@@ -2515,7 +2520,7 @@ function initGoogleSignIn() {
     google.accounts.id.prompt();
   }
 }
-window.addEventListener('load', () => setTimeout(initGoogleSignIn, 300));
+window.addEventListener('load', () => setTimeout(() => initGoogleSignIn(), 300));
 
 function setSyncStatus(text) {
   const el = document.getElementById('authSyncStatus');
