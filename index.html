@@ -32,6 +32,12 @@ if (/[?&]debug\b/.test(location.search)) {
   document.addEventListener('visibilitychange', function () { showDbg('event visibility=' + document.visibilityState); });
   window.addEventListener('error', function (e) { showDbg('ERR ' + e.message + ' @' + e.lineno); });
   window.addEventListener('unhandledrejection', function (e) { showDbg('REJ ' + e.reason); });
+  // Google's sign in script reports origin and popup problems through console.error and console.warn.
+  ['error', 'warn'].forEach(function (lvl) {
+    var orig = console[lvl];
+    console[lvl] = function () { try { showDbg('CONSOLE ' + lvl + ' ' + Array.prototype.slice.call(arguments).join(' ').slice(0, 300)); } catch (e) {} return orig.apply(console, arguments); };
+  });
+  showDbg('origin ' + location.origin + ' ua ' + navigator.userAgent.slice(0, 120));
   // Reports page width vs the screen and the widest elements that stick out (ignoring the fixed sheets).
   var dbgWidth = function (label) {
     var de = document.documentElement, w = de.clientWidth, offenders = [];
@@ -521,6 +527,25 @@ if (/[?&]debug\b/.test(location.search)) {
   /* === מסלולים (itinerary builder) === */
   .it-map-wrap { position: relative; isolation: isolate; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 0.6rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
   #itinSummaryMap { height: 260px; background: var(--paper); }
+  #itinOverviewMap { height: 260px; background: var(--paper); }
+  .it-ov-header { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0.4rem 0 0.8rem; color: var(--muted); font-size: 0.85rem; }
+  .it-ov-header b { color: var(--ink); }
+  .it-ov-list { display: flex; flex-direction: column; gap: 10px; margin: 0.8rem 0; }
+  .it-ov-stop { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  .it-ov-stop > summary { list-style: none; cursor: pointer; padding: 12px 14px; min-height: 44px; display: flex; flex-direction: column; gap: 4px; }
+  .it-ov-stop > summary::-webkit-details-marker { display: none; }
+  .it-ov-name { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+  .it-ov-sub, .it-ov-hotel, .it-ov-count { font-size: 0.8rem; color: var(--muted); overflow-wrap: anywhere; }
+  .it-ov-hotel a, .it-ov-hint { color: inherit; text-decoration: underline; }
+  .it-ov-edit { width: 100%; margin: 0.6rem 0; }
+  .it-ov-toolbar { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
+  .it-ov-hint { background: none; border: 0; padding: 0; font: inherit; min-height: 24px; cursor: pointer; }
+  .it-ov-day { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
+  .it-ov-day-title { font-weight: 600; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .it-ov-items { margin: 0; padding-inline-start: 1.1rem; }
+  .it-ov-item { padding: 4px 0; overflow-wrap: anywhere; }
+  .it-ov-item a { color: inherit; }
+  .it-ov-empty { font-size: 0.8rem; color: var(--muted); }
   .leaflet-popup-content-wrapper { background: var(--surface); color: var(--ink); border-radius: 8px; }
   .leaflet-popup-content { font-family: 'Heebo', sans-serif; font-size: 0.78rem; direction: rtl; }
   .leaflet-popup-tip { background: var(--surface); }
@@ -694,6 +719,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-summary-name:hover { color: var(--accent); }
   .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.6rem 0.8rem; margin: 0.2rem 0 0.6rem; }
   .it-summary-nights { font-size: 0.9rem; color: var(--muted); }
+  .it-field-label { display: block; margin: 10px 0 4px; font-size: 0.75rem; color: var(--muted); }
   .it-place-results { max-height: 40vh; overflow-y: auto; }
   .it-plan-pick { display:flex; flex-direction:column; align-items:flex-start; width:100%; min-height:44px; padding:0.4rem 0.6rem; background:none; border:0; border-bottom:1px solid var(--border); color:var(--ink); font-family:inherit; text-align:start; cursor:pointer; }
   .it-plan { margin: 0.3rem 0 0.6rem; padding: 0.3rem 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
@@ -1734,7 +1760,7 @@ if (/[?&]debug\b/.test(location.search)) {
 
     <div class="it-bar" id="itinBar">
       <span class="it-bar-count" id="itinBarCount" aria-live="polite"></span>
-      <button type="button" class="it-bar-finish" aria-label="סיום וניתוח המסלול" onclick="itinShowSummary()">סיום</button>
+      <button type="button" class="it-bar-finish" aria-label="סיום וניתוח המסלול" onclick="itinShowOverview()">סיום</button>
     </div>
 
     <div class="it-sheet-overlay" id="itinSheetOverlay" onclick="itinCloseAddSheet()"></div>
@@ -1762,8 +1788,36 @@ if (/[?&]debug\b/.test(location.search)) {
     </div>
   </div>
 
+  <div id="itinOverviewScreen" style="display:none;">
+    <h2 class="it-screen-title" tabindex="-1">המסלול שלי</h2>
+    <div id="itinOverviewHeader" class="it-ov-header"></div>
+    <div class="it-map-wrap"><div id="itinOverviewMap"></div></div>
+    <div class="it-ov-toolbar"><button type="button" class="it-link-btn" id="itinOverviewToggleAll" onclick="itinOverviewToggleAll()">הרחב הכל</button></div>
+    <div id="itinOverviewList" class="it-ov-list"></div>
+
+    <button type="button" class="it-export-btn it-ov-edit" onclick="itinShowSummary()">✏️ עריכה</button>
+
+    <details class="it-more-actions"><summary>ייצוא ושיתוף</summary>
+      <div class="it-export-row">
+        <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
+        <button type="button" class="it-export-btn" onclick="itinExportText()">📋 העתקת המסלול כטקסט</button>
+        <button type="button" class="it-export-btn" onclick="itinExportPdf()">📄 הורדת PDF מלא</button>
+        <button type="button" class="it-export-btn" onclick="itinExportHtml()">🗺️ הורדת HTML עם מפה חיה</button>
+      </div>
+      <div id="itinExportNote"></div>
+      <button type="button" class="it-reset-btn" id="itinPublishBtn" aria-expanded="false" onclick="itinTogglePublish()">פרסמו את המסלול שלי</button>
+      <div id="itinPublishBox" class="it-publish-box" hidden></div>
+    </details>
+
+    <details class="it-more-actions"><summary>עוד</summary>
+      <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
+      <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
+      <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
+    </details>
+  </div>
+
   <div id="itinSummaryScreen" style="display:none;">
-    <h2 class="it-screen-title" tabindex="-1">סיכום המסלול</h2>
+    <h2 class="it-screen-title" tabindex="-1">עריכת התכנון</h2>
     <div class="it-map-wrap"><div id="itinSummaryMap"></div></div>
     <div id="itinSummaryList"></div>
     <div class="it-summary-total" id="itinSummaryTotal" aria-live="polite"></div>
@@ -1780,24 +1834,7 @@ if (/[?&]debug\b/.test(location.search)) {
       </div>
     </details>
 
-    <h2 class="it-screen-title">ייצוא</h2>
-    <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
-    <details class="it-more-actions"><summary>עוד אפשרויות ייצוא</summary>
-    <div class="it-export-row">
-      <button type="button" class="it-export-btn" onclick="itinExportText()">📋 העתקת המסלול כטקסט</button>
-      <button type="button" class="it-export-btn" onclick="itinExportPdf()">📄 הורדת PDF מלא</button>
-      <button type="button" class="it-export-btn" onclick="itinExportHtml()">🗺️ הורדת HTML עם מפה חיה</button>
-    </div></details>
-    <div id="itinExportNote"></div>
-
-    <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
-    <details class="it-more-actions"><summary>עוד</summary>
-    <button type="button" class="it-reset-btn" id="itinPublishBtn" aria-expanded="false" onclick="itinTogglePublish()">פרסמו את המסלול שלי</button>
-    <div id="itinPublishBox" class="it-publish-box" hidden></div>
-
-    <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
-    <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
-    </details>
+    <button type="button" class="it-reset-btn it-ov-back" onclick="itinShowOverview()">✓ חזרה לסקירת המסלול</button>
   </div>
     <div class="it-sheet-overlay" id="itinPlanOverlay" onclick="itinPlanCloseSheet()"></div>
     <div class="it-sheet" id="itinPlanSheet" role="dialog" aria-modal="true" aria-labelledby="itinPlanSheetTitle" tabindex="-1">
@@ -4802,7 +4839,7 @@ function itinFormatSavedAt(timestamp) {
   return 'לפני כ-' + diffDays + (diffDays === 1 ? ' יום' : ' ימים');
 }
 
-const ITIN_SCREENS = ['itinStartScreen', 'itinManualScreen', 'itinQuizScreen', 'itinMainScreen', 'itinSummaryScreen'];
+const ITIN_SCREENS = ['itinStartScreen', 'itinManualScreen', 'itinQuizScreen', 'itinMainScreen', 'itinSummaryScreen', 'itinOverviewScreen'];
 function itinShowScreen(id) {
   ITIN_SCREENS.forEach(s => { document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
   const heading = document.querySelector('#' + id + ' h2');
@@ -5015,7 +5052,6 @@ function itinUndo() {
 }
 
 
-let itinSummaryLeafletMap, itinSummaryMapInitialized = false;
 let itinMiniLeafletMap, itinMiniMapInitialized = false;
 function itinGetCandidates() {
   const currentStop = itinRoute[itinRoute.length - 1];
@@ -6462,7 +6498,7 @@ function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
   itinDraftNote = extraNote || '';
   itinShowScreen('itinMainScreen');
   itinRender();
-  itinShowSummary();
+  itinShowOverview();
 }
 
 function itinChooseStart(name) {
@@ -6847,16 +6883,18 @@ function itinRenderMiniMap() {
   setTimeout(() => itinMiniLeafletMap.invalidateSize(), 50);
 }
 
-function itinRenderSummaryMap() {
+let itinStopsMaps = {}; // container id -> Leaflet map, one per screen that shows the route
+
+function itinRenderStopsMap(containerId) {
   if (typeof L === 'undefined') return;
-  if (!itinSummaryMapInitialized) {
-    const container = document.getElementById('itinSummaryMap');
+  let map = itinStopsMaps[containerId];
+  if (!map) {
+    const container = document.getElementById(containerId);
     if (!container) return;
-    itinSummaryLeafletMap = L.map('itinSummaryMap', { zoomControl: true, attributionControl: false });
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(itinSummaryLeafletMap);
-    itinSummaryMapInitialized = true;
+    map = itinStopsMaps[containerId] = L.map(containerId, { zoomControl: true, attributionControl: false });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, attribution: '© OpenStreetMap' }).addTo(map);
   }
-  itinSummaryLeafletMap.eachLayer(layer => { if (!layer._url) itinSummaryLeafletMap.removeLayer(layer); });
+  map.eachLayer(layer => { if (!layer._url) map.removeLayer(layer); });
 
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(d => d.name === name)).filter(Boolean);
   if (stops.length === 0) return;
@@ -6869,7 +6907,7 @@ function itinRenderSummaryMap() {
       html: '<div style="background:#6ee7a8;width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:2px solid rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:' + Math.round(size * 0.6) + 'px;line-height:1;">' + emoji + '</div>',
       iconSize: [size, size], iconAnchor: [size / 2, size / 2], popupAnchor: [0, -size / 2],
     });
-    L.marker([d.lat, d.lng], { icon }).addTo(itinSummaryLeafletMap)
+    L.marker([d.lat, d.lng], { icon }).addTo(map)
       .bindPopup('<b>' + (i + 1) + '. ' + d.name + '</b><br>' + itinNightsLabel(d, i));
 
     if (i > 0) {
@@ -6877,15 +6915,16 @@ function itinRenderSummaryMap() {
       const km = itinHaversineKm(prev.lat, prev.lng, d.lat, d.lng);
       const mode = itinTransportMode(prev.name, d.name, km);
       L.polyline([[prev.lat, prev.lng], [d.lat, d.lng]], { color: '#6ee7a8', weight: 2, dashArray: '4 4' })
-        .addTo(itinSummaryLeafletMap)
+        .addTo(map)
         .bindTooltip(mode.emoji + ' ' + mode.label + ' · ' + itinFormatDuration(km, prev.name, d.name), { sticky: true });
     }
   });
 
   const bounds = L.latLngBounds(stops.map(d => [d.lat, d.lng]));
-  itinSummaryLeafletMap.fitBounds(bounds, { padding: [30, 30] });
-  setTimeout(() => itinSummaryLeafletMap.invalidateSize(), 50);
+  map.fitBounds(bounds, { padding: [30, 30] });
+  setTimeout(() => map.invalidateSize(), 50);
 }
+function itinRenderSummaryMap() { itinRenderStopsMap('itinSummaryMap'); }
 
 function itinToggleSummaryDetail(name) {
   itinSummaryExpandedStop = (itinSummaryExpandedStop === name) ? null : name;
@@ -6931,6 +6970,7 @@ function itinRenderSummaryList() {
 }
 
 let itinPlanOpen = new Set(); // stop indexes whose plan block is open, so edits do not collapse it
+let itinOverviewOpen = new Set(); // stop indexes expanded on the overview
 
 function itinAddDaysISO(iso, n) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -7085,10 +7125,12 @@ function itinPlanRenderCustom() {
   itinPlanCustomSeq++;
   document.getElementById('itinPlanCustom').innerHTML =
     itinPlaceSearchHtml('custom') +
-    '<input type="url" class="it-search-input" id="itinPlanCustomUrl" dir="ltr" maxlength="600" placeholder="או הדביקו קישור Google Maps" aria-label="קישור Google Maps" onchange="itinPlanCustomChange()">' +
+    '<label class="it-field-label" for="itinPlanCustomName">שם המקום (אפשר לתקן)</label>' +
+    '<input type="text" class="it-search-input" id="itinPlanCustomName" maxlength="80">' +
     '<div id="itinPlanCustomStatus" class="myarea-item-meta" role="status"></div>' +
-    '<input type="text" class="it-search-input" id="itinPlanCustomName" maxlength="80" aria-label="שם המקום">' +
     '<div id="itinPlanUseSiteRow"></div>' +
+    '<details class="it-more-actions"><summary>או הדביקו קישור Google Maps</summary>' +
+    '<input type="url" class="it-search-input" id="itinPlanCustomUrl" dir="ltr" maxlength="600" placeholder="https://maps.app.goo.gl/..." aria-label="קישור Google Maps" onchange="itinPlanCustomChange()"></details>' +
     '<button type="button" class="myarea-add-btn" id="itinPlanCustomAdd" onclick="itinPlanAddCustom()">הוסיפו מקום</button>';
 }
 // Google Places search for the hotel and own-place forms, through the worker (search_places).
@@ -7124,7 +7166,7 @@ function itinPlaceSearchPick(kind, i) {
     const nameEl = document.getElementById('itinPlanHotelName');
     document.getElementById('itinPlanHotelUrl').value = p.url;
     nameEl.value = p.name; nameEl.dataset.auto = p.name;
-    document.getElementById('itinPlanHotelStatus').textContent = 'נבחר: ' + p.name + (p.detail ? ' (' + p.detail + ')' : '') + '. אפשר לתקן את השם.';
+    document.getElementById('itinPlanHotelStatus').textContent = p.detail;
   } else {
     document.getElementById('itinPlanCustomUrl').value = p.url;
     itinPlanCustomChange();
@@ -7175,9 +7217,11 @@ function itinPlanRenderHotel() {
     (rows.length ? rows.map(r => '<button type="button" class="it-plan-pick" data-name="' + escAttr(r.name) + '" data-url="' + escAttr(r.url) + '"><b>' + esc(r.name) + '</b><span class="myarea-item-meta">' + esc(r.meta) + '</span></button>').join('') : '<div class="myarea-empty">אין מלונות מוכנים לעיר הזו, אפשר להקליד.</div>') +
     '<div class="it-section-label">מלון משלי</div>' +
     itinPlaceSearchHtml('hotel') +
-    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="או הדביקו קישור Google Maps" aria-label="קישור למלון" onchange="itinPlanHotelLinkChange()" onpaste="setTimeout(itinPlanHotelLinkChange,0)">' +
-    '<input type="text" class="it-search-input" id="itinPlanHotelName" maxlength="80" placeholder="שם המלון" aria-label="שם המלון">' +
-    '<div id="itinPlanHotelStatus" class="myarea-item-meta"></div>' +
+    '<label class="it-field-label" for="itinPlanHotelName">שם המלון (אפשר לתקן)</label>' +
+    '<input type="text" class="it-search-input" id="itinPlanHotelName" maxlength="80">' +
+    '<div id="itinPlanHotelStatus" class="myarea-item-meta" role="status"></div>' +
+    '<details class="it-more-actions"><summary>או הדביקו קישור Google Maps</summary>' +
+    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="או הדביקו קישור Google Maps" aria-label="קישור למלון" onchange="itinPlanHotelLinkChange()" onpaste="setTimeout(itinPlanHotelLinkChange,0)">' + '</details>' +
     '<button type="button" class="myarea-add-btn" id="itinPlanHotelSave" onclick="itinPlanSaveTypedHotel()">שמירת המלון</button>';
 }
 document.getElementById('itinPlanHotelTools').addEventListener('click', (e) => {
@@ -7267,6 +7311,107 @@ function itinBuildCriteriaText() {
   if (itinCumulativeSeasons.size > 0) parts.push('עונה: ' + [...itinCumulativeSeasons].join(', '));
   return 'זה מסלול שבניתי ידנית, יעד אחר יעד' +
     (parts.length > 0 ? ', תוך שימוש בסינונים הבאים לאורך הדרך: ' + parts.join('; ') + '.' : ', בלי סינון ספציפי לפי תגיות.');
+}
+
+function itinOverviewStats() {
+  const stops = itinRoute.map((name, i) => ({ d: ITIN_DESTINATIONS.find(x => x.name === name), i })).filter(s => s.d);
+  const nights = stops.reduce((n, s) => n + itinGetNights(s.d, s.i), 0);
+  const hotels = itinPlan.filter(p => p && p.hotel).length;
+  const places = itinPlan.reduce((n, p) => n + (p ? p.days.reduce((m, day) => m + day.filter(it => it.type !== 'note').length, 0) : 0), 0);
+  return { stops: stops.length, nights, hotels, places };
+}
+
+function itinOverviewStopHtml(i) {
+  const d = ITIN_DESTINATIONS.find(x => x.name === itinRoute[i]);
+  if (!d) return '';
+  const stopDates = (itinRouteDates() || { stops: [] }).stops[i];
+  const plan = itinPlan[i] || { hotel: null, days: [[]] };
+  const items = plan.days.reduce((n, day) => n + day.length, 0);
+  const hotelLink = plan.hotel && parseMapsLink(plan.hotel.url);
+  const hotel = plan.hotel
+    ? '🏨 ' + (hotelLink ? '<a href="' + escAttr(hotelLink.href) + '" target="_blank" rel="noopener noreferrer">' + esc(plan.hotel.name) + '</a>' : esc(plan.hotel.name))
+    : '<button type="button" class="it-ov-hint" onclick="itinOverviewEditStop(' + i + ')">אין מלון עדיין</button>';
+  const count = items
+    ? items + (items === 1 ? ' פריט' : ' פריטים') + ' ב-' + plan.days.length + (plan.days.length === 1 ? ' יום' : ' ימים')
+    : '<button type="button" class="it-ov-hint" onclick="itinOverviewEditStop(' + i + ')">אין תכנון עדיין</button>';
+  const dates = stopDates ? itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + ' · ' : '';
+  return '<details class="it-ov-stop" data-stop="' + i + '"' + (itinOverviewOpen.has(i) ? ' open' : '') + '><summary>' +
+    '<span class="it-ov-name">' + (i + 1) + '. ' + esc(d.name) + '</span>' +
+    '<span class="it-ov-sub">' + dates + esc(itinNightsLabel(d, i)) + '</span>' +
+    '<span class="it-ov-hotel">' + hotel + '</span>' +
+    '<span class="it-ov-count">' + count + '</span>' +
+    '</summary>' + plan.days.map((_, di) => itinOverviewDayHtml(i, di)).join('') + '</details>';
+}
+
+function itinOverviewItemHtml(item) {
+  const { name, meta } = itinItemLabel(item);
+  let href = '';
+  if (item.type === 'place') {
+    const d = DATA.find(x => x.title === item.ref);
+    const u = d && parseMapsLink(d.url);
+    href = u ? u.href : '';
+  } else if (item.type === 'custom') {
+    const u = parseMapsLink(item.url);
+    href = u ? u.href : '';
+  }
+  const label = href ? '<a href="' + escAttr(href) + '" target="_blank" rel="noopener noreferrer">' + esc(name) + '</a>' : esc(name);
+  return '<li class="it-ov-item">' + (item.type === 'note' ? '📝 ' : '') + label +
+    (meta && item.type !== 'note' ? ' <span class="myarea-item-meta">' + esc(meta) + '</span>' : '') +
+    (item.note ? '<div class="myarea-item-meta">' + esc(item.note) + '</div>' : '') + '</li>';
+}
+
+function itinOverviewDayHtml(i, di) {
+  const stopDates = (itinRouteDates() || { stops: [] }).stops[i];
+  const title = stopDates ? 'יום ' + (di + 1) + ' · ' + itinShortDate(itinAddDaysISO(stopDates.checkIn, di)) : 'יום ' + (di + 1);
+  const items = itinPlan[i].days[di];
+  return '<div class="it-ov-day"><div class="it-ov-day-title">' + title + '</div>' +
+    (items.length ? '<ul class="it-ov-items">' + items.map(itinOverviewItemHtml).join('') + '</ul>' : '<div class="it-ov-empty">אין פריטים ליום הזה</div>') + '</div>';
+}
+
+function itinOverviewToggleAll() {
+  const all = itinRoute.length > 0 && itinRoute.every((_, i) => itinOverviewOpen.has(i));
+  itinOverviewOpen = all ? new Set() : new Set(itinRoute.map((_, i) => i));
+  itinRenderOverview();
+}
+
+// From a hint on the overview: open the editing screen with that stop's plan block open and in view.
+function itinOverviewEditStop(i) {
+  itinPlanOpen.add(i);
+  itinShowSummary();
+  const block = document.querySelector('#itinSummaryList .it-plan[data-stop="' + i + '"]');
+  if (block) block.scrollIntoView({ block: 'center' });
+}
+
+document.getElementById('itinOverviewList').addEventListener('toggle', (e) => {
+  if (!e.target.matches || !e.target.matches('.it-ov-stop')) return;
+  const i = Number(e.target.dataset.stop);
+  if (e.target.open) itinOverviewOpen.add(i); else itinOverviewOpen.delete(i);
+  const all = itinRoute.every((_, k) => itinOverviewOpen.has(k));
+  document.getElementById('itinOverviewToggleAll').textContent = all ? 'סגור הכל' : 'הרחב הכל';
+}, true);
+
+function itinRenderOverview() {
+  const s = itinOverviewStats();
+  const routeDates = itinRouteDates();
+  document.getElementById('itinOverviewHeader').innerHTML =
+    (routeDates ? '<span><b>' + esc(itinShortDate(itinStartDate) + ' עד ' + itinShortDate(routeDates.end)) + '</b></span>' : '') +
+    '<span><b>' + s.stops + '</b> תחנות</span>' +
+    '<span><b>' + s.nights + '</b> לילות</span>' +
+    '<span><b>' + s.hotels + '</b> מתוך ' + s.stops + ' מלונות</span>' +
+    '<span><b>' + s.places + '</b> ' + (s.places === 1 ? 'מקום' : 'מקומות') + '</span>';
+  document.getElementById('itinOverviewList').innerHTML = itinRoute.map((_, i) => itinOverviewStopHtml(i)).join('');
+  document.getElementById('itinOverviewToggleAll').textContent = itinRoute.length && itinRoute.every((_, i) => itinOverviewOpen.has(i)) ? 'סגור הכל' : 'הרחב הכל';
+}
+
+function itinShowOverview() {
+  itinCloseAddSheet();
+  itinPlanCloseSheet();
+  document.getElementById('itinExportNote').innerHTML = '';
+  document.getElementById('itinPublishBox').hidden = true;
+  document.getElementById('itinPublishBtn').setAttribute('aria-expanded', 'false');
+  itinRenderOverview();
+  itinShowScreen('itinOverviewScreen');
+  itinRenderStopsMap('itinOverviewMap');
 }
 
 function itinShowSummary() {
