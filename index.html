@@ -36,15 +36,23 @@ if (/[?&]debug\b/.test(location.search)) {
   var dbgWidth = function (label) {
     var de = document.documentElement, w = de.clientWidth, offenders = [];
     document.querySelectorAll('body *').forEach(function (el) {
-      if (el.closest('.side-drawer, .select-sheet, .more-sheet, .sheet-panel, .info-modal, .drawer-overlay, .tabbar, #catFilters, #dbgBox')) return;
+      if (el.closest('.side-drawer, .select-sheet, .more-sheet, .sheet-panel, .info-modal, .drawer-overlay, #catFilters, #dbgBox, .leaflet-container') || !el.getClientRects().length) return;
       var r = el.getBoundingClientRect();
-      if (r.width && (r.right > w + 2 || r.left < -2)) offenders.push({ n: (el.className || el.tagName).toString().slice(0, 30), l: Math.round(r.left), r: Math.round(r.right) });
+      if (r.width && (r.right > w + 2 || r.left < -2)) offenders.push({ n: (el.id ? '#' + el.id : (el.className || el.tagName)).toString().slice(0, 30), t: (el.textContent || '').trim().slice(0, 12), l: Math.round(r.left), r: Math.round(r.right) });
     });
     offenders.sort(function (a, b) { return Math.max(b.r - w, -b.l) - Math.max(a.r - w, -a.l); });
     showDbg(label + ' w=' + w + ' scrollW=' + de.scrollWidth + ' scrollX=' + Math.round(window.scrollX) + ' vv=' + (window.visualViewport ? Math.round(window.visualViewport.width) : '?') +
       ' offenders=' + offenders.length + ' ' + JSON.stringify(offenders.slice(0, 4)));
   };
-  window.addEventListener('load', function () { setTimeout(function () { dbgWidth('loaded'); }, 1000); });
+  window.addEventListener('load', function () {
+    setTimeout(function () { dbgWidth('loaded'); }, 1000);
+    // Re-check after every page or builder screen change, so the screen that widens the page is named.
+    ['showPage', 'itinShowScreen'].forEach(function (fn) {
+      var orig = window[fn];
+      if (typeof orig !== 'function') return;
+      window[fn] = function () { var out = orig.apply(this, arguments); var label = fn + ' ' + arguments[0]; setTimeout(function () { dbgWidth(label); }, 300); return out; };
+    });
+  });
   var nativeFetch = window.fetch;
   window.fetch = function (url, init) {
     var action = '';
@@ -256,15 +264,15 @@ if (/[?&]debug\b/.test(location.search)) {
   .card-badges .badge { margin: 0; }
   .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--border); }
   .card-by { font-size: 0.8rem; color: var(--muted); }
-  .card-save-btn { background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; position: relative; }
-  .card-save-btn::after { content: ""; position: absolute; inset: -14px; }
+  .card-save-btn, .lodging-save-btn { background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; position: relative; }
+  .card-save-btn::after, .lodging-save-btn::after { content: ""; position: absolute; inset: -14px; }
   .filters-toggle-btn, .ai-toggle-btn, .cselect-trigger, .it-chip, .it-search-input { min-height: 44px; }
   .it-add-btn, .it-home-link, .it-reset-filters-btn { position: relative; }
   .it-add-btn::after { content: ""; position: absolute; inset: -5px; }
   .it-home-link::after, .it-reset-filters-btn::after { content: ""; position: absolute; inset: -14px 0; }
   .price-meta, .read-more-btn, .note-link { position: relative; }
   .price-meta::after, .read-more-btn::after, .note-link::after { content: ""; position: absolute; inset: -14px -6px; }
-  .card-save-btn.saved { color: #ff6b8b; }
+  .card-save-btn.saved, .lodging-save-btn.saved { color: #ff6b8b; }
   .card-title { font-family: inherit; font-weight: 700; font-size: 1.1rem; line-height: 1.3; min-width: 0; overflow-wrap: break-word; word-break: break-word; color: var(--ink); }
   .card-cat { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; background: var(--paper); border: 2px solid var(--c, var(--border)); box-shadow: 0 0 12px color-mix(in srgb, var(--c, transparent) 50%, transparent); }
   .badge { display: inline-block; font-family: 'Heebo', sans-serif; font-size: 0.75rem; line-height: 1.5; padding: 0.2rem 0.65rem; border-radius: 999px; margin-bottom: 0.35rem; margin-left: 0.3rem; background: rgba(255,196,107,0.16); color: var(--gold); font-weight: 600; border: 1px solid rgba(255,196,107,0.35); }
@@ -403,6 +411,28 @@ if (/[?&]debug\b/.test(location.search)) {
   .myarea-item { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 0.6rem 0.85rem; margin-bottom: 0.5rem; box-shadow: 2px 2px 0 rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
   .myarea-item-name { font-weight: 600; font-size: 0.82rem; }
   .myarea-item-meta { font-size: 0.75rem; color: var(--muted); }
+  .myarea-editable { justify-content: flex-start; }
+  .myarea-item-main { flex: 1; min-width: 0; }
+  .myarea-done .myarea-item-name { text-decoration: line-through; color: var(--muted); }
+  .myarea-check, .myarea-remove { flex-shrink: 0; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; background: none; border: 0; color: var(--ink); font-family: inherit; font-size: 1.1rem; cursor: pointer; }
+  .myarea-box { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--border); border-radius: 6px; font-size: 0.9rem; font-weight: 700; }
+  .myarea-done .myarea-box { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+  .myarea-remove { color: var(--muted); }
+  .myarea-note-btn { display: block; max-width: 100%; min-height: 32px; padding: 0.15rem 0; background: none; border: 0; color: var(--muted); font-family: inherit; font-size: 0.75rem; text-align: start; cursor: pointer; overflow-wrap: anywhere; }
+  .myarea-note-input, .myarea-add-input { width: 100%; min-height: 44px; box-sizing: border-box; padding: 0.4rem 0.6rem; background: var(--paper); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 16px; }
+  .myarea-add-row { display: flex; gap: 0.5rem; margin: 0.6rem 0 0.4rem; }
+  .myarea-add-row .myarea-add-input { flex: 1; min-width: 0; }
+  .myarea-add-btn, .myarea-clear-btn { min-height: 44px; padding: 0 1rem; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 12px; font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+  .myarea-clear-btn { display: block; margin: 0.4rem 0 0; color: var(--muted); }
+  .undo-toast { position: fixed; inset-inline: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 400; display: none; align-items: center; justify-content: space-between; gap: 0.6rem; max-width: calc(100vw - 24px); margin: 0 auto; width: max-content; padding: 0.3rem 0.5rem 0.3rem 1rem; background: var(--ink); color: var(--paper); border-radius: 14px; font-size: 0.85rem; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+  .undo-toast.show { display: flex; }
+  .undo-toast button { min-width: 44px; min-height: 44px; background: none; border: 0; color: inherit; font-family: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+  .submit-form { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; font-size: 0.8rem; color: var(--muted); }
+  .submit-form label { display: flex; flex-direction: column; gap: 0.2rem; }
+  .notif-unread { border-color: var(--accent); }
+  .tab[data-page="myarea"], .desk-link[data-page="myarea"], .auth-profile-btn { position: relative; }
+  .notif-badge { position: absolute; top: 2px; inset-inline-end: 2px; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; background: #e5484d; color: #fff; border-radius: 9px; font-size: 0.65rem; font-weight: 700; line-height: 1; }
+  .notif-badge[hidden] { display: none; }
   .myarea-itin-summary { background: var(--surface); border: 2px solid var(--gold); border-radius: 9px; padding: 0.9rem; box-shadow: 3px 3px 0 rgba(0,0,0,0.35); }
   .myarea-itin-stops { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
   .myarea-itin-stop { background: var(--paper); border: 1.5px solid var(--border); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.75rem; }
@@ -658,6 +688,9 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-summary-name:hover { color: var(--accent); }
   .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.6rem 0.8rem; margin: 0.2rem 0 0.6rem; }
   .it-summary-nights { font-size: 0.9rem; color: var(--muted); }
+  .it-summary-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 4px; padding: 0 0 0.3rem; border-bottom: 1px solid var(--border); }
+  .it-summary-stop .it-summary-row { border-bottom: 0; padding-bottom: 0; }
+  .it-summary-remove { color: #e08c5a; }
   .it-summary-total { margin-top: 0.8rem; font-size: 0.9rem; text-align: center; }
   .it-summary-total b { color: var(--accent); font-family: var(--pixel); }
   .it-warning-box { background: rgba(224,140,90,0.12); border: 1px solid #e08c5a; border-radius: 18px; padding: 0.7rem 0.9rem; margin: 0.8rem 0; font-size: 0.9rem; color: #f0b993; line-height: 1.55; }
@@ -706,6 +739,12 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-template-route { font-size: 0.75rem; color: var(--ink); background: var(--paper); border-radius: 6px; padding: 0.4rem 0.5rem; margin-bottom: 0.4rem; }
   .it-template-meta { font-size: 0.75rem; color: var(--green); margin-bottom: 0.6rem; }
   .it-template-use-btn { display: block; width: 100%; min-height: 44px; background: none; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: transform 150ms ease; }
+  .it-publish-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.8rem 0.9rem; margin-top: 0.7rem; }
+  .it-publish-box input[type="text"], .it-publish-box textarea { width: 100%; box-sizing: border-box; min-height: 44px; background: var(--paper); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.65rem; font: inherit; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .it-publish-box textarea { min-height: 4.5rem; resize: vertical; }
+  .it-publish-preview { margin: 0 0 0.6rem; padding: 0; list-style: none; font-size: 0.85rem; overflow-wrap: anywhere; }
+  .it-template-author { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.3rem; overflow-wrap: anywhere; }
+  .it-template-card { overflow-wrap: anywhere; }
   .it-template-use-btn:active { transform: scale(.97); }
   .it-quiz-visited-chosen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem; }
   .it-quiz-visited-chip { font-size: 0.75rem; background: rgba(224,140,90,0.15); border: 1px solid #e08c5a; color: #f0b993; border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; }
@@ -772,6 +811,13 @@ if (/[?&]debug\b/.test(location.search)) {
   .adm-title { font-weight: 700; font-size: 0.82rem; }
   .adm-reasons { margin: 0.3rem 0; padding-inline-start: 1.1rem; font-size: 0.75rem; color: var(--muted); }
   .adm-actions { display: flex; gap: 0.4rem; margin-top: 0.3rem; }
+  .ov-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.4rem; margin-bottom: 0.5rem; }
+  .ov-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: var(--muted); }
+  .ov-stat b { display: block; font-size: 1.05rem; color: var(--ink); }
+  .ov-note, .ov-link { font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+  .ov-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .ov-list summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; font-size: 0.8rem; }
+  .ov-row { border-bottom: 1px solid var(--border); padding: 0.4rem 0; font-size: 0.78rem; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -1425,6 +1471,30 @@ if (/[?&]debug\b/.test(location.search)) {
     <div id="myAreaRecs"></div>
   </div>
 
+  <div class="myarea-section">
+    <div class="myarea-section-title">🏨 אזורי לינה ששמרתי <span id="myAreaLodgingCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
+    <div id="myAreaLodging"></div>
+  </div>
+
+  <div class="myarea-section" id="myAreaNotifications" hidden>
+    <div class="myarea-section-title">🔔 התראות</div>
+    <div id="notificationsList"></div>
+  </div>
+
+  <div class="myarea-section" id="myAreaSubmit" hidden>
+    <div class="myarea-section-title">➕ הציעו מקום</div>
+    <div class="submit-form">
+      <label>שם המקום <input type="text" id="submitTitle" class="myarea-note-input" maxlength="80"></label>
+      <label>קטגוריה <select id="submitCategory" class="myarea-note-input"></select></label>
+      <label>עיר <select id="submitCity" class="myarea-note-input"></select></label>
+      <label>משפט אחד, למה כדאי <input type="text" id="submitNote" class="myarea-note-input" maxlength="300"></label>
+      <label>קישור (לא חובה) <input type="url" id="submitUrl" class="myarea-note-input" maxlength="300" dir="ltr"></label>
+      <button type="button" id="submitPlaceBtn" class="myarea-add-btn">שליחה לבדיקה</button>
+      <div id="submitPlaceStatus" class="myarea-item-meta" role="status"></div>
+    </div>
+    <div id="mySubmissionsList"></div>
+  </div>
+
   <div class="myarea-section" id="myAreaRatings" hidden>
     <div class="myarea-section-title">⭐ הדירוגים שלי <span id="myRatingsCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
     <div id="myRatingsList"></div>
@@ -1439,9 +1509,19 @@ if (/[?&]debug\b/.test(location.search)) {
     <div id="profileNameStatus" class="myarea-item-meta" role="status"></div>
   </div>
 
+  <div class="myarea-section" id="myAreaAdminQueues" hidden>
+    <div class="myarea-section-title">🛡️ הצעות לאישור <span id="adminQueuesCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
+    <div id="adminQueues"><div id="adminSubmissions"></div><div id="adminRoutes"></div></div>
+  </div>
+
   <div class="myarea-section" id="myAreaAdmin" hidden>
     <div class="myarea-section-title">🛡️ דיווחים <span id="adminCount" style="font-weight:400; color:var(--muted); font-size:0.7rem;"></span></div>
     <div id="adminReports"></div>
+  </div>
+
+  <div class="myarea-section" id="myAreaOverview" hidden>
+    <div class="myarea-section-title">📊 פעילות</div>
+    <div id="adminOverview"></div>
   </div>
 </div>
 <div class="itinerary-page" id="itineraryPage">
@@ -1545,6 +1625,10 @@ if (/[?&]debug\b/.test(location.search)) {
       <h2 class="it-screen-title" tabindex="-1">הכל מוכן</h2>
       <div class="it-wiz-note">לחצו "בנו לי מסלול", או התחילו מדוגמה מוכנה ועדכנו אותה אחר כך.</div>
       <div id="itinTemplatesList"></div>
+      <div id="itinCommunityBox" hidden>
+        <h3 class="it-field-label">מסלולים לדוגמה מהגולשים</h3>
+        <div id="itinCommunityList"></div>
+      </div>
       <div id="itinQuizError" aria-live="polite"></div>
     </div>
 
@@ -1632,6 +1716,9 @@ if (/[?&]debug\b/.test(location.search)) {
       <button type="button" class="it-export-btn" onclick="itinExportHtml()">🗺️ הורדת HTML עם מפה חיה</button>
     </div>
     <div id="itinExportNote"></div>
+
+    <button type="button" class="it-reset-btn" id="itinPublishBtn" aria-expanded="false" onclick="itinTogglePublish()">פרסמו את המסלול שלי</button>
+    <div id="itinPublishBox" class="it-publish-box" hidden></div>
 
     <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
     <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
@@ -1744,6 +1831,17 @@ function toggleTheme() {
 })();
 
 const DATA = JSON.parse(document.getElementById('data-holder').textContent);
+// Places suggested by visitors and approved by the owner. They are fetched in the background and cached, then added here
+// on the next load, because the structures built from DATA below (categories, AI index) are built once, synchronously.
+const APPROVED_PLACES_KEY = 'japanTripApprovedPlaces';
+try {
+  const known = new Set(DATA.map(d => d.title));
+  (JSON.parse(localStorage.getItem(APPROVED_PLACES_KEY)) || []).forEach(p => {
+    if (!p || known.has(p.title)) return;
+    known.add(p.title);
+    DATA.push({ title: p.title, note: p.note, url: p.url || '', category: p.category, city: p.city, mustBook: false, source: p.authorName, community: true });
+  });
+} catch (e) { /* no cache yet */ }
 
 let activeCats = new Set();
 const CATEGORY_EMOJI = {
@@ -2172,15 +2270,48 @@ document.querySelectorAll('.shop-cat-btn').forEach(btn => {
   });
 });
 
+// --- Editable lists: shopping list, saved recommendations ---
+// Every entry is an object with an `at` timestamp. Removing writes a tombstone (`deleted`) instead of dropping the key,
+// so the cloud merge (newest `at` per key wins) can never bring a removed item back. Older data held plain `true` values.
+function listIsLive(entry) { return !!entry && !entry.deleted; }
+function listLiveKeys(map) { return Object.keys(map).filter(k => listIsLive(map[k])); }
+function normalizeList(raw, fromLegacy) {
+  const out = {};
+  Object.keys(raw || {}).forEach(k => {
+    const v = raw[k];
+    if (v === true) out[k] = fromLegacy(k);
+    else if (v && typeof v === 'object') out[k] = v;
+  });
+  return out;
+}
+function mergeLists(local, cloud) {
+  const out = { ...local };
+  Object.keys(cloud).forEach(k => { if (!out[k] || (cloud[k].at || 0) > (out[k].at || 0)) out[k] = cloud[k]; });
+  return out;
+}
+function listPut(map, key, patch) {
+  const next = { ...(map[key] || {}), ...patch, at: Date.now() };
+  delete next.deleted;
+  map[key] = next;
+}
+function listRemove(map, key) {
+  const now = Date.now();
+  const old = map[key] || {};
+  map[key] = { ...old, ...('saved' in old ? { saved: false } : {}), deleted: now, at: now };
+}
+
 // --- Shopping checklist (persisted in localStorage) ---
+// shopChecklist[id] = { name, note, done, custom, at }. Page items use their name as the id, custom items 'c:<ts>'.
 const SHOP_CHECKLIST_KEY = 'japanTripShopChecklist';
+const shopLegacyEntry = (name) => ({ name, note: '', done: false, custom: false, at: 0 });
 function loadShopChecklist() {
-  try { return JSON.parse(localStorage.getItem(SHOP_CHECKLIST_KEY)) || {}; }
+  try { return normalizeList(JSON.parse(localStorage.getItem(SHOP_CHECKLIST_KEY)), shopLegacyEntry); }
   catch (e) { return {}; }
 }
 function saveShopChecklist(obj) {
   try { localStorage.setItem(SHOP_CHECKLIST_KEY, JSON.stringify(obj)); }
   catch (e) { /* storage unavailable, silently skip persistence */ }
+  cloudSyncDebounced();
 }
 function shopItemKey(itemEl) {
   const nameEl = itemEl.querySelector('.shop-item-name');
@@ -2190,7 +2321,7 @@ let shopChecklist = loadShopChecklist();
 let shopShowOnlyChecked = false;
 
 function updateShopChecklistCount() {
-  const n = Object.keys(shopChecklist).filter(k => shopChecklist[k]).length;
+  const n = listLiveKeys(shopChecklist).filter(k => !shopChecklist[k].custom).length;
   const el = document.getElementById('shopChecklistCount');
   if (el) el.textContent = n + (n === 1 ? ' פריט ברשימה שלך' : ' פריטים ברשימה שלך');
 }
@@ -2198,7 +2329,7 @@ function applyShopChecklistVisibility() {
   document.querySelectorAll('.shop-item').forEach(item => {
     if (shopShowOnlyChecked) {
       const key = shopItemKey(item);
-      item.style.display = (key && shopChecklist[key]) ? '' : 'none';
+      item.style.display = (key && listIsLive(shopChecklist[key])) ? '' : 'none';
     } else {
       item.style.display = '';
     }
@@ -2214,11 +2345,12 @@ function initShopChecklist() {
     btn.className = 'shop-check-btn';
     btn.setAttribute('aria-label', 'סמן כפריט ברשימה שלי');
     btn.textContent = '✓';
-    if (shopChecklist[key]) item.classList.add('shop-item-checked');
+    if (listIsLive(shopChecklist[key])) item.classList.add('shop-item-checked');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const isChecked = item.classList.toggle('shop-item-checked');
-      shopChecklist[key] = isChecked;
+      if (isChecked) listPut(shopChecklist, key, { name: key, note: (shopChecklist[key] && shopChecklist[key].note) || '', done: false, custom: false });
+      else listRemove(shopChecklist, key);
       saveShopChecklist(shopChecklist);
       updateShopChecklistCount();
       if (shopShowOnlyChecked && !isChecked) item.style.display = 'none';
@@ -2234,11 +2366,20 @@ document.getElementById('shopChecklistToggle').addEventListener('click', functio
   applyShopChecklistVisibility();
 });
 initShopChecklist();
+// Re-applies the list to the page items, after My Area or the cloud changed it.
+function refreshShopItemMarkers() {
+  document.querySelectorAll('.shop-item').forEach(item => {
+    const key = shopItemKey(item);
+    item.classList.toggle('shop-item-checked', !!(key && listIsLive(shopChecklist[key])));
+  });
+  updateShopChecklistCount();
+  applyShopChecklistVisibility();
+}
 
 // --- Saved recommendations (persisted in localStorage, same pattern as the shopping checklist) ---
 const SAVED_RECS_KEY = 'japanTripSavedRecs';
 function loadSavedRecs() {
-  try { return JSON.parse(localStorage.getItem(SAVED_RECS_KEY)) || {}; }
+  try { return normalizeList(JSON.parse(localStorage.getItem(SAVED_RECS_KEY)), () => ({ saved: true, note: '', at: 0 })); }
   catch (e) { return {}; }
 }
 function saveSavedRecs(obj) {
@@ -2254,16 +2395,51 @@ function toggleSavedRec(btn, event) {
   const isSaved = btn.classList.toggle('saved');
   btn.textContent = isSaved ? '♥' : '♡';
   btn.setAttribute('aria-pressed', isSaved);
-  savedRecs[key] = isSaved;
+  if (isSaved) listPut(savedRecs, key, { saved: true, note: (savedRecs[key] && savedRecs[key].note) || '' });
+  else listRemove(savedRecs, key);
   saveSavedRecs(savedRecs);
 }
 function applySavedRecMarkers() {
   document.querySelectorAll('.card-save-btn').forEach(btn => {
     const key = btn.dataset.key;
-    const isSaved = !!savedRecs[key];
+    const isSaved = listIsLive(savedRecs[key]);
     btn.classList.toggle('saved', isSaved);
     btn.textContent = isSaved ? '♥' : '♡';
     btn.setAttribute('aria-pressed', isSaved);
+  });
+}
+
+// --- Saved lodging neighborhoods: same shape and sync as saved recommendations, keyed by neighborhood name ---
+const SAVED_LODGING_KEY = 'japanTripSavedLodging';
+const savedLodgingLegacy = () => ({ saved: true, note: '', at: 0 });
+function loadSavedLodging() {
+  try { return normalizeList(JSON.parse(localStorage.getItem(SAVED_LODGING_KEY)), savedLodgingLegacy); }
+  catch (e) { return {}; }
+}
+function saveSavedLodging(obj) {
+  try { localStorage.setItem(SAVED_LODGING_KEY, JSON.stringify(obj)); }
+  catch (e) { /* storage unavailable, silently skip persistence */ }
+  cloudSyncDebounced();
+}
+let savedLodging = loadSavedLodging();
+function lodgingSaveBtnHtml(name) {
+  const saved = listIsLive(savedLodging[name]);
+  return '<button type="button" class="lodging-save-btn' + (saved ? ' saved' : '') + '" aria-label="שמירת האזור" aria-pressed="' + saved + '" data-key="' + escAttr(name) + '" onclick="toggleSavedLodging(this, event)">' + (saved ? '♥' : '♡') + '</button>';
+}
+function toggleSavedLodging(btn, event) {
+  event.stopPropagation();
+  const key = btn.dataset.key;
+  if (listIsLive(savedLodging[key])) listRemove(savedLodging, key);
+  else listPut(savedLodging, key, { saved: true, note: (savedLodging[key] && savedLodging[key].note) || '' });
+  saveSavedLodging(savedLodging);
+  applySavedLodgingMarkers();
+}
+function applySavedLodgingMarkers() {
+  document.querySelectorAll('.lodging-save-btn').forEach(btn => {
+    const saved = listIsLive(savedLodging[btn.dataset.key]);
+    btn.classList.toggle('saved', saved);
+    btn.textContent = saved ? '♥' : '♡';
+    btn.setAttribute('aria-pressed', saved);
   });
 }
 
@@ -2367,18 +2543,19 @@ async function cloudLoadAndApply() {
     // local-only data (e.g. first time signing in on a device that already
     // had local picks) is preserved rather than wiped.
     if (data.shopChecklist) {
-      shopChecklist = { ...shopChecklist, ...data.shopChecklist };
+      shopChecklist = mergeLists(shopChecklist, normalizeList(data.shopChecklist, shopLegacyEntry));
       saveShopChecklist(shopChecklist);
-      document.querySelectorAll('.shop-item').forEach(item => {
-        const key = shopItemKey(item);
-        item.classList.toggle('shop-item-checked', !!(key && shopChecklist[key]));
-      });
-      updateShopChecklistCount();
+      refreshShopItemMarkers();
     }
     if (data.savedRecs) {
-      savedRecs = { ...savedRecs, ...data.savedRecs };
+      savedRecs = mergeLists(savedRecs, normalizeList(data.savedRecs, () => ({ saved: true, note: '', at: 0 })));
       saveSavedRecs(savedRecs);
       applySavedRecMarkers();
+    }
+    if (data.savedLodging) {
+      savedLodging = mergeLists(savedLodging, normalizeList(data.savedLodging, savedLodgingLegacy));
+      saveSavedLodging(savedLodging);
+      applySavedLodgingMarkers();
     }
     if (data.itinerary && Array.isArray(data.itinerary.route) && data.itinerary.route.length > 0 && itinRoute.length === 0) {
       // Only adopt the cloud itinerary if there's no in-progress local one,
@@ -2386,6 +2563,7 @@ async function cloudLoadAndApply() {
       try { localStorage.setItem(ITIN_SAVE_KEY, JSON.stringify(data.itinerary)); } catch (e) {}
     }
 
+    if (currentPage === 'myarea' && !myAreaEditing) renderMyArea();
     document.getElementById('googleSignInBtn').style.display = 'none';
     document.getElementById('authSignedIn').style.display = '';
     document.body.classList.add('signed-in');
@@ -2410,7 +2588,7 @@ async function cloudSaveNow() {
       body: JSON.stringify({
         action: 'save_user_data',
         idToken: currentIdToken,
-        data: { shopChecklist, savedRecs, itinerary },
+        data: { shopChecklist, savedRecs, savedLodging, itinerary },
       }),
     });
     setSyncStatus(resp.ok ? 'מסונכרן ✓' : 'שגיאת שמירה');
@@ -2461,7 +2639,9 @@ function socialErrorText(res) {
     return 'פג תוקף ההתחברות. אפשר להתחבר מחדש ולשלוח שוב, הטקסט נשמר.';
   }
   if (res.status === 403 && res.data.error === 'review_removed_by_admin') return 'הביקורת שלך על המקום הזה הוסרה, ולא ניתן לכתוב עליו שוב.';
+  if (res.status === 400 && res.data.error === 'invalid_route') return 'המסלול לא תקין לפרסום. בדקו שיש לפחות שתי תחנות מוכרות.';
   if (res.status === 429) return 'הגעת למגבלה היומית. אפשר לנסות שוב מחר.';
+  if (res.status === 409 && res.data.error === 'already_pending') return 'כבר קיימת הצעה ממתינה עם אותו שם.';
   if (res.status === 409) return 'כבר דיווחת על הביקורת הזו.';
   return 'משהו השתבש, נסי שוב.';
 }
@@ -2474,6 +2654,7 @@ async function socialInit() {
   placeStats = (stats && stats.ok && stats.data.stats) || {};
   applyPlaceStats();
   renderSocialMyArea();
+  loadNotifications(false);
 }
 
 function socialReset() {
@@ -2482,6 +2663,7 @@ function socialReset() {
   reviewState = null;
   applyPlaceStats();
   renderSocialMyArea();
+  setNotifBadge(0);
   closeOverlays();
 }
 
@@ -2490,12 +2672,171 @@ function renderSocialMyArea() {
   document.getElementById('myAreaRatings').hidden = !socialMe;
   document.getElementById('myAreaProfile').hidden = !socialMe;
   document.getElementById('myAreaAdmin').hidden = !(socialMe && socialMe.isAdmin);
+  document.getElementById('myAreaSubmit').hidden = !socialMe;
+  document.getElementById('myAreaNotifications').hidden = !socialMe;
+  document.getElementById('myAreaAdminQueues').hidden = !(socialMe && socialMe.isAdmin);
+  document.getElementById('myAreaOverview').hidden = true; // shown by loadAdminOverview once the worker answers
   if (!socialMe) return;
   const input = document.getElementById('profileNameInput');
   if (document.activeElement !== input) input.value = socialMe.displayName;
   loadMyRatings();
-  if (socialMe.isAdmin) loadAdminReports();
+  loadMySubmissions();
+  loadNotifications(currentPage === 'myarea');
+  if (socialMe.isAdmin) { loadAdminReports(); loadAdminQueues(); loadAdminOverview(); }
 }
+
+// --- Community: place suggestions, in app notifications and the owner's approval queues (worker migration 0002) ---
+// An older worker answers unknown_action: the new sections then stay hidden instead of showing errors.
+const socialUnsupported = (res) => !res || (res.status === 400 && res.data.error === 'unknown_action');
+
+function fillSubmitOptions() {
+  const cat = document.getElementById('submitCategory');
+  if (cat.options.length) return;
+  cat.innerHTML = allCats.map(c => '<option value="' + escAttr(c) + '">' + esc((CATEGORY_EMOJI[c] || '') + ' ' + c) + '</option>').join('');
+  const cities = [...new Set(DATA.map(d => d.city).filter(Boolean))].sort();
+  document.getElementById('submitCity').innerHTML = cities.map(c => '<option value="' + escAttr(c) + '">' + esc(c) + '</option>').join('');
+}
+
+document.getElementById('submitPlaceBtn').addEventListener('click', async () => {
+  const status = document.getElementById('submitPlaceStatus');
+  const payload = {
+    title: document.getElementById('submitTitle').value.trim(),
+    category: document.getElementById('submitCategory').value,
+    city: document.getElementById('submitCity').value,
+    note: document.getElementById('submitNote').value.trim(),
+    url: document.getElementById('submitUrl').value.trim(),
+  };
+  if (payload.title.length < 2 || !payload.note) { status.textContent = 'צריך שם מקום ומשפט אחד למה כדאי.'; return; }
+  if (payload.url && !/^https?:\/\/\S+$/i.test(payload.url)) { status.textContent = 'הקישור צריך להתחיל ב-http או https.'; return; }
+  const btn = document.getElementById('submitPlaceBtn');
+  btn.disabled = true;
+  const res = await socialCall('submit_place', payload);
+  btn.disabled = false;
+  if (res && res.ok) {
+    ['submitTitle', 'submitNote', 'submitUrl'].forEach(id => { document.getElementById(id).value = ''; });
+    status.textContent = 'נשלח לבדיקה ✓ נעדכן כאן כשייבדק.';
+    loadMySubmissions();
+  } else if (res) {
+    status.textContent = socialUnsupported(res) ? 'ההצעות עדיין לא זמינות.' : (res.data.error === 'invalid_submission' ? 'בדקו את השדות (שם עד 80 תווים, משפט עד 300).' : socialErrorText(res));
+  }
+});
+
+const SUBMISSION_STATUS_TEXT = { pending: 'ממתין לבדיקה', approved: 'אושר ✓', rejected: 'לא אושר' };
+async function loadMySubmissions() {
+  const el = document.getElementById('mySubmissionsList');
+  fillSubmitOptions();
+  const res = await socialCall('list_my_submissions');
+  if (!res) return;
+  document.getElementById('myAreaSubmit').hidden = socialUnsupported(res);
+  if (!res.ok) return;
+  const list = res.data.submissions || [];
+  el.innerHTML = list.map(s => '<div class="myarea-item"><div class="myarea-item-main"><div class="myarea-item-name">' + esc(s.title) + '</div>' +
+    '<div class="myarea-item-meta">' + esc(SUBMISSION_STATUS_TEXT[s.status] || s.status) + (s.reason ? ' · ' + esc(s.reason) : '') + '</div></div></div>').join('');
+}
+
+function setNotifBadge(count) {
+  document.querySelectorAll('.tab[data-page="myarea"], .desk-link[data-page="myarea"], .auth-profile-btn').forEach(el => {
+    let badge = el.querySelector('.notif-badge');
+    if (!badge) { badge = document.createElement('span'); badge.className = 'notif-badge'; el.appendChild(badge); }
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.hidden = !count;
+    badge.setAttribute('role', 'status');
+    badge.setAttribute('aria-label', count + ' התראות חדשות');
+  });
+}
+
+// markRead: the list is on screen, so what it shows counts as seen. Otherwise only the badge is updated.
+async function loadNotifications(markRead) {
+  const res = await socialCall('list_notifications');
+  if (!res) return;
+  document.getElementById('myAreaNotifications').hidden = socialUnsupported(res);
+  if (!res.ok) return;
+  const list = res.data.notifications || [];
+  document.getElementById('notificationsList').innerHTML = list.length
+    ? list.map(n => '<div class="myarea-item' + (n.read ? '' : ' notif-unread') + '"><div class="myarea-item-main"><div class="myarea-item-name">' + esc(n.text) + '</div></div></div>').join('')
+    : '<div class="myarea-empty">אין התראות.</div>';
+  setNotifBadge(markRead ? 0 : res.data.unread || 0);
+  if (markRead && res.data.unread) socialCall('mark_notifications_read');
+}
+
+// Owner queues: pending suggested places and published routes. Approving is one tap, rejecting asks for a reason the author will read.
+async function loadAdminQueues() {
+  const subs = await socialCall('admin_list_submissions');
+  if (subs && subs.ok) {
+    const list = subs.data.submissions || [];
+    document.getElementById('adminQueuesCount').textContent = list.length ? '(' + list.length + ')' : '';
+    document.getElementById('adminSubmissions').innerHTML = list.length ? list.map(s =>
+      adminQueueItemHtml('submission', s.id, esc(s.title) + ' · ' + esc(s.category) + ' · ' + esc(s.city),
+        '<p class="rv-text-out">' + esc(s.note) + '</p>' + (s.url ? '<a href="' + escAttr(s.url) + '" target="_blank" rel="noopener noreferrer">' + esc(s.url) + '</a>' : '') +
+        '<div class="myarea-item-meta">' + esc(s.authorName) + '</div>')).join('') : '<div class="myarea-empty">אין הצעות ממתינות ✓</div>';
+  } else if (subs) document.getElementById('adminSubmissions').innerHTML = '';
+  const routes = await socialCall('admin_list_published_routes');
+  if (routes && routes.ok) {
+    const list = routes.data.routes || [];
+    document.getElementById('adminRoutes').innerHTML = list.map(r =>
+      adminQueueItemHtml('route', r.id, esc(r.title) + ' · ' + r.route.length + ' תחנות',
+        '<p class="rv-text-out">' + esc(r.description) + '</p><div class="myarea-item-meta">' +
+        esc(r.route.map((n, i) => n + ' (' + r.nights[i] + ')').join(' ← ')) + ' · ' + esc(r.authorName) + '</div>')).join('');
+  } else if (routes) document.getElementById('adminRoutes').innerHTML = '';
+}
+
+// Owner activity overview. An older worker answers unknown_action: the section then stays hidden.
+const REVIEW_STATE_LABELS = { visible: 'מוצגת', hidden: 'מוסתרת', deleted: 'נמחקה' };
+const overviewDate = (sec) => sec ? new Date(sec * 1000).toLocaleDateString('he-IL') : '';
+async function loadAdminOverview() {
+  const section = document.getElementById('myAreaOverview');
+  const res = await socialCall('admin_overview');
+  if (!res || !res.ok || socialUnsupported(res) || !(socialMe && socialMe.isAdmin)) { section.hidden = true; return; }
+  const t = res.data.totals || {};
+  const stat = (label, n) => '<div class="ov-stat">' + esc(label) + '<b>' + esc(n) + '</b></div>';
+  const savedNote = t.capped || t.scanned < t.total
+    ? '<div class="ov-note">מסלולים שמורים: נבדקו ' + esc(t.scanned) + ' מתוך ' + esc(t.total) + ' משתמשים, המספר חלקי.</div>' : '';
+  const reviews = res.data.latestReviews || [], users = res.data.users || [];
+  document.getElementById('adminOverview').innerHTML =
+    '<div class="ov-grid">' + stat('משתמשים', t.users) + stat('ביקורות', t.reviews) + stat('ביקורות מוסתרות', t.hiddenReviews) +
+      stat('הצעות ממתינות', t.pendingSubmissions) + stat('מסלולים ממתינים', t.pendingRoutes) + stat('מסלולים שמורים', t.savedRoutes) + '</div>' + savedNote +
+    '<a class="ov-link" href="https://dash.cloudflare.com/?to=/:account/web-analytics" target="_blank" rel="noopener noreferrer">ביקורים באתר: Cloudflare Web Analytics</a>' +
+    '<details class="ov-list"><summary>ביקורות אחרונות (' + reviews.length + ')</summary>' + reviews.map(r =>
+      '<div class="ov-row"><b>' + esc(String(r.placeKey).replace(/^[ps]:/, '')) + '</b> · <span dir="ltr">' + starsText(r.rating) + '</span> · ' +
+      esc(REVIEW_STATE_LABELS[r.state] || r.state) + '<p class="rv-text-out">' + esc(r.text) + '</p><div class="myarea-item-meta">' + esc(r.authorName) + '</div></div>').join('') + '</details>' +
+    '<details class="ov-list"><summary>משתמשים (' + users.length + ')</summary>' + users.map(u =>
+      '<div class="ov-row"><b>' + esc(u.displayName) + '</b> · הצטרף ' + esc(overviewDate(u.joinedAt)) + ' · ' + esc(reviewCountText(u.reviewCount)) +
+      (u.lastReviewAt ? ' · אחרונה ' + esc(overviewDate(u.lastReviewAt)) : '') + '</div>').join('') + '</details>';
+  section.hidden = false;
+}
+
+function adminQueueItemHtml(kind, id, title, bodyHtml) {
+  const attrs = ' data-kind="' + kind + '" data-id="' + id + '"';
+  return '<div class="adm-item"><div class="adm-title">' + (kind === 'route' ? '🧭 ' : '📍 ') + title + '</div>' + bodyHtml +
+    '<div class="adm-actions">' +
+      '<button type="button" class="rv-action" data-decide="approved"' + attrs + '>✓ אישור</button>' +
+      '<button type="button" class="rv-action" data-decide="reject-open"' + attrs + '>✗ דחייה</button>' +
+    '</div>' +
+    '<div class="adm-reject" hidden><input type="text" class="myarea-note-input" maxlength="300" placeholder="סיבת הדחייה (תישלח למציע)" aria-label="סיבת הדחייה">' +
+    '<button type="button" class="rv-action" data-decide="rejected"' + attrs + '>שליחת הדחייה</button></div></div>';
+}
+
+document.getElementById('adminQueues').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-decide]');
+  if (!btn) return;
+  const item = btn.closest('.adm-item');
+  if (btn.dataset.decide === 'reject-open') { item.querySelector('.adm-reject').hidden = false; item.querySelector('.adm-reject input').focus(); return; }
+  const reason = item.querySelector('.adm-reject input').value.trim();
+  if (btn.dataset.decide === 'rejected' && !reason) { item.querySelector('.adm-reject input').focus(); return; }
+  const action = btn.dataset.kind === 'route' ? 'admin_decide_route' : 'admin_decide_submission';
+  const res = await socialCall(action, { id: Number(btn.dataset.id), decision: btn.dataset.decide, reason });
+  if (res && res.ok) loadAdminQueues();
+  else if (res) item.insertAdjacentHTML('afterbegin', '<div class="rv-error" role="alert">' + esc(socialErrorText(res)) + '</div>');
+});
+
+// Background fetch of the approved places; they join the page on the next load (see APPROVED_PLACES_KEY).
+window.addEventListener('load', async () => {
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list_approved_places' }) });
+    const data = await resp.json();
+    if (resp.ok && Array.isArray(data.places)) localStorage.setItem(APPROVED_PLACES_KEY, JSON.stringify(data.places));
+  } catch (e) { /* offline or an older worker: keep the cache */ }
+});
 
 // "My ratings": every place the visitor reviewed, so one can be reopened to edit or delete.
 async function loadMyRatings() {
@@ -2922,6 +3263,98 @@ function tabelogTip(score, source) {
   return '';
 }
 
+// One editable row in My Area. list is 'shop' or 'recs'; buttons carry data-ma actions handled by one delegated listener.
+let myAreaEditing = null; // { list, key } whose note field is open
+function myAreaRowHtml(list, key, name, meta, entry) {
+  const attrs = ' data-list="' + list + '" data-key="' + escAttr(key) + '"';
+  const noteHtml = (myAreaEditing && myAreaEditing.list === list && myAreaEditing.key === key)
+    ? '<input type="text" class="myarea-note-input" maxlength="200" value="' + escAttr(entry.note || '') + '" aria-label="הערה ל' + escAttr(name) + '"' + attrs + '>'
+    : '<button type="button" class="myarea-note-btn" data-ma="note"' + attrs + '>' + (entry.note ? esc(entry.note) : '+ הערה') + '</button>';
+  return '<div class="myarea-item myarea-editable' + (entry.done ? ' myarea-done' : '') + '">' +
+    (list === 'shop' ? '<button type="button" class="myarea-check" role="checkbox" aria-checked="' + !!entry.done + '" aria-label="סימון ' + escAttr(name) + ' כנקנה" data-ma="done"' + attrs + '><span class="myarea-box">' + (entry.done ? '✓' : '') + '</span></button>' : '') +
+    '<div class="myarea-item-main"><div class="myarea-item-name">' + esc(name) + '</div>' +
+    (meta ? '<div class="myarea-item-meta">' + esc(meta) + '</div>' : '') + noteHtml + '</div>' +
+    '<button type="button" class="myarea-remove" data-ma="remove" aria-label="הסרת ' + escAttr(name) + '"' + attrs + '>✕</button></div>';
+}
+
+const MY_AREA_LISTS = {
+  shop: { map: () => shopChecklist, save: () => { saveShopChecklist(shopChecklist); refreshShopItemMarkers(); } },
+  recs: { map: () => savedRecs, save: () => { saveSavedRecs(savedRecs); applySavedRecMarkers(); } },
+  lodging: { map: () => savedLodging, save: () => { saveSavedLodging(savedLodging); applySavedLodgingMarkers(); } },
+};
+let undoToastTimer = null;
+function showUndoToast(text, onUndo) {
+  let el = document.getElementById('undoToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'undoToast';
+    el.className = 'undo-toast';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<span></span><button type="button">ביטול</button>';
+  el.firstChild.textContent = text;
+  el.lastChild.onclick = () => { el.classList.remove('show'); onUndo(); };
+  el.classList.add('show');
+  clearTimeout(undoToastTimer);
+  undoToastTimer = setTimeout(() => el.classList.remove('show'), 6000);
+}
+// When focus moved to another My Area control, the click about to land on it re-renders, so re-rendering here would swallow that click.
+function myAreaCommitNote(input, rerender) {
+  const list = MY_AREA_LISTS[input.dataset.list];
+  const map = list.map(), entry = map[input.dataset.key];
+  myAreaEditing = null;
+  if (listIsLive(entry) && (entry.note || '') !== input.value.trim()) {
+    listPut(map, input.dataset.key, { note: input.value.trim() });
+    list.save();
+  }
+  if (rerender) renderMyArea();
+}
+document.getElementById('myAreaPage').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-ma]');
+  if (!btn) return;
+  const action = btn.dataset.ma;
+  if (action === 'add-shop') { myAreaAddShopItem(); return; }
+  const list = MY_AREA_LISTS[btn.dataset.list];
+  if (!list) return;
+  const map = list.map(), key = btn.dataset.key;
+  if (action === 'note') { myAreaEditing = { list: btn.dataset.list, key }; renderMyArea(); const i = document.querySelector('.myarea-note-input'); if (i) i.focus(); }
+  else if (action === 'done') { listPut(map, key, { done: !map[key].done }); list.save(); renderMyArea(); }
+  else if (action === 'remove') {
+    const before = map[key];
+    listRemove(map, key);
+    const tomb = map[key];
+    list.save(); renderMyArea();
+    // Only undo if nothing newer (another device through the cloud merge) replaced the tombstone meanwhile.
+    showUndoToast('הפריט הוסר', () => { if (map[key] === tomb) { listPut(map, key, before); list.save(); } renderMyArea(); });
+  } else if (action === 'clear') {
+    const keys = listLiveKeys(map);
+    if (!confirm('למחוק את כל ' + keys.length + ' הפריטים?')) return;
+    const before = keys.map(k => [k, map[k]]);
+    keys.forEach(k => listRemove(map, k));
+    const tombs = keys.map(k => map[k]);
+    list.save(); renderMyArea();
+    showUndoToast('הרשימה נוקתה', () => { before.forEach(([k, v], i) => { if (map[k] === tombs[i]) listPut(map, k, v); }); list.save(); renderMyArea(); });
+  }
+});
+document.getElementById('myAreaPage').addEventListener('focusout', (e) => { if (e.target.matches('.myarea-note-input') && myAreaEditing) myAreaCommitNote(e.target, !e.relatedTarget); });
+document.getElementById('myAreaPage').addEventListener('keydown', (e) => {
+  if (e.target.matches('.myarea-note-input')) {
+    if (e.key === 'Enter') e.target.blur();
+    else if (e.key === 'Escape') { myAreaEditing = null; renderMyArea(); }
+  } else if (e.target.id === 'myAreaShopInput' && e.key === 'Enter') myAreaAddShopItem();
+});
+function myAreaAddShopItem() {
+  const input = document.getElementById('myAreaShopInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const id = 'c:' + Date.now();
+  listPut(shopChecklist, id, { name, note: '', done: false, custom: true });
+  saveShopChecklist(shopChecklist);
+  renderMyArea();
+  document.getElementById('myAreaShopInput').focus();
+}
+
 function renderMyArea() {
   // --- Itinerary summary ---
   const itinEl = document.getElementById('myAreaItinerary');
@@ -2943,44 +3376,52 @@ function renderMyArea() {
 
   // --- Shopping checklist ---
   const shopEl = document.getElementById('myAreaShopping');
-  const checkedKeys = Object.keys(shopChecklist).filter(k => shopChecklist[k]);
-  document.getElementById('myAreaShopCount').textContent = checkedKeys.length ? '(' + checkedKeys.length + ')' : '';
-  if (checkedKeys.length === 0) {
-    shopEl.innerHTML = '<div class="myarea-empty">עדיין לא סימנת פריטים בעמוד הקניות.</div>';
-  } else {
-    // Shop items are static HTML on the shopping page, not a JS data array —
-    // pull their name/description straight from the DOM regardless of
-    // whether that page is currently visible.
-    const shopItemsByName = {};
-    document.querySelectorAll('.shop-item').forEach(item => {
-      const key = shopItemKey(item);
-      if (key) shopItemsByName[key] = item.querySelector('.shop-item-desc');
-    });
-    shopEl.innerHTML = checkedKeys.map(key => {
-      const descEl = shopItemsByName[key];
-      const desc = descEl ? descEl.textContent : '';
-      return '<div class="myarea-item"><div><div class="myarea-item-name">' + esc(key) + '</div>' +
-        (desc ? '<div class="myarea-item-meta">' + esc(desc) + '</div>' : '') + '</div></div>';
-    }).join('');
-  }
+  const shopKeys = listLiveKeys(shopChecklist);
+  document.getElementById('myAreaShopCount').textContent = shopKeys.length ? '(' + shopKeys.length + ')' : '';
+  // Shop items are static HTML on the shopping page, not a JS data array,
+  // so their description comes straight from the DOM regardless of
+  // whether that page is currently visible.
+  const shopDescByName = {};
+  document.querySelectorAll('.shop-item').forEach(item => {
+    const key = shopItemKey(item);
+    if (key) shopDescByName[key] = item.querySelector('.shop-item-desc');
+  });
+  shopEl.innerHTML =
+    (shopKeys.length === 0 ? '<div class="myarea-empty">עדיין לא סימנת פריטים בעמוד הקניות.</div>' :
+      shopKeys.map(key => {
+        const e = shopChecklist[key];
+        const descEl = shopDescByName[key];
+        return myAreaRowHtml('shop', key, e.name || key, descEl ? descEl.textContent : '', e);
+      }).join('')) +
+    '<div class="myarea-add-row"><input type="text" id="myAreaShopInput" class="myarea-add-input" maxlength="60" placeholder="הוסיפו פריט משלכם" aria-label="הוסיפו פריט משלכם">' +
+    '<button type="button" class="myarea-add-btn" data-ma="add-shop">הוסיפו</button></div>' +
+    (shopKeys.length ? '<button type="button" class="myarea-clear-btn" data-ma="clear" data-list="shop">נקו הכל</button>' : '');
 
   // --- Saved recommendations ---
   const recsEl = document.getElementById('myAreaRecs');
-  const savedKeys = Object.keys(savedRecs).filter(k => savedRecs[k]);
+  const byTitle = {};
+  DATA.forEach(d => { byTitle[d.title] = d; });
+  const savedKeys = listLiveKeys(savedRecs).filter(k => byTitle[k]);
   document.getElementById('myAreaRecsCount').textContent = savedKeys.length ? '(' + savedKeys.length + ')' : '';
-  if (savedKeys.length === 0) {
-    recsEl.innerHTML = '<div class="myarea-empty">עדיין לא שמרת המלצות (לחצי על ♡ בכרטיסייה של כל מקום).</div>';
-  } else {
-    const byTitle = {};
-    DATA.forEach(d => { byTitle[d.title] = d; });
-    recsEl.innerHTML = savedKeys.map(key => {
+  recsEl.innerHTML = (savedKeys.length === 0 ? '<div class="myarea-empty">עדיין לא שמרת המלצות (לחצי על ♡ בכרטיסייה של כל מקום).</div>' :
+    savedKeys.map(key => {
       const d = byTitle[key];
-      if (!d) return '';
-      const meta = [d.category, d.city].filter(Boolean).join(' · ');
-      return '<div class="myarea-item"><div><div class="myarea-item-name">' + esc(d.title) + '</div>' +
-        '<div class="myarea-item-meta">' + esc(meta) + '</div></div></div>';
-    }).join('');
-  }
+      return myAreaRowHtml('recs', key, d.title, [d.category, d.city].filter(Boolean).join(' · '), savedRecs[key]);
+    }).join('')) +
+    (savedKeys.length ? '<button type="button" class="myarea-clear-btn" data-ma="clear" data-list="recs">נקו הכל</button>' : '');
+
+  // --- Saved lodging areas ---
+  const lodgingEl = document.getElementById('myAreaLodging');
+  const nbByName = {};
+  LODGING_NEIGHBORHOODS.forEach(n => { nbByName[n.name] = n; });
+  const lodgingKeys = listLiveKeys(savedLodging).filter(k => nbByName[k]);
+  document.getElementById('myAreaLodgingCount').textContent = lodgingKeys.length ? '(' + lodgingKeys.length + ')' : '';
+  lodgingEl.innerHTML = (lodgingKeys.length === 0 ? '<div class="myarea-empty">עדיין לא שמרת אזורי לינה (לחצי על ♡ בעמוד הלינה).</div>' :
+    lodgingKeys.map(key => {
+      const n = nbByName[key];
+      return myAreaRowHtml('lodging', key, (n.emoji ? n.emoji + ' ' : '') + (n.nameEn || n.name), [n.city, n.knownFor].filter(Boolean).join(' · '), savedLodging[key]);
+    }).join('')) +
+    (lodgingKeys.length ? '<button type="button" class="myarea-clear-btn" data-ma="clear" data-list="lodging">נקו הכל</button>' : '');
   renderSocialMyArea();
 }
 
@@ -3069,6 +3510,7 @@ function render() {
     }
     const card = document.createElement('div');
     card.className = 'card' + (d.isPersonal ? ' has-personal' : '');
+    const communityBadge = d.community ? '<span class="badge">הצעת גולש</span>' : '';
     const bookBadge = d.mustBook ? '<span class="badge">⚠️ להזמין מראש</span>' : '';
     const isTabelog = d.scoreSource === 'Tabelog';
     let badgeClass = 'badge-other';
@@ -3112,7 +3554,7 @@ function render() {
         '<button type="button" class="card-save-btn" aria-label="שמירה למועדפים" aria-pressed="false" data-key="' + escAttr(d.title) + '" onclick="toggleSavedRec(this, event)">♡</button>' +
       '</div>' +
       aiReasonHtml +
-      '<div class="card-badges">' + personalBadge + vegBadge + bookBadge + tabelogBadge + priceMetaHtml + '</div>' +
+      '<div class="card-badges">' + communityBadge + personalBadge + vegBadge + bookBadge + tabelogBadge + priceMetaHtml + '</div>' +
       personalNoteHtml +
       (noteText && !(d.isPersonal && d.personalNote) ? '<div class="card-note" data-expanded="0">' + linkifyNote(shortNote) + '</div>' : '') +
       (noteText && !(d.isPersonal && d.personalNote) ? readMoreHtml : '') +
@@ -3436,7 +3878,7 @@ function lodgingNbCardHtml(n) {
   }
   return '<div class="lodging-nb-card" id="lodging-nb-' + lodgingSlug(n.name) + '" onclick="lodgingHighlightFromCard(\'' + n.name.replace(/'/g, "\\'") + '\')">' +
     '<div class="lodging-nb-top"><span class="lodging-nb-name">' + esc(displayName) + '</span>' +
-    '<span class="lodging-nb-tag ' + tagClass + '">' + tagLabel + '</span></div>' +
+    '<span class="lodging-nb-tag ' + tagClass + '">' + tagLabel + '</span>' + lodgingSaveBtnHtml(n.name) + '</div>' +
     lodgingVibeTagsHtml(n) + quoteHtml + honestHtml + nbPersonalHtml +
     '<div class="lodging-nb-known">' + esc(n.knownFor || '') + '</div>' +
     '<div class="lodging-nb-meta">' +
@@ -3513,7 +3955,7 @@ function lodgingRenderNbFlatList() {
     const displayName = (n.emoji ? n.emoji + ' ' : '') + (n.nameEn || n.name);
     const hotelsCount = DATA.filter(d => d.category === 'Hotels & Ryokan' && d.neighborhood === n.name).length;
     return '<div class="lodging-flat-nb-item" onclick="lodgingGoToMapNb(\'' + n.name.replace(/'/g, "\\'") + '\')">' +
-      '<div class="lodging-nb-top"><span class="lodging-nb-name">' + esc(displayName) + '</span><span class="lodging-nb-tag ' + n.character + '">' + tagLabel + '</span></div>' +
+      '<div class="lodging-nb-top"><span class="lodging-nb-name">' + esc(displayName) + '</span><span class="lodging-nb-tag ' + n.character + '">' + tagLabel + '</span>' + lodgingSaveBtnHtml(n.name) + '</div>' +
       lodgingVibeTagsHtml(n) +
       '<div class="lodging-nb-known">' + esc(n.knownFor || '') + '</div>' +
       '<div class="lodging-nb-meta">' +
@@ -3716,8 +4158,8 @@ const ITIN_CONTINUATIONS = {
   'Miyajima': ['Hiroshima'],
   'Hokkaido (Sapporo)': ['Otaru','Furano','Biei','Hakodate','Niseko','Asahikawa','Tokyo','Osaka','Fukuoka (Kyushu)'],
   'Kanazawa': ['Shirakawa-go','Kyoto','Nagano','Matsumoto','Magome','Tsumago','Fukui','Tateyama Kurobe Alpine Route','Takayama','Gokayama','Tokyo','Osaka','Nagoya'],
-  'Takayama': ['Kanazawa','Shirakawa-go','Nagoya','Magome','Tsumago','Tokyo','Kyoto','Osaka','Matsumoto','Gero Onsen'],
-  'Nagano': ['Matsumoto','Tokyo','Kanazawa','Tsumago'],
+  'Takayama': ['Kanazawa','Shirakawa-go','Nagoya','Magome','Tsumago','Tokyo','Kyoto','Osaka','Matsumoto','Gero Onsen','Nagano'],
+  'Nagano': ['Matsumoto','Tokyo','Kanazawa','Tsumago','Shirakawa-go','Takayama'],
   'Matsumoto': ['Nagano','Kanazawa','Takayama','Magome','Tsumago','Kusatsu Onsen','Tateyama Kurobe Alpine Route','Tokyo'],
   'Naoshima (אי האמנות)': ['Takamatsu','Okayama','Osaka'],
   'Okayama': ['Naoshima (אי האמנות)','Hiroshima','Osaka','Takamatsu','Himeji','Onomichi','Tottori Sand Dunes','Kurashiki','Tokyo','Fukuoka (Kyushu)'],
@@ -3762,7 +4204,7 @@ const ITIN_CONTINUATIONS = {
   'Nikko': ['Tokyo','Kusatsu Onsen'],
   'Niseko': ['Hokkaido (Sapporo)','Hakodate','Otaru','Tokyo'],
   'Otaru': ['Hokkaido (Sapporo)','Niseko','Asahikawa','Tokyo','Hakodate'],
-  'Shirakawa-go': ['Kanazawa','Takayama','Nagoya'],
+  'Shirakawa-go': ['Kanazawa','Takayama','Nagoya','Nagano'],
   'Yokohama': ['Tokyo','Kamakura'],
   'Karatsu': ['Fukuoka (Kyushu)','Saga','Arita'],
   'Yanagawa': ['Fukuoka (Kyushu)'],
@@ -3822,7 +4264,7 @@ let itinRoute = [];
 let itinLockedStops = new Set(); // stop names the auto-optimizer must never reposition
 let itinUndoStack = []; // snapshots taken before each mutating action, for the undo button
 let itinUsedNames = new Set();
-let itinNightOverrides = {}; // name -> extra days added/removed by the user beyond the default estimate
+let itinExtraNights = []; // parallel to itinRoute: extra nights added/removed by the user beyond the default estimate
 let itinSearchQuery = '';
 
 const ITIN_SAVE_KEY = 'itinSavedRouteV1';
@@ -3853,9 +4295,9 @@ function itinShortDate(iso) {
 
 // Dates of every stop in the current route, or null when no arrival date is set.
 function itinRouteDates() {
-  return itinComputeDates(itinStartDate, itinRoute.map(name => {
+  return itinComputeDates(itinStartDate, itinRoute.map((name, i) => {
     const d = ITIN_DESTINATIONS.find(x => x.name === name);
-    return d ? itinGetNights(d) : 0;
+    return d ? itinGetNights(d, i) : 0;
   }));
 }
 
@@ -3877,7 +4319,7 @@ function itinSaveState() {
   try {
     const payload = {
       route: itinRoute,
-      nightOverrides: itinNightOverrides,
+      extraNights: itinExtraNights,
       lockedStops: [...itinLockedStops],
       startDate: itinStartDate,
       savedAt: Date.now(),
@@ -3934,11 +4376,19 @@ function itinGoStart() {
   }
 }
 
+// Old saves keyed the extra nights by destination name; new ones are aligned with the route.
+function itinSavedExtraNights(saved) {
+  const extras = Array.isArray(saved.extraNights)
+    ? saved.extraNights
+    : saved.route.map(n => (saved.nightOverrides || {})[n] || 0);
+  return saved.route.map((_, i) => extras[i] || 0);
+}
+
 function itinResumeSavedRoute() {
   const saved = itinLoadSavedState();
   if (!saved) { itinGoStart(); return; }
   itinRoute = saved.route;
-  itinNightOverrides = saved.nightOverrides || {};
+  itinExtraNights = itinSavedExtraNights(saved);
   itinLockedStops = new Set(saved.lockedStops || []);
   itinStartDate = saved.startDate || null;
   itinUsedNames = new Set(itinRoute);
@@ -4074,9 +4524,9 @@ function itinTransportMode(fromName, toName, km) {
   return { emoji: '🚗', label: 'רכב / אוטובוס / רכבת מקומית' };
 }
 
-function itinGetNights(d) {
+function itinGetNights(d, i) {
   const base = itinParseNightsNum(d.nights);
-  const extra = itinNightOverrides[d.name] || 0;
+  const extra = (i == null ? 0 : itinExtraNights[i]) || 0;
   // By default, a destination with no digit in its "nights" field (e.g.
   // "טיול יום") is a day trip that adds 0 nights, since the night is
   // already spent in whatever base city it departs from. But any
@@ -4086,8 +4536,8 @@ function itinGetNights(d) {
   return Math.max(0, base + extra);
 }
 
-function itinNightsLabel(d) {
-  const nights = itinGetNights(d);
+function itinNightsLabel(d, i) {
+  const nights = itinGetNights(d, i);
   if (nights === 0) return 'טיול יום (0 לילות נוספים)';
   if (nights === 1) return 'לילה אחד';
   return nights + ' לילות';
@@ -4096,7 +4546,7 @@ function itinNightsLabel(d) {
 function itinSnapshotForUndo() {
   itinUndoStack.push({
     route: itinRoute.slice(),
-    nightOverrides: Object.assign({}, itinNightOverrides),
+    extraNights: itinExtraNights.slice(),
     lockedStops: new Set(itinLockedStops),
   });
   if (itinUndoStack.length > 20) itinUndoStack.shift(); // cap history so it can't grow unbounded
@@ -4106,7 +4556,7 @@ function itinUndo() {
   if (itinUndoStack.length === 0) return;
   const snap = itinUndoStack.pop();
   itinRoute = snap.route;
-  itinNightOverrides = snap.nightOverrides;
+  itinExtraNights = snap.extraNights;
   itinLockedStops = snap.lockedStops;
   itinUsedNames = new Set(itinRoute);
   itinEditingStopIndex = null;
@@ -4117,16 +4567,6 @@ function itinUndo() {
   }
 }
 
-function itinAdjustNights(name, delta) {
-  const current = itinNightOverrides[name] || 0;
-  const d = ITIN_DESTINATIONS.find(x => x.name === name);
-  const base = d ? itinParseNightsNum(d.nights) : 1;
-  const next = current + delta;
-  if (base + next < 0) return;
-  if (itinRoute.length > 0) itinSnapshotForUndo();
-  itinNightOverrides[name] = next;
-  itinRender();
-}
 
 let itinSummaryLeafletMap, itinSummaryMapInitialized = false;
 let itinMiniLeafletMap, itinMiniMapInitialized = false;
@@ -4285,6 +4725,22 @@ let itinOpenMenu = null; // null | 'top' | index of the route row whose menu is 
 
 let itinFocusKey = null; // data-f of the control to refocus after the route is rebuilt
 
+// Drag handle and nights stepper for one stop, shared by the route screen and the summary.
+function itinDragHandleHtml(i, stop) {
+  return '<button type="button" class="it-drag" data-f="drag' + i + '" aria-label="הזיזו את ' + stop + ' (מקום ' + (i + 1) + ' מתוך ' + itinRoute.length + '), גררו או השתמשו בחצים" onpointerdown="itinDragStart(event, ' + i + ')" onkeydown="itinDragKey(event, ' + i + ')">⠿</button>';
+}
+
+function itinStepperHtml(i, stop) {
+  const d = ITIN_DESTINATIONS.find(x => x.name === stop);
+  const nights = d ? itinGetNights(d, i) : 0;
+  const minNights = d && itinParseNightsNum(d.nights) >= 1 ? 1 : 0; // a stop never drops below 1 night, only day trips sit at 0
+  return '<div class="it-stepper" role="group" aria-label="' + nights + ' לילות ב' + stop + '">' +
+    '<button type="button" class="it-step-btn" data-f="m' + i + '" aria-label="להפחית לילה" onclick="itinAdjustNightsAt(' + i + ', -1)"' + (nights <= minNights ? ' disabled' : '') + '>−</button>' +
+    '<span class="it-step-value">' + nights + '</span>' +
+    '<button type="button" class="it-step-btn" data-f="p' + i + '" aria-label="להוסיף לילה" onclick="itinAdjustNightsAt(' + i + ', 1)">+</button>' +
+  '</div>';
+}
+
 function itinRenderRoute() {
   const focusKey = itinFocusKey || (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f);
   itinFocusKey = null;
@@ -4297,8 +4753,6 @@ function itinRenderRoute() {
     const locked = itinLockedStops.has(stop);
     const open = itinEditingStopIndex === i;
     const emoji = ITIN_DESTINATION_EMOJI[stop] || (d ? ITIN_REGION_EMOJI[d.region] : '') || '📍';
-    const nights = d ? itinGetNights(d) : 0;
-    const minNights = d && itinParseNightsNum(d.nights) >= 1 ? 1 : 0; // a stop never drops below 1 night, only day trips sit at 0
     const stopDates = routeDates ? routeDates.stops[i] : null;
     const datesHtml = stopDates ? '<div class="it-route-stop-dates">' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
     const eventNote = d ? itinStopEventNote(d, stopDates) : '';
@@ -4325,17 +4779,13 @@ function itinRenderRoute() {
     el.className = 'it-route-stop' + (locked ? ' it-route-stop-locked' : '') + (itinNewRowIndex === i ? ' it-route-stop-new' : '');
     el.innerHTML =
       '<div class="it-route-main">' +
-        '<button type="button" class="it-drag" data-f="drag' + i + '" aria-label="הזיזו את ' + stop + ' (מקום ' + (i + 1) + ' מתוך ' + itinRoute.length + '), גררו או השתמשו בחצים" onpointerdown="itinDragStart(event, ' + i + ')" onkeydown="itinDragKey(event, ' + i + ')">⠿</button>' +
+        itinDragHandleHtml(i, stop) +
         '<div class="it-route-body" data-f="row' + i + '" tabindex="0" role="button" aria-expanded="' + open + '" onclick="itinToggleStopEditor(' + i + ')">' +
           '<span class="it-route-stop-name"><span class="it-route-num">' + (i + 1) + '.</span> ' + emoji + ' ' + stop + '</span>' + datesHtml +
           (eventNote ? '<div class="it-route-stop-event">' + eventNote + '</div>' : '') +
           (locked ? '<div class="it-route-stop-lock">מיקום נעול</div>' : '') +
         '</div>' +
-        '<div class="it-stepper" role="group" aria-label="' + nights + ' לילות ב' + stop + '">' +
-          '<button type="button" class="it-step-btn" data-f="m' + i + '" aria-label="להפחית לילה" onclick="itinAdjustNightsAt(' + i + ', -1)"' + (nights <= minNights ? ' disabled' : '') + '>−</button>' +
-          '<span class="it-step-value">' + nights + '</span>' +
-          '<button type="button" class="it-step-btn" data-f="p' + i + '" aria-label="להוסיף לילה" onclick="itinAdjustNightsAt(' + i + ', 1)">+</button>' +
-        '</div>' +
+        itinStepperHtml(i, stop) +
         '<div class="it-menu-wrap">' +
           '<button type="button" class="it-icon-btn" data-f="menu' + i + '" aria-label="עוד פעולות ל' + stop + '" aria-expanded="' + (itinOpenMenu === i) + '" onclick="event.stopPropagation();itinToggleMenu(' + i + ')">⋯</button>' +
           (itinOpenMenu === i ? '<div class="it-menu">' + menuItems + '</div>' : '') +
@@ -4363,9 +4813,9 @@ function itinRenderRoute() {
   const lastStop = itinRoute[itinRoute.length - 1];
   document.getElementById('itinAddRow').textContent = '+ הוסיפו יעד אחרי ' + lastStop;
 
-  const totalDaysGuess = itinRoute.reduce((sum, name) => {
+  const totalDaysGuess = itinRoute.reduce((sum, name, i) => {
     const d = ITIN_DESTINATIONS.find(x => x.name === name);
-    return sum + (d ? itinGetNights(d) : 0);
+    return sum + (d ? itinGetNights(d, i) : 0);
   }, 0);
   document.getElementById('itinBarCount').textContent =
     (itinRoute.length === 1 ? 'תחנה אחת' : itinRoute.length + ' תחנות') + ' · ' + (totalDaysGuess === 1 ? 'לילה אחד' : totalDaysGuess + ' לילות');
@@ -4423,11 +4873,13 @@ function itinReorderStop(from, to) {
   if (from === to || from < 0 || to < 0 || from >= itinRoute.length || to >= itinRoute.length) return;
   itinSnapshotForUndo();
   itinRoute.splice(to, 0, itinRoute.splice(from, 1)[0]);
+  itinExtraNights.splice(to, 0, itinExtraNights.splice(from, 1)[0]);
   itinEditingStopIndex = null;
   itinRender();
 }
 
 function itinMoveStop(index, direction) {
+  if (index + direction < 0 || index + direction >= itinRoute.length) return;
   itinFocusKey = 'drag' + (index + direction);
   itinReorderStop(index, index + direction);
 }
@@ -4443,7 +4895,7 @@ function itinDragKey(e, i) {
 // changes once on release. Pointer events cover touch, pen and mouse.
 function itinDragStart(e, from) {
   const handle = e.currentTarget;
-  const rows = [...document.querySelectorAll('#itinRouteStrip .it-route-stop')];
+  const rows = [...handle.closest('#itinRouteStrip, #itinSummaryList').children];
   const row = rows[from];
   if (!row || rows.length < 2) return;
   e.preventDefault();
@@ -4499,9 +4951,13 @@ function itinToggleStopEditor(index) {
 }
 
 function itinAdjustNightsAt(index, delta) {
-  const name = itinRoute[index];
-  if (!name) return;
-  itinAdjustNights(name, delta);
+  const d = ITIN_DESTINATIONS.find(x => x.name === itinRoute[index]);
+  if (!d) return;
+  const next = (itinExtraNights[index] || 0) + delta;
+  if (itinParseNightsNum(d.nights) + next < 0) return;
+  itinSnapshotForUndo();
+  itinExtraNights[index] = next;
+  itinRender();
 }
 
 function itinMatchHits(d) {
@@ -4848,12 +5304,120 @@ function itinUseTemplate(index) {
   if (!tpl) return;
   itinBuildMethod = 'template';
   itinLastTemplateTitle = tpl.title;
-  const overrides = {};
-  Object.keys(tpl.nightOverrides).forEach(name => {
+  const extras = tpl.route.map(name => {
     const d = ITIN_DESTINATIONS.find(x => x.name === name);
-    if (d) overrides[name] = tpl.nightOverrides[name] - itinGetNights(d);
+    return d && tpl.nightOverrides[name] != null ? tpl.nightOverrides[name] - itinGetNights(d) : 0;
   });
-  itinLaunchGeneratedRoute(tpl.route, overrides, '');
+  itinLaunchGeneratedRoute(tpl.route, extras, '');
+}
+
+// Community routes (docs: published routes). Public read, so a plain fetch with no idToken; silent on failure.
+let itinCommunityRoutes = [];
+let itinCommunityLoaded = false;
+
+async function itinLoadCommunityRoutes() {
+  if (itinCommunityLoaded) return;
+  itinCommunityLoaded = true;
+  try {
+    const resp = await fetch(AI_SEARCH_WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'list_published_routes' }) });
+    const data = await resp.json();
+    if (resp.ok && Array.isArray(data.routes)) itinCommunityRoutes = data.routes;
+  } catch (e) { itinCommunityLoaded = false; /* offline or an older worker: try again next time */ }
+  itinRenderCommunityRoutes();
+}
+
+function itinValidCommunityRoutes() {
+  return itinCommunityRoutes.filter(r => r && Array.isArray(r.route) && Array.isArray(r.nights));
+}
+
+function itinRenderCommunityRoutes() {
+  const box = document.getElementById('itinCommunityBox');
+  const el = document.getElementById('itinCommunityList');
+  const routes = itinValidCommunityRoutes();
+  box.hidden = routes.length === 0;
+  el.innerHTML = routes.map((r, i) => {
+    const total = r.nights.reduce((sum, n) => sum + (Number(n) || 0), 0);
+    return '<div class="it-template-card">' +
+      '<div class="it-template-title">' + esc(r.title) + '</div>' +
+      '<div class="it-template-sub">' + esc(r.description) + '</div>' +
+      '<div class="it-template-author">מאת ' + esc(r.authorName) + '</div>' +
+      '<div class="it-template-route">' + r.route.map(n => esc(n)).join(' ← ') + '</div>' +
+      '<div class="it-template-meta">' + r.route.length + ' תחנות · ' + total + ' לילות</div>' +
+      '<button type="button" class="it-template-use-btn" onclick="itinUseCommunityRoute(' + i + ')">בחרו מסלול זה</button>' +
+      '</div>';
+  }).join('');
+}
+
+function itinUseCommunityRoute(index) {
+  const r = itinValidCommunityRoutes()[index];
+  if (!r) return;
+  const route = [];
+  const extras = [];
+  r.route.forEach((name, i) => {
+    const d = ITIN_DESTINATIONS.find(x => x.name === name);
+    if (!d) return;
+    route.push(name);
+    extras.push((Number(r.nights[i]) || 0) - itinGetNights(d));
+  });
+  if (route.length < 2) return;
+  itinBuildMethod = 'template';
+  itinLastTemplateTitle = r.title;
+  itinLaunchGeneratedRoute(route, extras, '');
+}
+
+// Publishing the finished route for the owner to approve. Needs a signed in visitor.
+function itinTogglePublish() {
+  const box = document.getElementById('itinPublishBox');
+  const btn = document.getElementById('itinPublishBtn');
+  const open = box.hidden;
+  box.hidden = !open;
+  btn.setAttribute('aria-expanded', String(open));
+  if (open) itinRenderPublishForm();
+}
+
+function itinRenderPublishForm() {
+  const box = document.getElementById('itinPublishBox');
+  if (!socialMe) {
+    box.innerHTML = '<div class="myarea-empty">כדי לפרסם מסלול צריך להתחבר עם Google (למעלה, בראש העמוד).</div>';
+    return;
+  }
+  const stops = itinRoute.map((name, i) => {
+    const d = ITIN_DESTINATIONS.find(x => x.name === name);
+    return esc(name) + (d ? ' (' + itinGetNights(d, i) + ' לילות)' : '');
+  });
+  box.innerHTML =
+    '<label class="it-field-label" for="itinPubTitle">שם המסלול</label>' +
+    '<input type="text" id="itinPubTitle" maxlength="60" autocomplete="off">' +
+    '<label class="it-field-label" for="itinPubDesc">תיאור קצר</label>' +
+    '<textarea id="itinPubDesc" maxlength="300"></textarea>' +
+    '<ul class="it-publish-preview" aria-label="התחנות במסלול">' + stops.map(t => '<li>' + t + '</li>').join('') + '</ul>' +
+    '<button type="button" class="rv-submit" id="itinPubSend" onclick="itinSubmitPublish()">שליחה לבדיקה</button>' +
+    '<div class="rv-error" id="itinPubError" role="alert" hidden></div>';
+}
+
+async function itinSubmitPublish() {
+  const err = document.getElementById('itinPubError');
+  const fail = (t) => { err.textContent = t; err.hidden = false; };
+  const title = document.getElementById('itinPubTitle').value.trim();
+  const description = document.getElementById('itinPubDesc').value.trim();
+  if (title.length < 2 || title.length > 60) return fail('שם המסלול צריך להיות באורך 2 עד 60 תווים.');
+  if (description.length < 1 || description.length > 300) return fail('כתבו תיאור קצר, עד 300 תווים.');
+  if (itinRoute.length < 2) return fail('כדי לפרסם צריך לפחות שתי תחנות.');
+  const dests = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name));
+  if (dests.some(d => !d)) return fail('במסלול יש תחנה שלא ניתן לפרסם.');
+  const nights = dests.map((d, i) => itinGetNights(d, i));
+  const send = document.getElementById('itinPubSend');
+  send.disabled = true;
+  err.hidden = true;
+  const res = await socialCall('publish_route', { title, description, route: itinRoute.slice(), nights, startDate: itinStartDate });
+  if (res && res.ok) {
+    document.getElementById('itinPublishBox').innerHTML = '<div class="rv-notice" role="status">נשלח לבדיקה ✓</div>';
+    return;
+  }
+  send.disabled = false;
+  if (!res) return fail('כדי לפרסם צריך להתחבר.');
+  if (socialUnsupported(res)) return fail('הפרסום עדיין לא זמין');
+  fail(socialErrorText(res));
 }
 
 function itinChooseMode(mode) {
@@ -4875,6 +5439,8 @@ function itinChooseMode(mode) {
     itinShowScreen('itinQuizScreen');
     itinRenderQuizChips();
     itinRenderTemplates();
+    itinRenderCommunityRoutes();
+    itinLoadCommunityRoutes();
     itinWizShow(0);
   }
 }
@@ -5414,26 +5980,26 @@ async function itinGenerateQuizRoute() {
     }
   }
 
-  itinLaunchGeneratedRoute(finalRoute, nightOverrides, extraNote);
+  // Each name carries its extra nights on its first visit only.
+  const extras = finalRoute.map((name, i) => (finalRoute.indexOf(name) === i && nightOverrides[name]) || 0);
+  itinLaunchGeneratedRoute(finalRoute, extras, extraNote);
 }
 
-function itinLaunchGeneratedRoute(route, nightOverrides, extraNote) {
+function itinLaunchGeneratedRoute(route, extraNights, extraNote) {
   itinRoute = route.slice();
   itinUsedNames = new Set(route);
-  itinNightOverrides = nightOverrides || {};
+  itinExtraNights = route.map((_, i) => (extraNights && extraNights[i]) || 0);
   itinUndoStack = [];
+  itinDraftNote = extraNote || '';
   itinShowScreen('itinMainScreen');
   itinRender();
   itinShowSummary();
-  if (extraNote) {
-    const warnEl = document.getElementById('itinSummaryWarnings');
-    warnEl.innerHTML = '<div class="it-warning-box"><div class="it-warning-label">💡 הערה על הטיוטה</div>המסלול הזה נוצר אוטומטית לפי השאלון.' + extraNote + '</div>' + warnEl.innerHTML;
-  }
 }
 
 function itinChooseStart(name) {
   itinBuildMethod = 'manual';
-  itinNightOverrides = {};
+  itinDraftNote = '';
+  itinExtraNights = [0];
   itinLockedStops = new Set();
   itinRoute = [name];
   itinUsedNames = new Set([name]);
@@ -5450,9 +6016,9 @@ function itinClearSearch() {
 
 function itinAddStop(name) {
   itinSnapshotForUndo();
-  // A stop added by hand starts at 2 nights. A return to a stop already on the route and a day trip keep their nights.
+  // A stop added by hand starts at 2 nights, a day trip keeps its 0. Every stop has its own nights, so a return visit gets its own 2.
   const d = ITIN_DESTINATIONS.find(x => x.name === name);
-  if (d && !itinRoute.includes(name) && itinParseNightsNum(d.nights) >= 1) itinNightOverrides[name] = 2 - itinParseNightsNum(d.nights);
+  itinExtraNights.push(d && itinParseNightsNum(d.nights) >= 1 ? 2 - itinParseNightsNum(d.nights) : 0);
   itinRoute.push(name);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
@@ -5466,6 +6032,7 @@ function itinRemoveStop(index) {
   if (index <= 0 || index >= itinRoute.length) return;
   itinSnapshotForUndo();
   itinRoute.splice(index, 1);
+  itinExtraNights.splice(index, 1);
   itinUsedNames = new Set(itinRoute);
   itinClearSearch();
   itinEditingStopIndex = null;
@@ -5495,7 +6062,8 @@ function itinResetRoute() {
   itinLastTemplateTitle = null;
   itinQuizDateMode = 'nights';
   itinActiveSeason = null;
-  itinNightOverrides = {};
+  itinExtraNights = [];
+  itinDraftNote = '';
   itinStartDate = null;
   itinEditingStopIndex = null;
   itinAiDestinationScores = null;
@@ -5511,8 +6079,12 @@ function itinOnSearchInput() {
   itinRenderSheetMap();
 }
 
+let itinSummaryRefreshTimer = null;
+let itinDraftNote = ''; // note about an auto built draft, kept above the warnings while the summary is edited
 function itinRender() {
   if (itinRoute.length === 0) return;
+  const summaryOpen = document.getElementById('itinSummaryScreen').style.display === 'block';
+  const summaryFocusKey = summaryOpen ? (itinFocusKey || (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f)) : null;
   itinRenderChips();
   itinRenderRoute();
   itinRenderMiniMap();
@@ -5522,6 +6094,7 @@ function itinRender() {
     itinRenderSheetMap();
   }
   itinSaveState();
+  if (summaryOpen) itinRefreshSummary(summaryFocusKey);
 }
 // On page load, offer to resume a route saved by an earlier visit (or an accidental refresh or tab close).
 itinGoStart();
@@ -5596,8 +6169,10 @@ function itinCandidateAnchorsValid(candidate) {
 }
 
 function itinTwoOptImprove(names) {
-  if (names.length < 4) return { route: names.slice(), km: itinRouteTotalKmFor(names) };
+  const identity = names.map((_, i) => i);
+  if (names.length < 4) return { route: names.slice(), km: itinRouteTotalKmFor(names), order: identity };
   let best = names.slice();
+  let bestOrder = identity;
   let bestScore = itinCandidateAnchorsValid(best) ? itinRouteScoreForOptimizer(best) : Infinity;
   let improved = true;
   let guard = 0;
@@ -5620,6 +6195,7 @@ function itinTwoOptImprove(names) {
         if (!itinCandidateAnchorsValid(candidate)) continue;
         const score = itinRouteScoreForOptimizer(candidate);
         if (score < bestScore - 1) {
+          bestOrder = bestOrder.slice(0, i).concat(bestOrder.slice(i, j + 1).reverse(), bestOrder.slice(j + 1));
           best = candidate;
           bestScore = score;
           improved = true;
@@ -5627,7 +6203,7 @@ function itinTwoOptImprove(names) {
       }
     }
   }
-  return { route: best, km: itinRouteTotalKmFor(best) };
+  return { route: best, km: itinRouteTotalKmFor(best), order: bestOrder };
 }
 
 // A single string like "A ← B ← C" mixes RTL page context with Latin place
@@ -5645,7 +6221,7 @@ function itinRenderOptimizationSuggestion() {
   if (itinRoute.length < 4) { box.innerHTML = ''; return; }
 
   const currentKm = itinRouteTotalKmFor(itinRoute);
-  const { route: betterRoute, km: betterKm } = itinTwoOptImprove(itinRoute);
+  const { route: betterRoute, km: betterKm, order: betterOrder } = itinTwoOptImprove(itinRoute);
   const savedKm = currentKm - betterKm;
   const currentHours = itinRouteTotalHoursFor(itinRoute);
   const betterHours = itinRouteTotalHoursFor(betterRoute);
@@ -5675,16 +6251,21 @@ function itinRenderOptimizationSuggestion() {
       '<button type="button" class="it-optimize-apply" onclick="itinApplyOptimizedRoute()">✓ אמצו את הסדר הזה</button>' +
     '</div>';
   itinPendingOptimizedRoute = betterRoute;
+  itinPendingOptimizedOrder = betterOrder;
 }
 
 let itinPendingOptimizedRoute = null;
+let itinPendingOptimizedOrder = null; // for each position in the pending route, where that stop sat in the current route
 let itinEditingStopIndex = null; // index into itinRoute whose nights stepper is currently open
 let itinSummaryExpandedStop = null; // name of the stop whose full info is expanded inline in the summary list
 let itinSummaryGeneration = 0; // bumped every time itinShowSummary runs, so a slow async response from a route that's since changed can never overwrite the current one
 function itinApplyOptimizedRoute() {
   if (!itinPendingOptimizedRoute) return;
   itinRoute = itinPendingOptimizedRoute.slice();
+  itinExtraNights = itinPendingOptimizedOrder.map(i => itinExtraNights[i] || 0);
   itinPendingOptimizedRoute = null;
+  itinPendingOptimizedOrder = null;
+  itinEditingStopIndex = null;
   itinRender();
 }
 
@@ -5720,7 +6301,7 @@ function itinBuildCharacterSummary(stops) {
   const regionLabels = regions.map(r => ITIN_REGION_LABELS[r] || r);
 
   const overnightStops = stops.filter(d => itinParseNightsNum(d.nights) > 0);
-  const totalNights = stops.reduce((s, d) => s + itinGetNights(d), 0);
+  const totalNights = stops.reduce((s, d, i) => s + itinGetNights(d, i), 0);
   const avgNightsPerStop = overnightStops.length ? (totalNights / overnightStops.length) : 0;
   const paceText = avgNightsPerStop < 1.5
     ? 'קצב מהיר, הרבה תזוזה בין מקומות'
@@ -5733,7 +6314,7 @@ function itinBuildCharacterSummary(stops) {
   else if (popularCount > hiddenCount * 1.5) crowdText = 'כולל בעיקר יעדים תיירותיים ומוכרים';
   else crowdText = 'משלב יעדים מוכרים עם יעדים פחות מתויירים';
 
-  const dayTrips = stops.filter(d => itinGetNights(d) === 0).length;
+  const dayTrips = stops.filter((d, i) => itinGetNights(d, i) === 0).length;
 
   let text = 'מסלול של ' + stops.length + ' תחנות ב-' + regions.length + (regions.length === 1 ? ' אזור' : ' אזורים') +
     (regionLabels.length ? ': ' + regionLabels.join(', ') : '') + '. ' + paceText +
@@ -5807,7 +6388,7 @@ function itinRenderSummaryMap() {
       iconSize: [size, size], iconAnchor: [size / 2, size / 2], popupAnchor: [0, -size / 2],
     });
     L.marker([d.lat, d.lng], { icon }).addTo(itinSummaryLeafletMap)
-      .bindPopup('<b>' + (i + 1) + '. ' + d.name + '</b><br>' + itinNightsLabel(d));
+      .bindPopup('<b>' + (i + 1) + '. ' + d.name + '</b><br>' + itinNightsLabel(d, i));
 
     if (i > 0) {
       const prev = stops[i - 1];
@@ -5835,7 +6416,7 @@ function itinRenderSummaryList() {
   let totalDays = 0;
   const routeDates = itinRouteDates();
   listEl.innerHTML = stops.map((d, i) => {
-    const days = itinGetNights(d);
+    const days = itinGetNights(d, i);
     totalDays += days;
     const stopDates = routeDates ? routeDates.stops[i] : null;
     const datesHtml = stopDates ? '<div class="it-summary-dates">' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + '</div>' : '';
@@ -5852,17 +6433,23 @@ function itinRenderSummaryList() {
     const detailHtml = isExpanded
       ? '<div class="it-summary-detail">' + itinDestCardHtml(d, { expanded: true }) + '</div>'
       : '';
-    return connector + '<div class="it-summary-row">' +
+    const q = d.name.replace(/'/g, "\\'");
+    return '<div class="it-summary-stop">' + connector + '<div class="it-summary-row">' +
       '<div class="it-summary-num">' + (i + 1) + '.</div>' +
-      '<div class="it-summary-name" aria-expanded="' + isExpanded + '" onclick="itinToggleSummaryDetail(\'' + d.name.replace(/'/g, "\\'") + '\')">' + d.name + (isExpanded ? ' ▾' : ' ▸') + datesHtml + '</div>' +
-      '<div class="it-summary-nights">' + itinNightsLabel(d) + '</div></div>' +
-      detailHtml;
+      '<div class="it-summary-name" aria-expanded="' + isExpanded + '" onclick="itinToggleSummaryDetail(\'' + q + '\')">' + d.name + (isExpanded ? ' ▾' : ' ▸') + datesHtml + '</div>' +
+      '<div class="it-summary-nights">' + itinNightsLabel(d, i) + '</div></div>' +
+      '<div class="it-summary-controls">' + itinDragHandleHtml(i, d.name) +
+        (i > 0 ? '<button type="button" class="it-icon-btn" aria-label="הזיזו את ' + d.name + ' למעלה" onclick="itinMoveStop(' + i + ', -1)">↑</button>' : '') +
+        (i < stops.length - 1 ? '<button type="button" class="it-icon-btn" aria-label="הזיזו את ' + d.name + ' למטה" onclick="itinMoveStop(' + i + ', 1)">↓</button>' : '') +
+        itinStepperHtml(i, d.name) +
+        (i > 0 ? '<button type="button" class="it-icon-btn it-summary-remove" aria-label="הסירו את ' + d.name + ' מהמסלול" onclick="itinFocusKey=\'drag' + (i - 1) + '\';itinRemoveStop(' + i + ')">✕</button>' : '') +
+      '</div>' + detailHtml + '</div>';
   }).join('');
   return { stops, totalDays };
 }
 
 async function itinFetchAiRouteSummary(stops) {
-  const route = stops.map(d => ({ name: d.name, region: d.region, nights: itinGetNights(d), who: d.who, what: d.what, crowd: d.crowd || null }));
+  const route = stops.map((d, i) => ({ name: d.name, region: d.region, nights: itinGetNights(d, i), who: d.who, what: d.what, crowd: d.crowd || null }));
 
   try {
     const resp = await fetch(AI_SEARCH_WORKER_URL, {
@@ -5911,13 +6498,32 @@ function itinBuildCriteriaText() {
 
 function itinShowSummary() {
   itinCloseAddSheet();
-  itinSummaryGeneration++;
-  const myGeneration = itinSummaryGeneration;
   document.getElementById('itinExportNote').innerHTML = '';
   document.getElementById('itinAiResponse').innerHTML = '';
   document.getElementById('itinAiQuestion').value = itinBuildCriteriaText() +
     ' תעברו עליו: יש משהו הגיוני יותר לשנות, יעד שכדאי להוסיף או להוריד, או סדר שהייתי צריך לשקול מחדש?';
   itinSummaryExpandedStop = null;
+  document.getElementById('itinPublishBox').hidden = true;
+  document.getElementById('itinPublishBtn').setAttribute('aria-expanded', 'false');
+  itinRenderSummaryContent(true);
+  itinShowScreen('itinSummaryScreen');
+  itinRenderSummaryMap();
+}
+
+// Re-renders the open summary after an edit. The AI character call waits until the edits stop, so it fires once.
+function itinRefreshSummary(focusKey) {
+  document.getElementById('itinExportNote').innerHTML = '';
+  document.getElementById('itinAiResponse').innerHTML = '';
+  itinRenderSummaryContent(false);
+  itinRenderSummaryMap();
+  const target = focusKey && document.querySelector('#itinSummaryList [data-f="' + focusKey + '"]');
+  if (target && !target.disabled) target.focus();
+  itinFocusKey = null;
+}
+
+function itinRenderSummaryContent(fetchAiNow) {
+  itinSummaryGeneration++;
+  const myGeneration = itinSummaryGeneration;
   const { stops, totalDays } = itinRenderSummaryList();
   const routeDates = itinRouteDates();
 
@@ -5935,11 +6541,14 @@ function itinShowSummary() {
   // a route that no longer exists must never overwrite the current one.
   const characterEl = document.getElementById('itinCharacterSummary');
   characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">אופי הטיול</div>' + itinBuildCharacterSummary(stops) + '</div>';
-  itinFetchAiRouteSummary(stops).then(aiText => {
+  const fetchAi = () => itinFetchAiRouteSummary(stops).then(aiText => {
     if (aiText && myGeneration === itinSummaryGeneration) {
       characterEl.innerHTML = '<div class="it-character-box"><div class="it-character-label">אופי הטיול</div>' + aiText + '</div>';
     }
   });
+  clearTimeout(itinSummaryRefreshTimer);
+  if (fetchAiNow) fetchAi();
+  else itinSummaryRefreshTimer = setTimeout(fetchAi, 800);
 
   // Only surface a note here when there's actually something worth
   // flagging (a real zigzag, or a genuinely better ordering) — a route
@@ -5963,10 +6572,10 @@ function itinShowSummary() {
       '<div class="it-optimize-savings">חיסכון משוער: <b>' + itinFormatHoursValue(savedHours) + '</b> נסיעה · ' + Math.round(savedKm) + ' ק"מ פחות (' + Math.round(savedKm / currentKm * 100) + '%)</div>' +
       '<div class="it-optimize-caveat">מעדיף קשרים תחבורתיים אמיתיים על פני קיצורי דרך בקו אווירי, זו עדיין הערכה.</div></div>';
   }
+  if (itinDraftNote) {
+    warnHtml = '<div class="it-warning-box"><div class="it-warning-label">💡 הערה על הטיוטה</div>המסלול הזה נוצר אוטומטית לפי השאלון.' + itinDraftNote + '</div>' + warnHtml;
+  }
   warnEl.innerHTML = warnHtml;
-
-  itinShowScreen('itinSummaryScreen');
-  itinRenderSummaryMap();
 }
 
 function itinBackToEditing() {
@@ -6071,7 +6680,7 @@ function itinBuildExportText() {
   let totalDays = 0;
   const routeDates = itinRouteDates();
   stops.forEach((d, i) => {
-    const days = itinGetNights(d);
+    const days = itinGetNights(d, i);
     totalDays += days;
     if (i > 0) {
       const prev = stops[i - 1];
@@ -6081,7 +6690,7 @@ function itinBuildExportText() {
       lines.push('   \u2193 ' + mode.emoji + ' ' + mode.label + ', \u05db-' + itinFormatDuration(km, prev.name, d.name) + (direct ? '' : ' (\u05dc\u05d0 \u05e7\u05e9\u05e8 \u05d9\u05e9\u05d9\u05e8 \u05d1\u05d2\u05e8\u05e3)'));
     }
     const stopDates = routeDates ? routeDates.stops[i] : null;
-    lines.push((i + 1) + '. ' + d.name + (stopDates ? ' (' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + ')' : '') + ' \u2014 ' + itinNightsLabel(d));
+    lines.push((i + 1) + '. ' + d.name + (stopDates ? ' (' + itinShortDate(stopDates.checkIn) + ' עד ' + itinShortDate(stopDates.checkOut) + ')' : '') + ' \u2014 ' + itinNightsLabel(d, i));
   });
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
@@ -6105,7 +6714,7 @@ async function itinAskAI() {
   }
 
   const stops = itinRoute.map(name => ITIN_DESTINATIONS.find(x => x.name === name)).filter(Boolean);
-  const route = stops.map(d => ({ name: d.name, region: d.region, nights: itinGetNights(d), who: d.who, what: d.what, crowd: d.crowd || null }));
+  const route = stops.map((d, i) => ({ name: d.name, region: d.region, nights: itinGetNights(d, i), who: d.who, what: d.what, crowd: d.crowd || null }));
   const criteria = itinBuildCriteriaText();
 
   responseEl.innerHTML = '<div class="it-ai-loading">🤖 חושב/ת...</div>';
@@ -6307,7 +6916,7 @@ function itinBuildPdfCoverSvg(stops) {
   const pal = itinPdfPalette();
   const analysis = itinAnalyzeRoute();
   const totalHours = itinRouteTotalHoursFor(itinRoute);
-  const totalDays = stops.reduce((s, d) => s + itinGetNights(d), 0);
+  const totalDays = stops.reduce((s, d, i) => s + itinGetNights(d, i), 0);
   const statsLine = stops.length + ' תחנות · כ-' + totalDays + ' לילות · ' + itinFormatHoursValue(totalHours) + ' נסיעה כוללת · כ-' + analysis.totalKm + ' ק"מ קו אווירי';
   const character = itinBuildCharacterSummary(stops);
   const charLines = itinWrapText(character, W - 130, 15);
@@ -6366,7 +6975,7 @@ function itinBuildPdfDetailSvgs(stops) {
   const blocks = stops.map((d, i) => {
     const emoji = ITIN_DESTINATION_EMOJI[d.name] || '';
     const lines = [{ text: emoji + ' ' + (i + 1) + '. ' + d.name, size: 18, weight: '700', color: pal.titleGold },
-                   { text: itinNightsLabel(d), size: 13, weight: '400', color: pal.mutedText }];
+                   { text: itinNightsLabel(d, i), size: 13, weight: '400', color: pal.mutedText }];
     if (d.anchor) {
       itinWrapText(d.anchor, cardW - cardPad * 2, 14).slice(0, 4).forEach(l => lines.push({ text: l, size: 14, weight: '400', color: pal.bodyText }));
     }
@@ -6553,12 +7162,12 @@ function itinExportHtml() {
     const pal = itinHtmlExportPalette();
     const analysis = itinAnalyzeRoute();
     const totalHours = itinRouteTotalHoursFor(itinRoute);
-    const totalDays = stops.reduce((s, d) => s + itinGetNights(d), 0);
+    const totalDays = stops.reduce((s, d, i) => s + itinGetNights(d, i), 0);
     const statsLine = stops.length + ' תחנות · כ-' + totalDays + ' לילות · ' + itinFormatHoursValue(totalHours) + ' נסיעה כוללת · כ-' + analysis.totalKm + ' ק"מ קו אווירי';
     const character = itinBuildCharacterSummary(stops);
 
-    const stopsJson = JSON.stringify(stops.map(d => ({
-      name: d.name, lat: d.lat, lng: d.lng, nights: itinGetNights(d),
+    const stopsJson = JSON.stringify(stops.map((d, i) => ({
+      name: d.name, lat: d.lat, lng: d.lng, nights: itinGetNights(d, i),
       emoji: ITIN_DESTINATION_EMOJI[d.name] || '', anchor: d.anchor || '',
     })));
 
@@ -6567,7 +7176,7 @@ function itinExportHtml() {
       const emoji = ITIN_DESTINATION_EMOJI[d.name] || '';
       cardsHtml += '<div class="stop-card" id="stop-' + i + '" onclick="focusStop(' + i + ')">' +
         '<div class="stop-top"><span class="stop-num">' + (i + 1) + '</span><span class="stop-name">' + emoji + ' ' + itinEscHtml(d.name) + '</span>' +
-        '<span class="stop-nights">' + itinEscHtml(itinNightsLabel(d)) + '</span></div>' +
+        '<span class="stop-nights">' + itinEscHtml(itinNightsLabel(d, i)) + '</span></div>' +
         (d.anchor ? '<div class="stop-anchor">' + itinEscHtml(d.anchor) + '</div>' : '') +
         '</div>';
       if (i < stops.length - 1) {
