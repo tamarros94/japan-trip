@@ -267,7 +267,9 @@ if (/[?&]debug\b/.test(location.search)) {
   .card-badges .badge { margin: 0; }
   .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--border); }
   .card-by { font-size: 0.8rem; color: var(--muted); }
-  .card-save-btn, .lodging-save-btn { background: none; border: none; font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; position: relative; }
+  .it-more-actions { margin: 10px 0; }
+  .it-more-actions > summary { cursor: pointer; padding: 12px 4px; min-height: 44px; color: var(--muted); font-weight: 600; }
+  .card-save-btn, .lodging-save-btn { background: none; border: none; font-size: 1.15rem; display: inline-flex; align-items: center; line-height: 1; cursor: pointer; color: var(--muted); padding: 0; flex-shrink: 0; position: relative; }
   .card-save-btn::after, .lodging-save-btn::after { content: ""; position: absolute; inset: -14px; }
   .filters-toggle-btn, .ai-toggle-btn, .cselect-trigger, .it-chip, .it-search-input { min-height: 44px; }
   .it-add-btn, .it-home-link, .it-reset-filters-btn { position: relative; }
@@ -1777,20 +1779,23 @@ if (/[?&]debug\b/.test(location.search)) {
     </details>
 
     <h2 class="it-screen-title">ייצוא</h2>
+    <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
+    <details class="it-more-actions"><summary>עוד אפשרויות ייצוא</summary>
     <div class="it-export-row">
-      <button type="button" class="it-export-btn" onclick="itinExportToMaps()">🗺️ פתיחה ב-Google Maps</button>
       <button type="button" class="it-export-btn" onclick="itinExportText()">📋 העתקת המסלול כטקסט</button>
       <button type="button" class="it-export-btn" onclick="itinExportPdf()">📄 הורדת PDF מלא</button>
       <button type="button" class="it-export-btn" onclick="itinExportHtml()">🗺️ הורדת HTML עם מפה חיה</button>
-    </div>
+    </div></details>
     <div id="itinExportNote"></div>
 
+    <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
+    <details class="it-more-actions"><summary>עוד</summary>
     <button type="button" class="it-reset-btn" id="itinPublishBtn" aria-expanded="false" onclick="itinTogglePublish()">פרסמו את המסלול שלי</button>
     <div id="itinPublishBox" class="it-publish-box" hidden></div>
 
-    <button class="it-reset-btn" onclick="itinBackToEditing()">✏️ חזרה לעריכת המסלול</button>
     <button class="it-reset-btn" onclick="itinBackToQuiz()">📝 חזרה לשאלון (לשנות תשובות וליצור מחדש)</button>
     <button class="it-reset-btn" onclick="itinResetRoute()">↺ התחלה חדשה</button>
+    </details>
   </div>
     <div class="it-sheet-overlay" id="itinPlanOverlay" onclick="itinPlanCloseSheet()"></div>
     <div class="it-sheet" id="itinPlanSheet" role="dialog" aria-modal="true" aria-labelledby="itinPlanSheetTitle" tabindex="-1">
@@ -2475,13 +2480,14 @@ function saveSavedRecs(obj) {
   catch (e) { /* storage unavailable, silently skip persistence */ }
   cloudSyncDebounced();
 }
+function heartSvg(filled) { return '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.7 4.5c2 0 3.5 1.1 5.3 3 1.8-1.9 3.3-3 5.3-3 3.7 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="' + (filled ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'; }
 let savedRecs = loadSavedRecs();
 function toggleSavedRec(btn, event) {
   event.stopPropagation();
   const key = btn.dataset.key;
   if (!key) return;
   const isSaved = btn.classList.toggle('saved');
-  btn.textContent = isSaved ? '♥' : '♡';
+  btn.innerHTML = heartSvg(isSaved);
   btn.setAttribute('aria-pressed', isSaved);
   if (isSaved) listPut(savedRecs, key, { saved: true, note: (savedRecs[key] && savedRecs[key].note) || '' });
   else listRemove(savedRecs, key);
@@ -2492,7 +2498,7 @@ function applySavedRecMarkers() {
     const key = btn.dataset.key;
     const isSaved = listIsLive(savedRecs[key]);
     btn.classList.toggle('saved', isSaved);
-    btn.textContent = isSaved ? '♥' : '♡';
+    btn.innerHTML = heartSvg(isSaved);
     btn.setAttribute('aria-pressed', isSaved);
   });
 }
@@ -2512,7 +2518,7 @@ function saveSavedLodging(obj) {
 let savedLodging = loadSavedLodging();
 function lodgingSaveBtnHtml(name) {
   const saved = listIsLive(savedLodging[name]);
-  return '<button type="button" class="lodging-save-btn' + (saved ? ' saved' : '') + '" aria-label="שמירת האזור" aria-pressed="' + saved + '" data-key="' + escAttr(name) + '" onclick="toggleSavedLodging(this, event)">' + (saved ? '♥' : '♡') + '</button>';
+  return '<button type="button" class="lodging-save-btn' + (saved ? ' saved' : '') + '" aria-label="שמירת האזור" aria-pressed="' + saved + '" data-key="' + escAttr(name) + '" onclick="toggleSavedLodging(this, event)">' + heartSvg(saved) + '</button>';
 }
 function toggleSavedLodging(btn, event) {
   event.stopPropagation();
@@ -2526,7 +2532,7 @@ function applySavedLodgingMarkers() {
   document.querySelectorAll('.lodging-save-btn').forEach(btn => {
     const saved = listIsLive(savedLodging[btn.dataset.key]);
     btn.classList.toggle('saved', saved);
-    btn.textContent = saved ? '♥' : '♡';
+    btn.innerHTML = heartSvg(saved);
     btn.setAttribute('aria-pressed', saved);
   });
 }
@@ -3942,7 +3948,7 @@ function render() {
           '<div class="card-meta">' + metaHtml + '</div>' +
           '<button type="button" class="card-rating" hidden data-key="' + escAttr('p:' + d.title) + '" data-title="' + escAttr(d.title) + '"></button>' +
         '</div>' +
-        '<button type="button" class="card-save-btn" aria-label="שמירה למועדפים" aria-pressed="false" data-key="' + escAttr(d.title) + '" onclick="toggleSavedRec(this, event)">♡</button>' +
+        '<button type="button" class="card-save-btn" aria-label="שמירה למועדפים" aria-pressed="false" data-key="' + escAttr(d.title) + '" onclick="toggleSavedRec(this, event)">' + heartSvg(false) + '</button>' +
       '</div>' +
       aiReasonHtml +
       '<div class="card-badges">' + communityBadge + personalBadge + vegBadge + bookBadge + tabelogBadge + priceMetaHtml + '</div>' +
@@ -7126,17 +7132,39 @@ function itinPlanRenderHotel() {
   document.getElementById('itinPlanHotelTools').innerHTML =
     (rows.length ? rows.map(r => '<button type="button" class="it-plan-pick" data-name="' + escAttr(r.name) + '" data-url="' + escAttr(r.url) + '"><b>' + esc(r.name) + '</b><span class="myarea-item-meta">' + esc(r.meta) + '</span></button>').join('') : '<div class="myarea-empty">אין מלונות מוכנים לעיר הזו, אפשר להקליד.</div>') +
     '<div class="it-section-label">מלון משלי</div>' +
-    '<input type="text" class="it-search-input" id="itinPlanHotelName" maxlength="80" aria-label="שם המלון">' +
-    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="קישור Google Maps (לא חובה)" aria-label="קישור למלון">' +
+    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="הדביקו קישור Google Maps" aria-label="קישור למלון" onchange="itinPlanHotelLinkChange()" onpaste="setTimeout(itinPlanHotelLinkChange,0)">' +
+    '<input type="text" class="it-search-input" id="itinPlanHotelName" oninput="this.dataset.edited=1" maxlength="80" placeholder="שם המלון" aria-label="שם המלון">' +
+    '<div id="itinPlanHotelStatus" class="myarea-item-meta"></div>' +
     '<button type="button" class="myarea-add-btn" id="itinPlanHotelSave" onclick="itinPlanSaveTypedHotel()">שמירת המלון</button>';
 }
 document.getElementById('itinPlanHotelTools').addEventListener('click', (e) => {
   const btn = e.target.closest('.it-plan-pick');
   if (btn && itinPlanSheetTarget) itinPlanSetHotel(itinPlanSheetTarget.stop, { name: btn.dataset.name, url: btn.dataset.url, note: '' });
 });
+let itinPlanHotelSeq = 0;
+async function itinPlanHotelLinkChange() {
+  const urlEl = document.getElementById('itinPlanHotelUrl'), nameEl = document.getElementById('itinPlanHotelName');
+  const status = document.getElementById('itinPlanHotelStatus');
+  const seq = ++itinPlanHotelSeq;
+  const raw = urlEl.value.trim();
+  let u = parseMapsLink(raw);
+  if (!u) { status.textContent = raw ? 'זה לא קישור של Google Maps.' : ''; return; }
+  let name = placeNameFromMapsLink(u);
+  if (!name) {
+    status.textContent = 'קוראים את הקישור...';
+    const res = await socialCall('resolve_maps_link', { url: raw });
+    if (seq !== itinPlanHotelSeq) return;
+    if (res && res.ok) { name = res.data.name || ''; if (res.data.url) urlEl.value = res.data.url; }
+    else if (!res) { status.textContent = 'קישור קצר אפשר לקרוא רק כשמחוברים. אפשר להקליד את השם.'; return; }
+  }
+  if (name && !nameEl.dataset.edited) nameEl.value = name;
+  status.textContent = name ? 'השם נלקח מהקישור, אפשר לתקן.' : 'לא הצלחנו לקרוא שם, אפשר להקליד אותו.';
+}
 function itinPlanSaveTypedHotel() {
-  const name = document.getElementById('itinPlanHotelName').value.trim();
-  if (!name || !itinPlanSheetTarget) return;
+  const nameEl = document.getElementById('itinPlanHotelName'), status = document.getElementById('itinPlanHotelStatus');
+  let name = nameEl.value.trim();
+  if (!itinPlanSheetTarget) return;
+  if (!name || parseMapsLink(name)) { status.textContent = 'צריך שם למלון, אפשר להדביק קישור למעלה והשם יתמלא.'; return; }
   const u = parseMapsLink(document.getElementById('itinPlanHotelUrl').value);
   itinPlanSetHotel(itinPlanSheetTarget.stop, { name: name.slice(0, 80), url: u ? u.href.slice(0, 600) : '', note: '' });
 }
