@@ -694,6 +694,7 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-summary-name:hover { color: var(--accent); }
   .it-summary-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 0.6rem 0.8rem; margin: 0.2rem 0 0.6rem; }
   .it-summary-nights { font-size: 0.9rem; color: var(--muted); }
+  .it-place-results { max-height: 40vh; overflow-y: auto; }
   .it-plan-pick { display:flex; flex-direction:column; align-items:flex-start; width:100%; min-height:44px; padding:0.4rem 0.6rem; background:none; border:0; border-bottom:1px solid var(--border); color:var(--ink); font-family:inherit; text-align:start; cursor:pointer; }
   .it-plan { margin: 0.3rem 0 0.6rem; padding: 0.3rem 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
   .it-plan > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
@@ -2859,7 +2860,7 @@ function parseMapsLink(raw) {
 const mapsLinkLooksValid = (raw) => !!parseMapsLink(raw);
 function placeNameFromMapsLink(u) {
   const m = u.pathname.match(/\/maps\/place\/([^/]+)/);
-  const raw = m ? m[1] : (u.searchParams.get('q') || '');
+  const raw = m ? m[1] : (u.searchParams.get('q') || u.searchParams.get('query') || '');
   try {
     const name = decodeURIComponent(raw.replace(/\+/g, ' ')).trim();
     return name && !/^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(name) ? name : '';
@@ -7023,7 +7024,7 @@ function itinPlanRenderList() {
     : '<div class="myarea-empty">' + (q ? 'לא נמצאו מקומות.' : 'עוד לא שמרתם מקומות. אפשר לחפש.') + '</div>';
 }
 document.getElementById('itinPlanList').addEventListener('click', (e) => {
-  const btn = e.target.closest('.it-plan-pick');
+  const btn = e.target.closest('.it-plan-pick[data-title]');
   if (btn) itinPlanAdd({ type: 'place', ref: btn.dataset.title, note: '' });
 });
 function itinPlanAddNote() {
@@ -7083,11 +7084,51 @@ document.getElementById('itinSummaryList').addEventListener('click', (e) => {
 function itinPlanRenderCustom() {
   itinPlanCustomSeq++;
   document.getElementById('itinPlanCustom').innerHTML =
-    '<input type="url" class="it-search-input" id="itinPlanCustomUrl" dir="ltr" maxlength="600" placeholder="https://maps.app.goo.gl/..." aria-label="קישור Google Maps" onchange="itinPlanCustomChange()">' +
+    itinPlaceSearchHtml('custom') +
+    '<input type="url" class="it-search-input" id="itinPlanCustomUrl" dir="ltr" maxlength="600" placeholder="או הדביקו קישור Google Maps" aria-label="קישור Google Maps" onchange="itinPlanCustomChange()">' +
     '<div id="itinPlanCustomStatus" class="myarea-item-meta" role="status"></div>' +
     '<input type="text" class="it-search-input" id="itinPlanCustomName" maxlength="80" aria-label="שם המקום">' +
     '<div id="itinPlanUseSiteRow"></div>' +
     '<button type="button" class="myarea-add-btn" id="itinPlanCustomAdd" onclick="itinPlanAddCustom()">הוסיפו מקום</button>';
+}
+// Google Places search for the hotel and own-place forms, through the worker (search_places).
+let itinPlaceSearchTimer = null, itinPlaceSearchSeq = 0, itinPlaceResults = [];
+const itinPlaceSessionToken = 'ps' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+function itinPlaceSearchHtml(kind) {
+  return '<input type="search" class="it-search-input" id="itinPlaceSearch-' + kind + '" autocomplete="off" aria-label="חיפוש מקום לפי שם" placeholder="חפשו לפי שם, למשל The Bridge Hotel" oninput="itinPlaceSearchInput(\'' + kind + '\')">' +
+    '<div class="it-place-results" id="itinPlaceResults-' + kind + '" role="listbox"></div>';
+}
+function itinPlaceSearchInput(kind) {
+  clearTimeout(itinPlaceSearchTimer);
+  const box = document.getElementById('itinPlaceResults-' + kind);
+  const q = document.getElementById('itinPlaceSearch-' + kind).value.trim();
+  const seq = ++itinPlaceSearchSeq;
+  if (q.length < 2) { box.innerHTML = ''; return; }
+  itinPlaceSearchTimer = setTimeout(async () => {
+    const res = await socialCall('search_places', { query: q, sessionToken: itinPlaceSessionToken });
+    if (seq !== itinPlaceSearchSeq) return;
+    if (!res) { box.innerHTML = '<div class="myarea-item-meta">חיפוש זמין למחוברים. אפשר להדביק קישור.</div>'; return; }
+    if (!res.ok) { box.innerHTML = '<div class="myarea-item-meta">' + (res.status === 429 ? 'הגעת למגבלת החיפושים היומית.' : 'החיפוש לא זמין כרגע.') + ' אפשר להדביק קישור.</div>'; return; }
+    itinPlaceResults = res.data.places || [];
+    box.innerHTML = itinPlaceResults.length
+      ? itinPlaceResults.map((p, i) => '<button type="button" class="it-plan-pick" role="option" onclick="itinPlaceSearchPick(\'' + kind + '\', ' + i + ')"><b>' + esc(p.name) + '</b><span class="myarea-item-meta">' + esc(p.detail) + '</span></button>').join('')
+      : '<div class="myarea-item-meta">לא נמצאו תוצאות.</div>';
+  }, 300);
+}
+function itinPlaceSearchPick(kind, i) {
+  const p = itinPlaceResults[i];
+  if (!p) return;
+  document.getElementById('itinPlaceResults-' + kind).innerHTML = '';
+  document.getElementById('itinPlaceSearch-' + kind).value = '';
+  if (kind === 'hotel') {
+    const nameEl = document.getElementById('itinPlanHotelName');
+    document.getElementById('itinPlanHotelUrl').value = p.url;
+    nameEl.value = p.name; nameEl.dataset.auto = p.name;
+    document.getElementById('itinPlanHotelStatus').textContent = 'נבחר: ' + p.name + (p.detail ? ' (' + p.detail + ')' : '') + '. אפשר לתקן את השם.';
+  } else {
+    document.getElementById('itinPlanCustomUrl').value = p.url;
+    itinPlanCustomChange();
+  }
 }
 let itinPlanCustomSeq = 0;
 async function itinPlanCustomChange() {
@@ -7133,13 +7174,14 @@ function itinPlanRenderHotel() {
   document.getElementById('itinPlanHotelTools').innerHTML =
     (rows.length ? rows.map(r => '<button type="button" class="it-plan-pick" data-name="' + escAttr(r.name) + '" data-url="' + escAttr(r.url) + '"><b>' + esc(r.name) + '</b><span class="myarea-item-meta">' + esc(r.meta) + '</span></button>').join('') : '<div class="myarea-empty">אין מלונות מוכנים לעיר הזו, אפשר להקליד.</div>') +
     '<div class="it-section-label">מלון משלי</div>' +
-    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="הדביקו קישור Google Maps" aria-label="קישור למלון" onchange="itinPlanHotelLinkChange()" onpaste="setTimeout(itinPlanHotelLinkChange,0)">' +
-    '<input type="text" class="it-search-input" id="itinPlanHotelName" oninput="this.dataset.edited=1" maxlength="80" placeholder="שם המלון" aria-label="שם המלון">' +
+    itinPlaceSearchHtml('hotel') +
+    '<input type="url" class="it-search-input" id="itinPlanHotelUrl" dir="ltr" maxlength="600" placeholder="או הדביקו קישור Google Maps" aria-label="קישור למלון" onchange="itinPlanHotelLinkChange()" onpaste="setTimeout(itinPlanHotelLinkChange,0)">' +
+    '<input type="text" class="it-search-input" id="itinPlanHotelName" maxlength="80" placeholder="שם המלון" aria-label="שם המלון">' +
     '<div id="itinPlanHotelStatus" class="myarea-item-meta"></div>' +
     '<button type="button" class="myarea-add-btn" id="itinPlanHotelSave" onclick="itinPlanSaveTypedHotel()">שמירת המלון</button>';
 }
 document.getElementById('itinPlanHotelTools').addEventListener('click', (e) => {
-  const btn = e.target.closest('.it-plan-pick');
+  const btn = e.target.closest('.it-plan-pick[data-name]');
   if (btn && itinPlanSheetTarget) itinPlanSetHotel(itinPlanSheetTarget.stop, { name: btn.dataset.name, url: btn.dataset.url, note: '' });
 });
 let itinPlanHotelSeq = 0;
@@ -7158,7 +7200,8 @@ async function itinPlanHotelLinkChange() {
     if (res && res.ok) { name = res.data.name || ''; if (res.data.url) urlEl.value = res.data.url; }
     else if (!res) { status.textContent = 'קישור קצר אפשר לקרוא רק כשמחוברים. אפשר להקליד את השם.'; return; }
   }
-  if (name && !nameEl.dataset.edited) nameEl.value = name;
+  // Overwrite the name unless the user typed something different from the last autofill
+  if (name && (!nameEl.value.trim() || nameEl.value === nameEl.dataset.auto)) { nameEl.value = name; nameEl.dataset.auto = name; }
   status.textContent = name ? 'השם נלקח מהקישור, אפשר לתקן.' : 'לא הצלחנו לקרוא שם, אפשר להקליד אותו.';
 }
 function itinPlanSaveTypedHotel() {
