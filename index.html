@@ -532,14 +532,14 @@ if (/[?&]debug\b/.test(location.search)) {
   .it-ov-header b { color: var(--ink); }
   .it-ov-list { display: flex; flex-direction: column; gap: 10px; margin: 0.8rem 0; }
   .it-ov-stop { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
-  .it-ov-stop > summary { list-style: none; cursor: pointer; padding: 12px 14px; min-height: 44px; display: flex; flex-direction: column; gap: 4px; }
+  .it-ov-stop > summary { list-style: none; cursor: pointer; padding: 8px 14px; min-height: 44px; display: flex; flex-direction: column; gap: 4px; }
   .it-ov-stop > summary::-webkit-details-marker { display: none; }
   .it-ov-name { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
   .it-ov-sub, .it-ov-hotel, .it-ov-count { font-size: 0.8rem; color: var(--muted); overflow-wrap: anywhere; }
   .it-ov-hotel a, .it-ov-hint { color: inherit; text-decoration: underline; }
   .it-ov-edit { width: 100%; margin: 0.6rem 0; }
   .it-ov-toolbar { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
-  .it-ov-hint { background: none; border: 0; padding: 0; font: inherit; min-height: 44px; margin: -12px 0; display: inline-flex; align-items: center; cursor: pointer; }
+  .it-ov-hint { background: none; border: 0; padding: 0; font: inherit; min-height: 44px; display: inline-flex; align-items: center; cursor: pointer; }
   .it-ov-day { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
   .it-ov-day-title { font-weight: 600; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
   .it-ov-items { margin: 0; padding-inline-start: 1.1rem; }
@@ -2031,7 +2031,7 @@ let priceFilter = "";
 let subcatFilter = "";
 
 // AI search state
-const AI_SEARCH_WORKER_URL = "https://japan-trip-ai-search.tamarjapan.workers.dev";
+const AI_SEARCH_WORKER_URL = "https://api.tamaru-hamaru.com";
 
 // A random anonymous id, generated once and kept in localStorage (never a
 // cookie, never sent anywhere except as a plain field in our own request
@@ -2645,6 +2645,7 @@ function initGoogleSignIn(attempt = 0) {
     client_id: GOOGLE_CLIENT_ID,
     callback: handleGoogleCredential,
     auto_select: true,
+    use_fedcm_for_prompt: true, // Chrome is making FedCM mandatory for the One Tap prompt (Google's console warning)
   });
   google.accounts.id.renderButton(document.getElementById('googleSignInBtn'), {
     theme: 'outline', size: 'medium', text: 'signin', shape: 'pill', locale: 'iw',
@@ -2657,10 +2658,9 @@ function initGoogleSignIn(attempt = 0) {
     // suggestions, notifications, sync), which is what phones hit when the browser suppresses the silent reconnect.
     // So when it does not come back, show the sign in button instead of a signed in look that does nothing.
     const giveUp = () => { if (!currentIdToken) showSignedOutUI(); };
-    google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) giveUp();
-    });
-    setTimeout(giveUp, 8000); // some browsers never call back
+    // The moment status methods (isNotDisplayed and friends) are deprecated with FedCM, so only the timer gives up.
+    google.accounts.id.prompt();
+    setTimeout(giveUp, 8000);
   } else {
     google.accounts.id.prompt();
   }
@@ -5038,6 +5038,7 @@ function itinSnapshotForUndo() {
 function itinUndo() {
   if (itinUndoStack.length === 0) return;
   const snap = itinUndoStack.pop();
+  if (snap.route.join('|') !== itinRoute.join('|')) { itinPlanOpen.clear(); itinOverviewOpen.clear(); }
   itinRoute = snap.route;
   itinExtraNights = snap.extraNights;
   itinPlan = snap.plan;
@@ -6612,7 +6613,7 @@ function itinRender() {
   }
   itinSaveState();
   if (summaryOpen) itinRefreshSummary(summaryFocusKey);
-  if (document.getElementById('itinOverviewScreen').style.display === 'block') itinRenderOverview();
+  if (document.getElementById('itinOverviewScreen').style.display === 'block') { itinRenderOverview(); itinRenderStopsMap('itinOverviewMap'); }
 }
 // On page load, offer to resume a route saved by an earlier visit (or an accidental refresh or tab close).
 itinGoStart();
@@ -6785,6 +6786,7 @@ function itinApplyOptimizedRoute() {
   itinPendingOptimizedRoute = null;
   itinPendingOptimizedOrder = null;
   itinEditingStopIndex = null;
+  itinPlanOpen.clear(); itinOverviewOpen.clear();
   itinRender();
 }
 
@@ -6884,7 +6886,7 @@ function itinRenderMiniMap() {
   setTimeout(() => itinMiniLeafletMap.invalidateSize(), 50);
 }
 
-let itinStopsMaps = {}; // container id -> Leaflet map, one per screen that shows the route
+let itinStopsMaps = {}; // container id to Leaflet map, one per screen that shows the route
 
 function itinRenderStopsMap(containerId) {
   if (typeof L === 'undefined') return;
